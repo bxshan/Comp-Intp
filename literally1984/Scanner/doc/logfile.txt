@@ -1,0 +1,48 @@
+Class documentation
+<---- javadoc command: ---->
+javadoc
+-author
+-version
+-nodeprecated
+-tag
+precondition:a:Precondition:
+-tag
+postcondition:a:Postcondition:
+-tag
+param
+-tag
+return
+-private
+-Xdoclint:none
+-noindex
+-notree
+-nohelp
+-nonavbar
+-source
+17
+-classpath
+/Applications/BlueJ.app/Contents/Java/bluejcore.jar:/Applications/BlueJ.app/Contents/Java/javafx-fxml-20.0.1.jar:/Applications/BlueJ.app/Contents/Java/javafx-base-20.0.1.jar:/Applications/BlueJ.app/Contents/Java/javafx-graphics-20.0.1.jar:/Applications/BlueJ.app/Contents/Java/javafx-controls-20.0.1.jar:/Applications/BlueJ.app/Contents/Java/javafx-fxml-20.0.1-mac.jar:/Applications/BlueJ.app/Contents/Java/javafx-controls-20.0.1-mac.jar:/Applications/BlueJ.app/Contents/Java/javafx-web-20.0.1-mac.jar:/Applications/BlueJ.app/Contents/Java/javafx-media-20.0.1.jar:/Applications/BlueJ.app/Contents/Java/javafx-base-20.0.1-mac.jar:/Applications/BlueJ.app/Contents/Java/javafx-media-20.0.1-mac.jar:/Applications/BlueJ.app/Contents/Java/javafx-graphics-20.0.1-mac.jar:/Applications/BlueJ.app/Contents/Java/javafx-swing-20.0.1-mac.jar:/Applications/BlueJ.app/Contents/Java/junit-4.12.jar:/Applications/BlueJ.app/Contents/Java/junit-jupiter-params-5.5.2.jar:/Applications/BlueJ.app/Contents/Java/junit-jupiter-api-5.5.2.jar:/Applications/BlueJ.app/Contents/Java/junit-jupiter-engine-5.5.2.jar:/Applications/BlueJ.app/Contents/Java/junit-platform-suite-api-1.5.2.jar:/Applications/BlueJ.app/Contents/Java/junit-vintage-engine-5.5.2.jar:/Applications/BlueJ.app/Contents/Java/junit-jupiter-5.5.2.jar:/Applications/BlueJ.app/Contents/Java/junit-platform-engine-1.5.2.jar:/Applications/BlueJ.app/Contents/Java/junit-platform-launcher-1.5.2.jar:/Applications/BlueJ.app/Contents/Java/junit-platform-commons-1.5.2.jar:/Applications/BlueJ.app/Contents/Java/hamcrest-core-1.3.jar:/Applications/BlueJ.app/Contents/Java/opentest4j-1.2.0.jar:/Applications/BlueJ.app/Contents/Java/lang-stride.jar:/Applications/BlueJ.app/Contents/Java/javafx/javafx.base.jar:/Applications/BlueJ.app/Contents/Java/javafx/javafx.controls.jar:/Applications/BlueJ.app/Contents/Java/javafx/javafx.fxml.jar:/Applications/BlueJ.app/Contents/Java/javafx/javafx.graphics.jar:/Applications/BlueJ.app/Contents/Java/javafx/javafx.media.jar:/Applications/BlueJ.app/Contents/Java/javafx/javafx.properties.jar:/Applications/BlueJ.app/Contents/Java/javafx/javafx.swing.jar:/Applications/BlueJ.app/Contents/Java/javafx/javafx.web.jar:/Applications/BlueJ.app/Contents/Java/userlib/gridworld.jar:/Applications/BlueJ.app/Contents/Java/userlib/KarelJRobot.jar:/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner
+-d
+/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner/doc
+-encoding
+UTF-8
+-charset
+UTF-8
+/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner/Scanner.java
+<---- end of javadoc command ---->
+Loading source file /Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner/Scanner.java...
+Constructing Javadoc information...
+Standard Doclet version 17.0.4.1+1
+Building tree for all the packages and classes...
+Generating /Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner/doc/Scanner.html...
+/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner/Scanner.java:13: warning: invalid input: '<'
+ * <= >= <> := == are single token
+   ^
+/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner/Scanner.java:13: warning: invalid input: '<'
+ * <= >= <> := == are single token
+         ^
+Generating /Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner/doc/package-summary.html...
+Generating /Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner/doc/constant-values.html...
+Generating /Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/literally1984/Scanner/doc/index.html...
+Note: Custom tags that could override future standard tags:  @precondition, @postcondition. To avoid potential overrides, use at least one period character (.) in custom tag names.
+2 warnings

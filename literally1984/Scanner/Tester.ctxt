@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=Tester
+comment0.text=\n\ A\ tester\ for\ the\ Scanner\ class.\ \n\ @author\ Boxuan\ Shan\n\ @version\ 1.0\n\ \ \n\ Usage\:\n\ Test\ different\ methods\ in\ the\ Scanner\ class\n
+comment1.params=s
+comment1.target=void\ test1(Scanner)
+comment1.text=\n\ Prints\ out\ each\ token\ from\ the\ input\ path\ until\ EOF.\ \n\ @param\ s\ Scanner\ object\ to\ test\ \n
+comment2.params=
+comment2.target=void\ test2()
+comment2.text=\n\ tests\ some\ static\ methods\ on\ scanner.\n\ everything\ should\ print\ true.\n
+comment3.params=args
+comment3.target=void\ main(java.lang.String[])
+comment3.text=\n\ Main\ method\n\ @param\ args\ cmd\ line\ args\n\ @throws\ FileNotFoundException\ if\ specified\ file\ in\ dir\ does\ not\ exist\n
+numComments=4
