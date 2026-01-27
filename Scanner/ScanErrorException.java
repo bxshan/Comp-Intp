@@ -1,3 +1,4 @@
+package scanner;
 /**
  * ScanErrorException is a sub class of Exception and is thrown to indicate a 
  * scanning error.  Usually, the scanning error is the result of an illegal 
@@ -6,18 +7,21 @@
  * @author Mr. Page
  * @version 062014
  */
-public class ScanErrorException extends Exception {
+public class ScanErrorException extends Exception 
+{
     /**
      * default constructor for ScanErrorObjects
      */
-    public ScanErrorException() {
+    public ScanErrorException() 
+    {
         super();
     }
     /**
      * Constructor for ScanErrorObjects that includes a reason for the error
-     * @param reason
+     * @param reason reasong for error throw
      */
-    public ScanErrorException(String reason) {
+    public ScanErrorException(String reason) 
+    {
         super(reason);
     }
 }

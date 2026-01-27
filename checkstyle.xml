@@ -1,0 +1,727 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+          "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+          "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--  update format for checkstyle 10 -->
+<!-- modified to work by Elaine Xu -->
+
+<!--
+    Checkstyle configuration based on the Google coding convetions, but with some changes
+    for the IDATA1001 Programming 1 course at NTNU:
+
+      * Indentation level increased from 2 to 4
+      * LeftCurly starts on new line
+
+    Checkstyle configuration that checks the Google coding conventions from Google Java Style
+    that can be found at https://google.github.io/styleguide/javaguide.html
+    Checkstyle is very configurable. Be sure to read the documentation at
+    http://checkstyle.org (or in your downloaded distribution).
+    To completely disable a check, just comment it out or delete it from the file.
+    To suppress certain violations please review suppression filters.
+    Authors: Max Vetrenko, Ruslan Diachenko, Roman Ivanov.
+    
+    Harker updates from July 2023
+    Harker updates from Sept 2023 
+
+    jan 2025: i (elaine) updated it a bit for atcs .. sort of ... so it works cuz the other atcs one didnt rly aaaah
+    
+ -->
+
+<module name="Checker">
+  <module name="SuppressWarningsFilter"/>
+
+  <property name="charset" value="UTF-8"/>
+
+  <property name="severity" value="warning"/>
+
+  <property name="fileExtensions" value="java, properties, xml"/>
+  <!-- Excludes all 'module-info.java' files              -->
+  <!-- See https://checkstyle.org/config_filefilters.html -->
+  <module name="BeforeExecutionExclusionFileFilter">
+    <property name="fileNamePattern" value="module\-info\.java$"/>
+  </module>
+  <!-- https://checkstyle.org/config_filters.html#SuppressionFilter -->
+  <module name="SuppressionFilter">
+    <property name="file" value="${org.checkstyle.google.suppressionfilter.config}"
+           default="checkstyle-suppressions.xml" />
+    <property name="optional" value="true"/>
+  </module>
+
+
+    <!-- 
+    Edited CheckStyleChecks for Harker CS "beginner":
+     edits made: 
+       √ Added checks based on templates 
+       √ allow magic number 
+       √ required new line for left curly brace
+       √ ignore import order, (not require alphabetically)
+       √ not require first sentence end in period. 
+       √ added AvoidNestedBlocks check 
+       √ added other tests from previous config file harker_cs_2.xml 
+       √ disallow charAt for beginner code.  
+       √ added other helpful checks 
+       √ allow underscore 
+
+Sept 2023:  
+
+edit to allow more capital letters for abbreviations i.e. ZBug, 
+and all caps for constants 
+
+edit to allow 1 return from a void method 
+
+edit to allow 2nd letter in variable name to be upper case 
+
+edit rightcurly for try-catch  
+
+
+     -->
+     
+     
+     <!-- Editing for Harker CS : todo:  
+     edits to make:  
+              
+       create a post-AP version, add some more whitespace checks but allow switch etc 
+       
+       
+       <module name="TypeName">
+        	<property name="format"
+              value="^[A-Z]+([a-zA-Z_][a-zA-Z0-9_]*)*$"/>
+        </module>
+
+ 
+ <module name="IllegalIdentifierName"/>
+ 
+     
+       Double check that these are done: ?    
+       ease up on whitespace , 
+       not require  precondition preceded by empty line
+    --> 
+    
+    <!-- Harker CS -->
+<!--  TO DO ease up on whitespace , 
+          maybe keep Whitespace check for   LNOT, does not accept LNOT
+-->
+    <!-- -->
+    <!-- Harker CS not using packages yet  
+    <module name="PackageDeclaration"/>
+    -->
+
+  
+  <!-- Harker CS -->
+  <!--   Added checks based on templates  -->
+   <!--   revised setDelay check Aug 2024  -->
+  <module name="RegexpSingleline">
+    <property name="format" value="World.setDelay\([3-9]+\);"/>
+    <property name="message" value="Set the delay to 1 or 2 "/>
+  </module>
+  
+    <module name="RegexpSingleline">
+    <property name="format" value="World.setDelay\([1-9][0-9]+\);"/>
+    <property name="message" value="Set the delay to 1 or 2 "/>
+  </module>
+  
+  
+  <module name="RegexpSingleline">
+    <property name="format"  value="^[\s]*[\S][\s]*(Write|Place) a.*here\.\s*$"/>
+    <property name="message" value="Please write your own descriptive comment."/>
+  </module>
+  <module name="RegexpSingleline">
+        <property name="format"
+            value="^\s*\*\s*@author\s*\(.*\)\s*$"/>
+        <property name="message"
+            value="Please remove parenthesis around your name"/>
+  </module>
+  <module name="RegexpSingleline">
+        <property name="format"
+            value="^\s*\*\s*@version\s*\(.*\)\s*$"/>
+        <property name="message"
+            value="Please remove parenthesis around your version"/>
+  </module>
+  <module name="RegexpSingleline">
+        <property name="format"
+            value="^\s*\*\s*@author.*\(your name\)"/>
+        <property name="message"
+            value="Place your own name after the @author tag."/>
+  </module>
+  <module name="RegexpSingleline">
+        <property name="format"
+            value="^\s*\*\s*@version.*\(a version number or a date\)"/>
+        <property name="message"
+            value="Place the date after the @version tag."/>
+  </module>
+  
+  <module name="RegexpSingleline">
+      <property name="format"  value="Add your documentation here"/>
+      <property name="message" value="Please write your own descriptive documentation."/>
+  </module>
+  
+  <module name="RegexpSingleline">
+    <property name="format"  value="Add your code here"/>
+    <property name="message" value="Please write your own appropriate code."/>
+  </module>
+  
+  <module name="RegexpSingleline">
+    <property name="format"  value="An example of a method"/>
+    <property name="message" value="replace this comment with your own"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format"  value="a sample parameter"/>
+    <property name="message" value="Please write your own descriptive documentation."/>
+  </module>
+  
+  <module name="RegexpSingleline">
+        <property name="format"
+            value=".*@precondition\s*$"/>
+        <property name="message"
+            value="Either add the description after the @precondition tag, or remove the tag."/>
+  </module>
+  <module name="RegexpSingleline">
+          <property name="format"
+            value="^\s*\*\s*@postcondition[\s]*$"/>
+        <property name="message"
+            value="Either add the postcondtion or remove the tag."/>
+  </module>
+  <module name="RegexpSingleline">
+          <property name="format"
+            value="^\s*\*\s*@param[\s]*$"/>
+        <property name="message"
+            value="Either add the param description or remove the tag."/>
+  </module>
+  <module name="RegexpSingleline"> 
+     <property name="format"
+            value="^\s*\*\s*@return[\s]*$"/>
+     <property name="message"
+            value="Either add the return summary or remove the tag."/>
+  </module>
+  
+  <!-- 
+  blueJ autogenerated method comment  
+  @param y A parameter
+  @return The return value    -->
+  
+  <module name="RegexpSingleline">
+        <property name="format"
+            value="^\s*\*\s*@param.*A parameter"/>
+        <property name="message"
+            value="Name and describe the parameter."/>
+  </module>
+  
+  <module name="RegexpSingleline">
+        <property name="format"
+            value="^\s*\*\s*@return.*The return value"/>
+        <property name="message"
+            value="Either add the return summary or remove the tag."/>
+  </module>
+  
+  <!-- Harker CS beginner restrictions
+
+  <module name="RegexpSingleline">
+      <property name="format" value="charAt"/>
+      <property name="message" value="Focus on Strings save char for later. "/>
+  </module>
+
+   -->
+
+
+  
+  <!-- Harker CS end customizations: checks based on templates --> 
+
+  <!-- Checks for whitespace                            -->
+  <!-- See http://checkstyle.org/config_whitespace.html -->
+  <module name="FileTabCharacter">
+    <property name="eachLine" value="true"/>
+  </module>
+
+  <module name="LineLength">
+    <property name="fileExtensions" value="java"/>
+    <property name="max" value="100"/>
+    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+  </module>
+
+  <module name="TreeWalker">
+    <module name="OuterTypeFilename"/>
+    <module name="IllegalTokenText">
+      <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
+      <property name="format"
+               value="\\u00(09|0(a|A)|0(c|C)|0(d|D)|22|27|5(C|c))|\\(0(10|11|12|14|15|42|47)|134)"/>
+      <property name="message"
+               value="Consider using special escape sequence instead of octal value or Unicode escaped value."/>
+    </module>
+    <module name="AvoidEscapedUnicodeCharacters">
+      <property name="allowEscapesForControlCharacters" value="true"/>
+      <property name="allowByTailComment" value="true"/>
+      <property name="allowNonPrintableEscapes" value="true"/>
+    </module>
+    
+
+<!-- Harker CS customizations: group 2 -->  
+
+    <!--   Harker CS  -->
+    <!-- HarkerCS not AvoidStarImport,  also see below:   CustomImportOrder-->
+    <!-- ><module name="AvoidStarImport"/> --> 
+    
+    <!--   Deleted most whitespace checks in template below  --> 
+    <!--   Modified some whitespace checks in template below -->
+
+    <!-- Harker CS beginner restrictions -->
+    <!-- <module name="AvoidInlineConditionals"/> 
+    <module name="IllegalToken">
+       <property name="tokens" value="LITERAL_SWITCH, LITERAL_BREAK, LITERAL_CONTINUE"/> 
+       <message key="illegal.token"
+          value="Using ''{0}'' is not currently allowed. "/>
+    </module>
+    
+    <module name="NeedBraces">
+       <property name="tokens"
+               value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
+       <message key="needBraces"
+          value="''{0}'' recommended to use curly braces '{' '.' '.' '.' '}'"/>
+       <property name="severity" value="warning"/>
+    </module> -->
+    
+    <!-- Harker CS other restrictions -->
+    <module name="AvoidNestedBlocks">
+      <property name="allowInSwitchCase" value="true"/>
+    </module>
+   
+    <module name="ModifiedControlVariable"/>  
+    
+    <module name="MagicNumber"/>
+    
+    <!-- <module name="HiddenField"/>   -->
+    <module name="HiddenField">
+        <property name="ignoreSetter" value="true"/>
+        <property name="setterCanReturnItsClass" value="true"/>
+        <property name="ignoreAbstractMethods" value="true"/>
+        <property name="ignoreConstructorParameter" value="true"/>
+    </module>
+    <!-- <module name="ArrayTypeStyle"/>   already included in template, below -->
+    
+    <module name="InnerAssignment"/>
+    <!--  <module name="InvalidJavadocPosition"/>  -->
+    <module name="JavadocContentLocationCheck"/>
+   
+   <!-- HarkerCS  add this Sept 2023 -->
+   <!-- 
+        needs to be tested
+    -->
+    <module name="JavadocType">
+      <property name="authorFormat" value="\S"/>
+    </module>
+    <module name="JavadocType">
+      <property name="versionFormat" value="\S"/>
+    </module>
+     <!-- 
+    -->
+   
+    <!-- Harker CS helpful -->
+    <module name="SimplifyBooleanExpression"/> 
+    <module name="SimplifyBooleanReturn"/> 
+    <module name="StringLiteralEquality"/>
+    <!-- <module name="UpperEll"/>  already included in template, below -->
+    <module name="TodoComment"/> 
+    <module name="EmptyStatement"/>
+    <module name="RedundantImport"/> 
+    
+    <!-- send both default and custom message   --> 
+    <module name="EqualsHashCode"/>  
+    <module name="EqualsHashCode">
+      <message key="equals.noHashCode"
+          value="Consider using UnsupportedOperationException"/>
+    </module>
+
+    <module name="RequireThis"/>
+
+    <!-- Allow return from void for post AP --> 
+    <!-- Needs the two checks to be separate -->
+    <module name="ReturnCount">
+        <!-- <property name="maxForVoid" value="0"/> -->
+        <property name="tokens" value="CTOR_DEF"/>  
+        <property name="max" value="0"/>
+    </module>    
+    <!--   -->
+    
+    <module name="ReturnCount">
+       <!-- <property name="maxForVoid" value="1"/> -->
+       <property name="tokens" value="METHOD_DEF, LAMBDA"/> 
+       <property name="max" value="5"/>
+    </module>
+
+    <!--  <module name="UnusedLocalVariable"/>  --> 
+    
+    
+   <!-- todo:   --> 
+
+    <!-- --> 
+    
+
+
+<!-- end Harker CS customizations: group 2 -->  
+
+<!-- 
+      <property name="severity" value="warning"/>
+          
+
+   Meesages can be customized.  See: 
+   https://checkstyle.org/config.html#Custom_messages  
+      for keys see:
+      https://checkstyle.org/checks.html
+   An example usage is:
+
+line 418 edit...
+   <module name="MemberName">
+      <property name="format" value="^m[a-zA-Z0-9]*$"/>
+      <message key="name.invalidPattern"
+         value="Member ''{0}'' must start with a lowercase ''m'' (checked pattern ''{1}'')."
+   />
+</module>
+-->
+    
+    <module name="OneTopLevelClass"/>
+    <module name="NoLineWrap">
+      <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
+    </module>
+    <module name="EmptyBlock">
+      <property name="option" value="TEXT"/>
+      <property name="tokens"
+               value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
+    </module>
+    
+
+        
+    <!--   Harker CS  -->
+    <!-- require separate line for LeftCurly  -->
+    <module name="LeftCurly">
+<!-- IDATA1001: changed to nl       -->
+      <property name="option" value="nl"/>
+
+      <property name="tokens"
+               value="CLASS_DEF, ANNOTATION_DEF, ENUM_CONSTANT_DEF, ENUM_DEF,
+                      CTOR_DEF, INTERFACE_DEF, METHOD_DEF, LAMBDA, LITERAL_CASE,
+                      LITERAL_CATCH, LITERAL_DEFAULT,
+                    LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF,
+                    LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE,
+                    OBJBLOCK, STATIC_INIT, RECORD_DEF, COMPACT_CTOR_DEF"/>
+    </module>
+    <!--
+    Harker CS use  RightCurlyAlone for all 
+    
+    <module name="RightCurly">
+      <property name="id" value="RightCurlySame"/>
+      <property name="tokens"
+               value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, 
+                    LITERAL_DO"/>
+    </module>
+    -->
+    <module name="RightCurly">
+      <property name="id" value="RightCurlyAlone"/>
+      <property name="option" value="alone"/>
+      <property name="tokens"
+               value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT,
+                    INSTANCE_INIT, ANNOTATION_DEF, ENUM_DEF, INTERFACE_DEF, RECORD_DEF,
+                    COMPACT_CTOR_DEF, LITERAL_IF, LITERAL_ELSE,
+                    LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, 
+                    LITERAL_DO"/>
+    </module>
+    <module name="SuppressionXpathSingleFilter">
+      <!-- suppresion is required till https://github.com/checkstyle/checkstyle/issues/7541 -->
+      <property name="id" value="RightCurlyAlone"/>
+      <property name="query" value="//RCURLY[parent::SLIST[count(./*)=1]
+                                     or preceding-sibling::*[last()][self::LCURLY]]"/>
+    </module>
+    <!--  Harker CS -->
+    <!--  TO DO ease up on whitespace , 
+          maybe keep Whitespace for   LNOT  doesn't accept LNOT 
+     -->
+      <!--           -->
+    <module name="WhitespaceAfter">
+       <property name="tokens" value="COMMA"/>
+    </module>
+
+           <!-- <property name="tokens" value="COMMA, SEMI"/>   -->
+
+
+    <module name="OneStatementPerLine"/>
+    <module name="MultipleVariableDeclarations"/>
+    <module name="ArrayTypeStyle"/>
+    <!-- <module name="MissingSwitchDefault"/> -->
+    <module name="FallThrough"/>
+    <module name="UpperEll"/>
+    <module name="ModifierOrder"/>
+    <!--<module name="EmptyLineSeparator">
+      <property name="tokens"
+               value="PACKAGE_DEF, IMPORT, STATIC_IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
+                    STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF, VARIABLE_DEF, RECORD_DEF,
+                    COMPACT_CTOR_DEF"/>
+      <property name="allowNoEmptyLineBetweenFields" value="true"/>
+    </module> 
+    -->
+    <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapDot"/>
+      <property name="tokens" value="DOT"/>
+      <property name="option" value="nl"/>
+    </module>
+    <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapComma"/>
+      <property name="tokens" value="COMMA"/>
+      <property name="option" value="EOL"/>
+    </module>
+    <module name="SeparatorWrap">
+      <!-- ELLIPSIS is EOL until https://github.com/google/styleguide/issues/259 -->
+      <property name="id" value="SeparatorWrapEllipsis"/>
+      <property name="tokens" value="ELLIPSIS"/>
+      <property name="option" value="EOL"/>
+    </module>
+    <module name="SeparatorWrap">
+      <!-- ARRAY_DECLARATOR is EOL until https://github.com/google/styleguide/issues/258 -->
+      <property name="id" value="SeparatorWrapArrayDeclarator"/>
+      <property name="tokens" value="ARRAY_DECLARATOR"/>
+      <property name="option" value="EOL"/>
+    </module>
+    <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapMethodRef"/>
+      <property name="tokens" value="METHOD_REF"/>
+      <property name="option" value="nl"/>
+    </module>
+    <module name="PackageName">
+      <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+      <message key="name.invalidPattern"
+             value="Package name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    
+    <!-- MMP  -->
+    <!-- TODO: 
+       merge the values
+          <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+           <module name="TypeName">
+        	<property name="format"
+              value="^[A-Z]+([a-zA-Z_][a-zA-Z0-9_]*)*$"/>
+        </module>
+        
+        [:word:]
+        \w
+        [a-zA-Z_0-9]
+    -->
+    
+    <!-- Harker CS allow underscore_  -->
+    <module name="TypeName">
+      <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
+                    ANNOTATION_DEF, RECORD_DEF"/>
+      <property name="format" value="^[A-Z]+[a-zA-Z_0-9]*$"/>   <!-- MMP -->
+
+      <message key="name.invalidPattern"
+             value="Type name ''{0}'' must match pattern ''{1}''."/>
+    </module> <!--  -->
+    
+    <module name="MemberName">
+      <property name="format" value="^[a-z][a-zA-Z0-9][a-zA-Z0-9]*$"/>
+      <message key="name.invalidPattern"
+             value="Member name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="ParameterName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+             value="Parameter name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="LambdaParameterName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+             value="Lambda parameter name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="CatchParameterName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+             value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="LocalVariableName">
+      <property name="format" value="^[a-z]([a-zA-Z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+             value="Local variable name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="PatternVariableName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+             value="Pattern variable name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="ClassTypeParameterName">
+      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <message key="name.invalidPattern"
+             value="Class type name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <module name="RecordComponentName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+               value="Record component name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="RecordTypeParameterName">
+      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <message key="name.invalidPattern"
+               value="Record type name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="MethodTypeParameterName">
+      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <message key="name.invalidPattern"
+             value="Method type name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="InterfaceTypeParameterName">
+      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <message key="name.invalidPattern"
+             value="Interface type name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <!-- <module name="ConstantName"/>  -->
+    <module name="NoFinalizer"/>
+    
+    
+    <!--  Harker CS deleted here  -->
+
+    <module name="Indentation">
+<!-- IDATA1001: Changed from 2 to 4 -->
+      <property name="basicOffset" value="4"/>
+<!-- IDATA1001: Changed from 2 to 0. When leftcurly on next line -->
+      <property name="braceAdjustment" value="0"/>
+      <property name="caseIndent" value="4"/>
+      <property name="throwsIndent" value="4"/>
+      <property name="lineWrappingIndentation" value="4"/>
+      <property name="arrayInitIndent" value="4"/>
+    </module>
+    
+    <!-- AbbreviationAsWordInName defaults to ignore: 
+    final, static, static final 
+    change so static (non-final should be lower camel case)
+    allow three upperCase in a row  (at least two for ZBug)
+     -->
+    <module name="AbbreviationAsWordInName">
+      <property name="allowedAbbreviationLength" value="2"/>
+      <property name="ignoreFinal" value="true"/>
+      <property name="ignoreStaticFinal" value="true"/>
+      <property name="ignoreStatic" value="false"/>
+      <property name="tokens"
+               value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF,
+                    PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF,
+                    RECORD_COMPONENT_DEF"/>
+    </module>
+    
+    <module name="OverloadMethodsDeclarationOrder"/>
+    
+    <!--   <module name="VariableDeclarationUsageDistance"/>   remove Harker CS -->
+    <!--   <module name="VariableDeclarationUsageDistance">
+       <property name="allowedDistance" value="4"/>
+    </module>   -->
+    
+    <!-- Harker CS -->
+    <!-- also see above: not AvoidStarImport -->
+    <!-- deleted a bunch here --> 
+    
+    <module name="AnnotationLocation">
+      <property name="id" value="AnnotationLocationMostCases"/>
+      <property name="tokens"
+               value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF,
+                      RECORD_DEF, COMPACT_CTOR_DEF"/>
+    </module>
+    <module name="AnnotationLocation">
+      <property name="id" value="AnnotationLocationVariables"/>
+      <property name="tokens" value="VARIABLE_DEF"/>
+      <property name="allowSamelineMultipleAnnotations" value="true"/>
+    </module>
+    <module name="NonEmptyAtclauseDescription"/>
+    
+<!--  Harker CS -->    
+<!-- deleted a bunch here --> 
+
+    <module name="JavadocContentLocationCheck">
+      <property name="location" value="SECOND_LINE"/>
+    </module>    
+    <!--  <module name="JavadocContentLocationCheck"/>   --> 
+    
+    <module name="JavadocMethod">
+<!--      <property name="accessModifiers" value="public"/>  -->
+<!-- IDATx1001: allowMissingParamTags changed from true to false -->
+      <property name="allowMissingParamTags" value="false"/>
+<!-- IDATx1001: allowMissingReturnTags changed from true to false -->
+      <property name="allowMissingReturnTag" value="false"/>
+      <property name="allowedAnnotations" value="Override, Test"/>
+      <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
+    </module>
+    
+    <module name="MissingJavadocMethod">
+      <property name="scope" value="private"/>
+    </module>
+
+<!--
+
+-->
+    <!-- 
+    -->
+    
+    <!-- Need this check to require doc, at least {@inheritDoc}  -->
+    <module name="SummaryJavadoc">
+       <property name="period" value=""/>    <!--  empty means does not check for . -->
+
+    </module>    
+    <!--  use Regexp in place of forbiddenSummaryFragments 
+    <module name="SummaryJavadocCheck">
+        <property name="period" value=""/> 
+        <property name="forbiddenSummaryFragments"
+            value="^\s\S+\sThis method returns.*"/>
+    </module>
+    -->  <!-- 
+    SummaryJavadoc  forbiddenSummaryFragments  doesn't seem to function   
+        value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
+        value="^This method returns.*"/>
+     -->
+
+    <module name="MissingJavadocMethod">
+<!--      <property name="scope" value="public"/> -->
+<!-- IDATx1001: minLineCount changed from 2 to 0. ALL methods SHOULD be cdocumented -->
+      <property name="minLineCount" value="-1"/>
+      <property name="allowedAnnotations" value="Test"/>
+<!--      <property name="allowedAnnotations" value="Override, Test"/> -->
+<!-- IDATx1001: added allowMissingPropertyJavadoc and set to false -->
+      <property name="allowMissingPropertyJavadoc" value="false"/>
+      <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF,
+                                   COMPACT_CTOR_DEF"/>
+    </module>
+    <module name="MissingJavadocType">
+      <property name="scope" value="protected"/>
+      <property name="tokens"
+                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
+                      RECORD_DEF, ANNOTATION_DEF"/>
+      <property name="excludeScope" value="nothing"/>
+    </module>
+    <module name="MethodName">
+      <property name="format" value="^[a-z][a-z0-9]\w*$"/>
+      <message key="name.invalidPattern"
+             value="Method name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+    <module name="SingleLineJavadoc"/>    <!--  delete this? Harker CS -->
+    <module name="EmptyCatchBlock">
+      <property name="exceptionVariableName" value="expected"/>
+    </module>
+    <module name="CommentsIndentation">
+      <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
+    </module>
+    <!-- https://checkstyle.org/config_filters.html#SuppressionXpathFilter -->
+    <module name="SuppressionXpathFilter">
+      <property name="file" value="${org.checkstyle.google.suppressionxpathfilter.config}"
+             default="checkstyle-xpath-suppressions.xml" />
+      <property name="optional" value="true"/>
+    </module>
+    <module name="SuppressWarningsHolder" />
+    <module name="SuppressionCommentFilter">
+      <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)" />
+      <property name="onCommentFormat" value="CHECKSTYLE.ON\: ([\w\|]+)" />
+      <property name="checkFormat" value="$1" />
+    </module>
+    <module name="SuppressWithNearbyCommentFilter">
+      <property name="commentFormat" value="CHECKSTYLE.SUPPRESS\: ([\w\|]+)"/>
+      <!-- $1 refers to the first match group in the regex defined in commentFormat -->
+      <property name="checkFormat" value="$1"/>
+      <!-- The check is suppressed in the next line of code after the comment -->
+      <property name="influenceFormat" value="1"/>
+    </module>
+    
+  </module> <!-- TreeWalker -->
+  
+</module> <!-- checker -->
