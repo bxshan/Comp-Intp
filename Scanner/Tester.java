@@ -28,6 +28,10 @@ public class Tester
         catch (Exception e) 
         {
             System.out.println("!!!uh oh: " + e);
+            e.printStackTrace();
+        }
+        finally
+        {
         }
     }
 
@@ -58,7 +62,7 @@ public class Tester
      */
     public static void main(String[] args) throws FileNotFoundException 
     {
-        String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Scanner/tst5.txt";
+        String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Scanner/tst4.txt";
         FileInputStream fis = new FileInputStream(dir);
         Scanner s = new Scanner(fis);
 

@@ -9,7 +9,7 @@ import java.io.*;
  * Used to scan an input file and sequentially output tokens present in that file
  *
  * TODO:
- * support NESTED block comments \/**\/
+ * support NESTED block comments /**\/
  * method descriptions
  * what should include in OPS?
  */
@@ -86,11 +86,17 @@ public class Scanner
      */
     private void eat(char expected) throws ScanErrorException 
     {
-        if (expected == this.currentChar) this.getNextChar();
-        else throw new ScanErrorException("illegal char: exp. " + 
-                this.currentChar + 
-                " found " + 
-                expected);
+        if (expected == this.currentChar)
+        {
+            this.getNextChar();
+        }
+        else
+        {
+            throw new ScanErrorException("illegal char: exp. " + 
+                    this.currentChar + 
+                    " found " + 
+                    expected);
+        }
     }
 
     /**
@@ -168,7 +174,9 @@ public class Scanner
     {
         String ret = "";
         if (!isDigit(currentChar)) 
+        {
             throw new ScanErrorException("current char not digit: " + currentChar);
+        }
 
         while(this.hasNext() && isDigit(this.currentChar)) 
         {
@@ -189,7 +197,9 @@ public class Scanner
     {
         String ret = "";
         if (!isIdentifier(currentChar)) 
+        {
             throw new ScanErrorException("current char not identifier: " + currentChar);
+        }
 
         while(this.hasNext() && isIdentifier(this.currentChar)) 
         {
@@ -210,7 +220,9 @@ public class Scanner
     {
         String ret = "";
         if (!isOperator(currentChar)) 
+        {
             throw new ScanErrorException("current char not operator: " + currentChar);
+        }
 
         while(this.hasNext() && isOperator(this.currentChar)) 
         {
@@ -223,7 +235,7 @@ public class Scanner
 
     /**
      * @return next token in input: number, identifier or operator
-     * @precondition 
+     * @throws ScanErrorException if expected does not match currentChar
      */
     public String nextToken() throws ScanErrorException 
     {
@@ -277,12 +289,27 @@ public class Scanner
         }
 
         // maybe there are some spaces after comment
-        while(this.hasNext() && isSpace(currentChar)) eat(currentChar);
+        while(this.hasNext() && isSpace(currentChar))
+        {
+            eat(currentChar);
+        }
 
-        if (!this.hasNext()) return "EOF";
+        if (!this.hasNext()) 
+        {
+            return "EOF";
+        }
 
-        if (isDigit(currentChar)) return scanNumber();
-        else if (isLetter(currentChar)) return scanIdentifier();
-        else return scanOperator(); // op
+        if (isDigit(currentChar)) 
+        {
+            return scanNumber();
+        }
+        else if (isLetter(currentChar)) 
+        {
+            return scanIdentifier();
+        } 
+        else 
+        {
+            return scanOperator(); // op
+        }
     }    
 }
