@@ -53,15 +53,14 @@ public class Scanner
     }
 
     /**
-     * returns next character in input, sets this.eof true if reach eof
+     * Returns next character in input, sets this.eof true if reach eof
      */
     private void getNextChar() 
     {
         try
         {
             int r = in.read();
-            // 46 is ascii for period
-            if (r == -1 || r == 46)  this.eof = true;
+            if (r == -1 || r == '.')  this.eof = true;
             else this.currentChar = (char) r;
         } 
         catch (Exception e) 
@@ -78,7 +77,7 @@ public class Scanner
     }
 
     /**
-     * scan to next char if currentChar matches expected
+     * Scan to next char if currentChar matches expected
      * @param expected next character expected in input
      * @precondition currentChar is not last character, e.g. this.eof is false
      * @postcondition advances currentChar by one char, if expected char matches currentChar
@@ -100,6 +99,7 @@ public class Scanner
     }
 
     /**
+     * Returns true if not at end of file
      * @return true if not at end of file
      */
     public boolean hasNext() 
@@ -108,6 +108,7 @@ public class Scanner
     }
 
     /**
+     * Checks if character is a digit
      * @param c character to check
      * @return true if c is a digit between 0 and 9, inclusive
      */
@@ -118,6 +119,7 @@ public class Scanner
 
 
     /**
+     * Checks if character is a letter
      * @param c character to check
      * @return true if c is an upper/lowercase letter
      */
@@ -127,18 +129,18 @@ public class Scanner
     }
 
     /**
+     * Checks if character is a type of space
      * @param c character to check
      * @return true if c is any type of whitespace: '\n', '\r', '\t' and ' '
      */
     // hopefully this casts lol
-    public static boolean isSpace(int c) 
+    public static boolean isSpace(char c) 
     {
-        //          \n         \r         \t        [space]
-        return c == 10 || c == 13 || c == 9 || c == 32;
+        return c == '\n' || c == '\r' || c == '\t' || c == ' ';
     }
 
     /**
-     * used for debug
+     * Used for debug
      * @return the current character being read 
      */
     public char getCurrentChar() 
@@ -147,6 +149,7 @@ public class Scanner
     }
 
     /**
+     * Checks if character is an identifier: letter or digit or '_'
      * @param c character to check
      * @return true if c is either a letter, digit, or an underline
      */
@@ -156,6 +159,7 @@ public class Scanner
     }
 
     /**
+     * Checks if character is an operator; defined by this.OPS
      * @param c character to check
      * @return true if c is an operator, defined by the instance String OPS 
      */
@@ -165,6 +169,7 @@ public class Scanner
     }
 
     /**
+     * Scans the next number that currentChar is on
      * @return the number that currentChar is currently on
      * @precondition isDigit(currentChar) is true, currentChar is on first digit of number
      * @postcondition currentChar is on the character right after the number
@@ -188,6 +193,7 @@ public class Scanner
     }
 
     /**
+     * Scans the next identifier that currentChar is on
      * @return the identifier that currentChar is currently on
      * @precondition isIdentifier(currentChar) is true, currentChar is on first digit of identifier 
      * @postcondition currentChar is on the character right after the identifier 
@@ -211,6 +217,7 @@ public class Scanner
     }
 
     /**
+     * Scans the next operator that currentChar is on
      * @return the operator that currentChar is currently on
      * @precondition isOperator(currentChar) is true, currentChar is on first digit of operator 
      * @postcondition currentChar is on the character right after the operator 
@@ -234,6 +241,7 @@ public class Scanner
     }
 
     /**
+     * Scans the next token in input, throwing away spaces and comments
      * @return next token in input: number, identifier or operator
      * @throws ScanErrorException if expected does not match currentChar
      */
