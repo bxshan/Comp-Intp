@@ -19,7 +19,8 @@ public class Tester
         String t = "";
         try 
         {
-            while(!t.equals("EOF"))
+            // while(!t.equals("EOF"))
+            while(s.hasNext())
             {
                 t = s.nextToken();
                 System.out.println(t);
@@ -62,7 +63,7 @@ public class Tester
      */
     public static void main(String[] args) throws FileNotFoundException 
     {
-        String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Scanner/tst4.txt";
+        String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Scanner/tst5.txt";
         FileInputStream fis = new FileInputStream(dir);
         Scanner s = new Scanner(fis);
 
