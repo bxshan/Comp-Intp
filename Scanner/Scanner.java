@@ -307,17 +307,29 @@ public class Scanner
             return "EOF";
         }
 
+        // System.out.println(this.eof);
+
+        String s;
         if (isDigit(currentChar)) 
         {
-            return scanNumber();
+            // return scanNumber();
+            s = scanNumber();
         }
         else if (isLetter(currentChar)) 
         {
-            return scanIdentifier();
+            // return scanIdentifier();
+            s = scanIdentifier();
         } 
         else 
         {
-            return scanOperator(); // op
+            // return scanOperator(); // op
+            s = scanOperator(); // op
         }
+
+        if (!this.hasNext()) 
+        {
+            s += "\nEOF";
+        }
+        return s;
     }    
 }
