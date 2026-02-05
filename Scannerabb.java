@@ -253,7 +253,7 @@ public class Scannerabb {
    * Whether the scanner is at the end of file.
    * @see #yyatEOF
    */
-  public boolean zzAtEOF;
+  private boolean zzAtEOF;
 
   /**
    * The number of occupied positions in {@link #zzBuffer} beyond {@link #zzEndRead}.

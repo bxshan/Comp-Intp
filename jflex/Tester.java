@@ -18,9 +18,9 @@ public class Tester
         String t = "";
         try 
         {
-            // while(!t.equals("EOF"))
+            while(!s.zzAtEOF)
             // while(s.hasNext())
-            while(true)
+            // while(true)
             {
                 t = s.nextToken();
                 System.out.println(t);

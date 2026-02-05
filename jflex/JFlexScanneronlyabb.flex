@@ -20,7 +20,7 @@ import java.io.*;
 %public
 %function nextToken
 /*  return String objects - the actual lexemes */
-/*  returns the String "END: at end of file */
+/*  returns the String "EOF: at end of file */
 %type String
 %eofval{
 return "EOF";
