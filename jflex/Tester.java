@@ -1,24 +1,24 @@
 import java.io.*;
 /**
- * A tester for the Scannerabb class. 
+ * A tester for the ScannerNobel class. 
  * @author Boxuan Shan
  * @version 1.0
  *  
  * Usage:
- * Test different methods in the Scannerabb class
+ * Test different methods in the ScannerNobel class
  */
 public class Tester
 {
     /**
      * Prints out each token from the input path until EOF. 
-     * @param s Scannerabb object to test 
+     * @param s ScannerNobel object to test 
      */
-    static void test1(Scannerabb s) 
+    static void test1(ScannerNobel s) 
     {
         String t = "";
         try 
         {
-            while(!s.zzAtEOF)
+            while(!s.yyatEOF())
             // while(s.hasNext())
             // while(true)
             {
@@ -46,9 +46,9 @@ public class Tester
      */
     public static void main(String[] args) throws FileNotFoundException 
     {
-        String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/jflex/tst1.txt";
+        String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/jflex/nobel.json";
         java.io.Reader o = new java.io.FileReader(dir);
-        Scannerabb s = new Scannerabb(o);
+        ScannerNobel s = new ScannerNobel(o);
 
         test1(s);
     }
