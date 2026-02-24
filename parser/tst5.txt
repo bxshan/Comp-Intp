@@ -1,0 +1,15 @@
+BEGIN
+  x := 1000001;
+  y := 98;
+  y := y - -1;
+  a := 47;
+  b := 9;
+  c := a + b;
+  WRITELN(1 * x / -(3 + c * -(-8)));
+  WRITELN(1 + 2 + 3 + 4 + 5 + 6 + 7 + y * -(0));
+  BEGIN
+    WRITELN(3);
+  END;
+END;
+.
+    
