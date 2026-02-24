@@ -83,7 +83,7 @@ public class Scanner
      * @postcondition advances currentChar by one char, if expected char matches currentChar
      * @throws ScanErrorException if expected char does not match currentChar
      */
-    private void eat(char expected) throws ScanErrorException 
+    public void eat(char expected) throws ScanErrorException 
     {
         if (expected == this.currentChar)
         {
@@ -231,10 +231,24 @@ public class Scanner
             throw new ScanErrorException("current char not operator: " + currentChar);
         }
 
-        while(this.hasNext() && isOperator(this.currentChar)) 
+        // while(this.hasNext() && isOperator(this.currentChar)) 
+        // {
+        //     System.out.println(this.currentChar);
+        //     ret += currentChar;
+        //     eat(currentChar);
+        // }
+
+        if(this.hasNext() && isOperator(this.currentChar)) 
         {
             ret += currentChar;
             eat(currentChar);
+            if ((ret.equals(":") || ret.equals(">") || ret.equals("<")) && currentChar == '='){
+                eat('=');
+                ret += "=";
+            } else if (ret.equals("<") && currentChar == '>') {
+                eat('>');
+                ret += ">";
+            }
         }
 
         return ret;

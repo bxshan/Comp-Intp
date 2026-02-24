@@ -67,7 +67,7 @@ public class Tester
     public static void main(String[] args) throws FileNotFoundException 
     {
         // String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Scanner/tst5.txt";
-        String dir = "x = x + 3 / 5 - y";
+        String dir = ":= <= <> >=";
         // FileInputStream fis = new FileInputStream(dir);
         // Scanner s = new Scanner(fis);
         Scanner s = new Scanner(dir);
