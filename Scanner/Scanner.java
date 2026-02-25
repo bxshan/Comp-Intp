@@ -248,6 +248,12 @@ public class Scanner
             } else if (ret.equals("<") && currentChar == '>') {
                 eat('>');
                 ret += ">";
+            } else if ((ret.equals("*") && currentChar == ')')) {
+                eat(')');
+                ret += ")";
+            } else if ((ret.equals("(") && currentChar == '*')) {
+                eat('*');
+                ret += "*";
             }
         }
 
