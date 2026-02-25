@@ -27,7 +27,7 @@ import java.io.*;
 %eofval{
 return "EOF";
 %eofval}
-LineTerminator = \r|\n|\r\n
+LineTerminator = \r|\n|\r\n|\n\r
 WhiteSpace = {LineTerminator} | [ \t\f]
 
 /**
