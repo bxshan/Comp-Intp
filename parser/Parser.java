@@ -1,23 +1,24 @@
 package parser;
 import scanner.*;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 public class Parser {
-    Scanner sc;
+    scanner.Scanner sc;
     String ctok;
-    HashMap<String, Integer> v;
+    HashMap<String, Integer> vint;
+    HashMap<String, Boolean> vbool;
 
-    static final Set<String> KEYWORDS = Set.of("BEGIN", "END");
+    static final Set<String> KEYWORDS = Set.of("BEGIN", "END", "WRITELN", "READLN", "EOF", "TRUE", "FALSE");
 
-    public Parser(Scanner sc) throws ScanErrorException {
+    public Parser(scanner.Scanner sc) throws ScanErrorException {
         this.sc = sc;
         this.ctok = this.sc.nextToken();
-        this.v = new HashMap<>();
+        this.vint = new HashMap<String, Integer>();
+        this.vbool = new HashMap<String, Boolean>();
     }
 
     private void eat(String e) throws ScanErrorException {
-        if (e.equals(ctok)) ctok = sc.nextToken();
+        if (e.equals(ctok)) {ctok = sc.nextToken(); /*System.out.println("!EAT" + ctok);*/}
         else throw new IllegalArgumentException("expected \"" + e + "\", actually ctok \"" + ctok + "\"");
     }
 
@@ -27,17 +28,18 @@ public class Parser {
      * @return value of eaten int
      */
     private int parseNumber() throws ScanErrorException {
+        int n = -Integer.MAX_VALUE;
         try {
-            int n = Integer.parseInt(ctok);
+            n = Integer.parseInt(ctok);
         } catch (NumberFormatException e) {
             System.out.println("num wrong format check parser parseNumber(): " + e);
-            return -Integer.MAX_VALUE;
         }
         eat(ctok);
         return n;
     }
 
     public void parseStatement() throws ScanErrorException {
+        // System.out.println("stmt" + ctok);
         while (ctok.equals("WRITELN")) {
             eat("WRITELN");
             eat("(");
@@ -45,24 +47,50 @@ public class Parser {
             eat(")");
             eat(";");
         }
+        if (ctok.equals("READLN")) {
+            java.util.Scanner scn = new java.util.Scanner(System.in);
+            eat("READLN");
+            eat("(");
+            System.out.print("WRITE TO " + ctok + ":\t");
+            String in = scn.nextLine();
+            if (in.matches("\\d+")) {
+                vint.put(ctok, Integer.parseInt(in));
+            } else if (in.equals("TRUE") || in.equals("FALSE")) {
+                vbool.put(ctok, (in.equals("TRUE") ? true : false));
+            }
+            eat(ctok);
+            eat(")");
+            eat(";");
+        }
         if (ctok.equals("BEGIN")) {
             eat("BEGIN");
-            parseStatement();
+            while(!ctok.equals("END")) parseStatement();
             eat("END");
             eat(";");
-        } else if (this.isID(ctok)) {
+        } 
+        if(this.isID(ctok)) {
+            // System.out.println("var" + ctok);
             String tmpv = ctok;
             eat(ctok);
             eat(":=");
             //try {
                 // v.put(tmpv, Integer.parseInt(ctok));
-                v.put(tmpv, parseNumber());
+            
+            int tmp = parseExpression();
+            // System.out.println("==" + tmpv + " " + tmp);
+                vint.put(tmpv, tmp);
             // } catch (NumberFormatException e) {
             //     System.out.println("var dec format check: " + e);
             //     return;
             // }
-            eat(ctok);
+                // System.out.println("--" + ctok);
+            // eat(ctok);
             eat(";");
+        } 
+        if (ctok.equals("(*")) {
+            eat("(*");
+            while (!ctok.equals("*)")) eat(ctok);
+            eat("*)");
         }
     }
 
@@ -75,7 +103,9 @@ public class Parser {
         if (ctok.matches("\\d+")) {
             return parseNumber() * (sign ? -1 : 1);
         } else if (this.isID(ctok)) {
-            return v.get(ctok) * (sign ? -1 : 1);
+            int val = vint.get(ctok) * (sign ? -1 : 1);
+            eat(ctok);
+            return val;
         } else if (ctok.equals("-")) {
             eat("-");
             return pFHelper(!sign);
@@ -87,7 +117,7 @@ public class Parser {
             eat(ctok);
             return pFHelper(sign);
         }
-        System.out.println("!?uh oh: " + ctok);
+        // System.out.println("!?uh oh: " + ctok);
         return -1;
     }
 
@@ -101,12 +131,13 @@ public class Parser {
 
         int t1 = parseFactor();
         // eat(ctok); // t1
-        while(ctok.equals("*") || ctok.equals("/") || ctok.equals("(")) {
+        while(ctok.equals("*") || ctok.equals("/") || ctok.equals("mod") || ctok.equals("(")) {
             // System.out.println("!!!" + ctok);
-            char op = ctok.charAt(0);
-            eat(ctok); // op
-            if (op == '*') t1 *= p();
-            else if (op == '/') t1 /= p();
+            switch(ctok) {
+                case "*" -> {eat(ctok); t1 *= p();}
+                case "/" -> {eat(ctok); t1 /= p();}
+                case "mod" -> {eat(ctok); t1 %= p();}
+            }
         }
         // if (pflag) eat(")");
         return t1;
@@ -123,6 +154,9 @@ public class Parser {
             N = parseExpression();
             if (nflag) N *= -1;
             // System.out.println("---" + N);
+        } else if (this.isID(ctok)) {
+            N = vint.get(ctok) * (nflag ? -1 : 1);
+            eat(ctok);
         } else if (ctok.equals("("))  {
             N = p() * (nflag ? -1 : 1);
         } else {
@@ -135,12 +169,16 @@ public class Parser {
     }
 
     public int parseExpression() throws ScanErrorException {
+        // System.out.println("__" + ctok);
         int t = parseTerm();
+        // System.out.println("t1 " + t);
+        // System.out.println("__"+ ctok);
         while (ctok.equals("+") || ctok.equals("-")) {
             if (ctok.equals("+")) { 
                 eat("+");
                 t += parseTerm(); 
-            } else { 
+            } else if (ctok.equals("-")) { 
+                // System.out.println("------");
                 eat("-"); 
                 t -= parseTerm(); 
             }
