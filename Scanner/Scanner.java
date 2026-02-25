@@ -21,7 +21,7 @@ public class Scanner
 
     // excluding '/': is handled specially in nextToken() to check for comments
     // must exclude '$' and '^'
-    private static final String OPS = "=+-*%()@;:<>#'\\\",{}[]&";
+    private static final String OPS = "=+-*%()@;:<>#'\\\",{}[]&!";
 
     /**
      * Scanner constructor for construction of a scanner that 
