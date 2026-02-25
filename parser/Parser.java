@@ -58,7 +58,7 @@ public class Parser {
             eat(ctok);
         }
         eat("\"");
-        return s;
+        return s.replace("_", " ");
     }
 
     public void parseStatement() throws ScanErrorException {
@@ -153,13 +153,11 @@ public class Parser {
         } else if (ctok.equals("-")) {
             eat("-");
             return pFHelper(!sign);
-        } else if (ctok.equals("(") || ctok.equals(")")) {
-            // eat("(");
-            // int tmp = pFHelper(sign);
-            // eat(")");
-            // return tmp;
-            eat(ctok);
-            return pFHelper(sign);
+        } else if (ctok.equals("(")) {
+            eat("(");
+            int tmp = parseExpression();
+            eat(")");
+            return tmp * (sign ? -1 : 1);
         }
         // System.out.println("!?uh oh: " + ctok);
         return -1;
@@ -179,9 +177,11 @@ public class Parser {
         } else if (ctok.equals("NOT")) {
             eat("NOT");
             return pBFHelper(!sign);
-        } else if (ctok.equals("(") || ctok.equals(")")) {
-            eat(ctok);
-            return pBFHelper(sign);
+        } else if (ctok.equals("(")) {
+            eat("(");
+            boolean tmp = parseBoolExpression();
+            eat(")");
+            return sign ? !tmp : tmp;
         }
         return false;
     }
@@ -200,9 +200,11 @@ public class Parser {
         } /* else if (ctok.equals("#")) { // get len TODO
         eat("#");
         return pBFHelper(!sign);
-        }*/ else if (ctok.equals("(") || ctok.equals(")")) {
-            eat(ctok);
-            return pSFHelper();
+        }*/ else if (ctok.equals("(")) {
+            eat("(");
+            String tmp = parseStrExpression();
+            eat(")");
+            return tmp;
         }
     return "";
     }

@@ -1,8 +1,8 @@
 BEGIN
   x := "hello";
-  y := " world";
+  y := "_world";
   z := "";
   str := x + y;
-  WRITELN(x + z + y + z + z + x + " " + y);
+  WRITELN(x + z + y + z + z + x + "_" + y);
 END;
 .
