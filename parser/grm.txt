@@ -1,6 +1,6 @@
-stmt → WRITELN(expr); | READLN(id); | BEGIN stmts END; | id := expr; | (* ... *)
-
 stmts → stmts stmt | ε
+
+stmt → WRITELN(expr); | READLN(id); | BEGIN stmts END; | id := expr; | (* ... *)
 
 expr → bexpr | iexpr relop iexpr | iexpr | sexpr | sexpr relop sexpr
 

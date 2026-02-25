@@ -47,16 +47,16 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 ":"                     { return "COLON"; }
 ","                     { return "COMMA"; }
 
-/* JSON string - handles escape sequences including \" \\ \/ \b \f \n \r \t and \uXXXX */
+/* JSON string: handles escape sequences including \" \\ \/ \b \f \n \r \t and \uXXXX */
 /* incl escaped ", \, /, any words, or any unicode special char */
 \"([^\"\\\n\r] | \\[\"\\\/] | \\u[0-9a-fA-F]{4})*\"    { return "K/V: " + yytext(); }
 
-/* JSON number - integer or decimal with optional exponent */
+/* JSON number: integer or decimal with optional exponent */
 /* -?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?    { return "NUMBER: " + yytext(); } */
 
-/* Whitespace - skip */
+/* Whitespace: skip */
 {WhiteSpace}            { /* skip whitespace */ }
 
-/* Catch-all for unexpected characters */
+/* Catchall for unexpected characters */
 .                       { return "UNEXPECTED: " + yytext() + " at line " + yyline + ", column " + yycolumn; }
 
