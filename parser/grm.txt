@@ -2,20 +2,23 @@ stmt → WRITELN(expr); | READLN(id); | BEGIN stmts END; | id := expr; | (* ... 
 
 stmts → stmts stmt | ε
 
-expr → bexpr | iexpr relop iexpr | iexpr
+expr → bexpr | iexpr relop iexpr | iexpr | sexpr | sexpr relop sexpr
 
 bexpr → bexpr OR bterm | bterm
-
 bterm → bterm AND bfact | bfact
-
 bfact → NOT bfact | (bexpr) | TRUE | FALSE | id
 
 iexpr → iexpr + iterm | iexpr - iterm | iterm
-
 iterm → iterm * ifactor | iterm / ifactor | iterm mod ifactor | ifactor
-
 ifactor → (iexpr) | -ifactor | [/d+] | id
+
+sexpr → sexpr + sterm | sterm
+sterm → sfact
+sfact → #sfact | (sexpr) | "literal" | id
 
 relop → = | <= | >= | <> | < | >
 
 id → [Map<String, Object> v]
+
+---
+'_' used as ' ' in strings
