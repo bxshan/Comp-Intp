@@ -1,0 +1,18 @@
+BEGIN
+  x := TRUE; (* x is TRUE *)
+  
+  y := 2 >= 3; (* y is FALSE *)
+  
+  x := 1 = 2; (* x is FALSE *)
+  
+  y := 1 <> 2; (* y is TRUE, like 1 != 2 in Java *)
+  
+  x := NOT x;
+  
+  x := x AND (FALSE OR y);
+  
+  WRITELN (x);
+  WRITELN (y);
+  WRITELN (1 = 2); (* prints "FALSE" *)
+END;
+.

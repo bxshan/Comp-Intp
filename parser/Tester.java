@@ -39,7 +39,7 @@ public class Tester
     public static void main(String[] args) throws FileNotFoundException 
     {
         try {
-            String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Parser/tst6.txt";
+            String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Parser/tst8.txt";
             FileInputStream fis = new FileInputStream(dir);
             Scanner s = new Scanner(fis);
             Parser p = new Parser(s);

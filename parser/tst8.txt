@@ -1,0 +1,8 @@
+BEGIN
+  x := "hello";
+  y := " world";
+  z := "";
+  str := x + y;
+  WRITELN(x + z + y + z + z + x + " " + y);
+END;
+.
