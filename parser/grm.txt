@@ -1,0 +1,21 @@
+stmt → WRITELN(expr); | READLN(id); | BEGIN stmts END; | id := expr; | (* ... *)
+
+stmts → stmts stmt | ε
+
+expr → bexpr | iexpr relop iexpr | iexpr
+
+bexpr → bexpr OR bterm | bterm
+
+bterm → bterm AND bfact | bfact
+
+bfact → NOT bfact | (bexpr) | TRUE | FALSE | id
+
+iexpr → iexpr + iterm | iexpr - iterm | iterm
+
+iterm → iterm * ifactor | iterm / ifactor | iterm mod ifactor | ifactor
+
+ifactor → (iexpr) | -ifactor | [/d+] | id
+
+relop → = | <= | >= | <> | < | >
+
+id → [Map<String, Object> v]
