@@ -1,0 +1,6 @@
+BEGIN
+  a := array[1,5];
+  a[2] := 3; 
+  WRITELN(a[2]);
+END;
+.
