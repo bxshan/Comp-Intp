@@ -173,7 +173,7 @@ public class Tester
         // testAll();
 
         try {
-            String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Parser/tst8.txt";
+            String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Parser/tst9.txt";
             FileInputStream fis = new FileInputStream(dir);
             Scanner s = new Scanner(fis);
             Parser p = new Parser(s);
