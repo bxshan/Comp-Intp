@@ -1,0 +1,112 @@
+{
+  "prizes": [
+    {
+      "year": "2025",
+      "category": "chemistry",
+      "laureates": [
+        {
+          "id": "1053",
+          "firstname": "Susumu",
+          "surname": "Kitagawa",
+          "motivation": "\"for the development of metal–organic frameworks\"",
+          "share": "3"
+        },
+        {
+          "id": "1054",
+          "firstname": "Richard",
+          "surname": "Robson",
+          "motivation": "\"for the development of metal–organic frameworks\"",
+          "share": "3"
+        },
+        {
+          "id": "1055",
+          "firstname": "Omar M.",
+          "surname": "Yaghi",
+          "motivation": "\"for the development of metal–organic frameworks\"",
+          "share": "3"
+        }
+      ]
+    },
+    {
+      "year": "2025",
+      "category": "economics",
+      "overallMotivation": "\"for having explained innovation-driven economic growth\"",
+      "laureates": [
+        {
+          "id": "1058",
+          "firstname": "Joel",
+          "surname": "Mokyr",
+          "motivation": "\"for having identified the prerequisites for sustained growth through technological progress\"",
+          "share": "2"
+        },
+        {
+          "id": "1059",
+          "firstname": "Philippe",
+          "surname": "Aghion",
+          "motivation": "\"for the theory of sustained growth through creative destruction\"",
+          "share": "4"
+        },
+        {
+          "id": "1060",
+          "firstname": "Peter",
+          "surname": "Howitt",
+          "motivation": "\"for the theory of sustained growth through creative destruction\"",
+          "share": "4"
+        }
+      ]
+    },
+    {
+      "year": "2025",
+      "category": "literature",
+      "laureates": [
+        {
+          "id": "1056",
+          "firstname": "László",
+          "surname": "Krasznahorkai",
+          "motivation": "\"for his compelling and visionary oeuvre that, in the midst of apocalyptic terror, reaffirms the power of art\"",
+          "share": "1"
+        }
+      ]
+    },
+    {
+      "year": "2025",
+      "category": "peace",
+      "laureates": [
+        {
+          "id": "1057",
+          "firstname": "Maria Corina",
+          "surname": "Machado",
+          "motivation": "\"for her tireless work promoting democratic rights for the people of Venezuela and for her struggle to achieve a just and peaceful transition from dictatorship to democracy\"",
+          "share": "1"
+        }
+      ]
+    },
+    {
+      "year": "2025",
+      "category": "physics",
+      "laureates": [
+        {
+          "id": "1050",
+          "firstname": "John",
+          "surname": "Clarke",
+          "motivation": "\"for the discovery of macroscopic quantum mechanical tunnelling and energy quantisation in an electric circuit\"",
+          "share": "3"
+        },
+        {
+          "id": "1051",
+          "firstname": "Michel H.",
+          "surname": "Devoret",
+          "motivation": "\"for the discovery of macroscopic quantum mechanical tunnelling and energy quantisation in an electric circuit\"",
+          "share": "3"
+        },
+        {
+          "id": "1052",
+          "firstname": "John M.",
+          "surname": "Martinis",
+          "motivation": "\"for the discovery of macroscopic quantum mechanical tunnelling and energy quantisation in an electric circuit\"",
+          "share": "3"
+        }
+      ]
+    },
+  ]
+}

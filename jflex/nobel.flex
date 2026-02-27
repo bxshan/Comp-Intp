@@ -1,13 +1,13 @@
 
 /**
-* This file defines a simple lexer for the compilers course 2014-2015
-*
-* @author  Anu Datar
-* @author  Boxuan Shan 
-* @version 5/12/2017
-* @version 02/05/2026
-* 
-*/
+ * This file defines a simple lexer for the compilers course 2025-2026 S2
+ *
+ * @author  Anu Datar
+ * @author  Boxuan Shan 
+ * @version 5/12/2017
+ * @version 02/05/2026
+ * 
+ */
 import java.io.*;
 
 %%
@@ -25,38 +25,70 @@ import java.io.*;
 /*  returns the String "EOF: at end of file */
 %type String
 %eofval{
-return "EOF";
+  return "EOF";
 %eofval}
-LineTerminator = \r|\n|\r\n|\n\r
-WhiteSpace = {LineTerminator} | [ \t\f]
+  D4 = [0-9]{4}
+  Category = "physics" | "chemistry" | "physiology or medicine" | "literature" | "peace" | "economics"
+  WS = ([ \t\n\r]+)*
+  Q = \"
 
-/**
- * Pattern definitions
- */
- 
- 
+
+  /**
+   * Pattern definitions
+   */
+
 %%
-/**
- * lexical rules
- */
+  /**
+   * lexical rules
+   */
 
-"{"                     { return "OPENCURLY"; }
-"}"                     { return "CLOSECURLY"; }
-"["                     { return "OPENSQUARE"; }
-"]"                     { return "CLOSESQUARE"; }
-":"                     { return "COLON"; }
-","                     { return "COMMA"; }
+{Q}"year"{Q}{WS} ":" {WS} {Q}{D4}{Q} {
+  int r = yytext().lastIndexOf("\"");
+  int l = yytext().lastIndexOf("\"", r-1);
+  return "\n\tIn " + yytext().substring(l + 1, r) + ", ";
+                                     }
 
-/* JSON string: handles escape sequences including \" \\ \/ \b \f \n \r \t and \uXXXX */
-/* incl escaped ", \, /, any words, or any unicode special char */
-\"([^\"\\\n\r] | \\[\"\\\/] | \\u[0-9a-fA-F]{4})*\"    { return "K/V: " + yytext(); }
+/* category */
+{Q}"category"{Q}{WS} ":" {WS} {Q}{Category}{Q} {
+  int r = yytext().lastIndexOf("\"");
+  int l = yytext().lastIndexOf("\"", r - 1);
+  return "in " + yytext().substring(l + 1, r) + ", ";
+                                               }
 
-/* JSON number: integer or decimal with optional exponent */
-/* -?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?    { return "NUMBER: " + yytext(); } */
+/* laureates header */
+{Q}"laureates"{Q}{WS} ":" {WS} "[" {
+  return "the laureates were:\n\t\t";
+                                   }
 
-/* Whitespace: skip */
-{WhiteSpace}            { /* skip whitespace */ }
+/* fname + " " */
+{Q}"firstname"{Q}{WS} ":" {WS} {Q} [^\"\n\r]+ {Q} {
+  int r = yytext().lastIndexOf("\"");
+  int l = yytext().lastIndexOf("\"", r - 1);
+  return yytext().substring(l + 1, r) + " ";
+                                                  }
 
-/* Catchall for unexpected characters */
-.                       { return "UNEXPECTED: " + yytext() + " at line " + yyline + ", column " + yycolumn; }
+/* lname + ", " */
+{Q}"surname"{Q}{WS} ":" {WS} {Q} [^\"\n\r]+ {Q} {
+  int r = yytext().lastIndexOf("\"");
+  int l = yytext().lastIndexOf("\"", r - 1);
+  return yytext().substring(l + 1, r) + ", ";
+                                                }
 
+{Q}"motivation"{Q}{WS} ":" {WS} {Q} "\\\"" ([^\\\"]+) "\\\"" {Q} {
+  // finds + extract text between literal \" and \"
+  int l = yytext().indexOf("\\\"");
+  int r = yytext().lastIndexOf("\\\"");
+  String motivation = yytext().substring(l + 2, r);
+
+  return "for " + motivation + "\n\t\t";
+                                                                 }
+
+/* json chars  */
+"," | "{" | "}" | "]" | ":" {  }
+
+/* skip keys id, motivation, share, and whitespace */
+{Q} [^\"\n\r]+ {Q} { }
+([ \t\n\r]+)+ { }
+
+/* catchall */
+.                           { }

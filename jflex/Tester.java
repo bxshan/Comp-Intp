@@ -23,7 +23,7 @@ public class Tester
             // while(true)
             {
                 t = s.nextToken();
-                System.out.println(t);
+                System.out.print(t);
             }
 
             // t = s.nextToken();
@@ -47,6 +47,7 @@ public class Tester
     public static void main(String[] args) throws FileNotFoundException 
     {
         String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/jflex/nobel.json";
+        // String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/jflex/ntrunc.json";
         java.io.Reader o = new java.io.FileReader(dir);
         ScannerNobel s = new ScannerNobel(o);
 
