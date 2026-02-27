@@ -17,9 +17,10 @@ public class Parser {
     // array fails on expr [*|/|mod] a[i]
 
     static final Set<String> KEYWORDS = Set.of(
-            "BEGIN", "END", "WRITELN", "READLN", "EOF", 
-            "TRUE", "FALSE", "NOT", "AND", "OR", "mod", 
-            "array"
+            "BEGIN", "END", "WRITELN",
+            "READLN", "EOF", "TRUE",
+            "FALSE", "NOT", "AND",
+            "OR", "mod", "array"
             );
 
     /**
@@ -574,6 +575,6 @@ public class Parser {
      */
     private boolean isRelOp(String tok) {
         return tok.equals(">=") || tok.equals("<=") || tok.equals("=") ||
-            tok.equals("<>") || tok.equals("<")  || tok.equals(">");
+               tok.equals("<>") || tok.equals("<")  || tok.equals(">");
     }
 }
