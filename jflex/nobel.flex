@@ -42,6 +42,7 @@ import java.io.*;
    * lexical rules
    */
 
+/* year */
 {Q}"year"{Q}{WS} ":" {WS} {Q}{D4}{Q} {
   int r = yytext().lastIndexOf("\"");
   int l = yytext().lastIndexOf("\"", r-1);
@@ -86,7 +87,7 @@ import java.io.*;
 /* json chars  */
 "," | "{" | "}" | "]" | ":" {  }
 
-/* skip keys id, motivation, share, and whitespace */
+/* skip keys id, share, and whitespace */
 {Q} [^\"\n\r]+ {Q} { }
 ([ \t\n\r]+)+ { }
 
