@@ -28,7 +28,7 @@ import java.io.*;
   return "EOF";
 %eofval}
   D4 = [0-9]{4}
-  Category = "physics" | "chemistry" | "physiology or medicine" | "literature" | "peace" | "economics"
+  Category = "physics" | "chemistry" | "physiology" | "literature" | "peace" | "economics" | "medicine"
   WS = ([ \t\n\r]+)*
   Q = \"
 
@@ -81,7 +81,7 @@ import java.io.*;
   int r = yytext().lastIndexOf("\\\"");
   String motivation = yytext().substring(l + 2, r);
 
-  return "for " + motivation + "\n\t\t";
+  return motivation + "\n\t\t";
                                                                  }
 
 /* json chars  */
