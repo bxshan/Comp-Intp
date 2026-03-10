@@ -12,8 +12,8 @@ import scanner.*;
 public class Tester
 {
     /**
-     * Prints out each token from the input path until EOF. 
-     * @param s Scanner object to test 
+     * Tests parser on constructed input file
+     * @param p Parser object to test 
      */
     static void test1(Parser p) 
     {
@@ -26,35 +26,40 @@ public class Tester
             System.out.println("!!!uh oh: " + e);
             e.printStackTrace();
         }
-        finally
-        {
-        }
     }
 
     // Claude Opus v
     // ------------------------------------------------------------------ helpers
-    static int passed = 0, failed = 0;
+    static int passed = 0;
+    static int failed = 0;
 
-    /** Run src through the parser and return everything printed to stdout. */
-    static String run(String src) throws Exception {
+    static String run(String src) throws Exception 
+    {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream old = System.out;
         System.setOut(new PrintStream(baos));
-        try {
+        try 
+        {
             Scanner sc = new Scanner(src + " ");
             Parser p  = new Parser(sc);
             while (!p.ctok.equals("EOF")) p.parseStatement();
-        } finally {
+        }
+        finally 
+        {
             System.setOut(old);
         }
         return baos.toString().trim();
     }
 
-    static void check(String label, String expected, String actual) {
-        if (expected.equals(actual)) {
+    static void check(String label, String expected, String actual) 
+    {
+        if (expected.equals(actual)) 
+        {
             System.out.println("[PASS] " + label);
             passed++;
-        } else {
+        }
+        else 
+        {
             System.out.println("[FAIL] " + label
                     + " | expected: \"" + expected
                     + "\" | got: \"" + actual + "\"");
@@ -62,16 +67,22 @@ public class Tester
         }
     }
 
-    static void chk(String label, String expected, String src) {
-        try { check(label, expected, run(src)); }
-        catch (Exception e) {
+    static void chk(String label, String expected, String src) 
+    {
+        try 
+        {
+            check(label, expected, run(src)); 
+        }
+        catch (Exception e) 
+        {
             System.out.println("[FAIL] " + label + " | threw: " + e);
             failed++;
         }
     }
 
     // ------------------------------------------------------------------ suite
-    static void testAll() {
+    static void testAll() 
+    {
         System.out.println("=== integer literals & arithmetic ===");
         chk("literal",            "5",     "WRITELN(5);");
         chk("addition",           "7",     "WRITELN(3 + 4);");
@@ -172,13 +183,18 @@ public class Tester
     {
         // testAll();
 
-        try {
-            String dir = "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Parser/tst9.txt";
+        try 
+        {
+            String dir = 
+                "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Parser/parserTest4.txt";
             FileInputStream fis = new FileInputStream(dir);
             Scanner s = new Scanner(fis);
             Parser p = new Parser(s);
             test1(p);
-        } catch (Exception e) {
+            testAll();
+        } 
+        catch (Exception e) 
+        {
             System.out.println("err at parser/Tester.java 48:" + e);
         }
     }

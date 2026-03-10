@@ -10,10 +10,11 @@ import java.util.*;
  * Usage:
  * receive a stream of tokens from scanner.Scanner, then excecutes Pascal-like statements
  */
-public class Parser {
+public class Parser 
+{
     scanner.Scanner sc;
     String ctok;
-    HashMap<String, Object> v;
+    HashMap<String, Object> var;
     // array fails on expr [*|/|mod] a[i]
 
     static final Set<String> KEYWORDS = Set.of(
@@ -25,13 +26,15 @@ public class Parser {
 
     /**
      * constructor for Parser
-     * instantiates scanner to read from, ctok current token to first token, v the HashMap storing var declarations
+     * instantiates scanner to read from, ctok current token to first token, 
+     * var the HashMap storing var declarations
      * @param sc the scanner to take tokens from
      */
-    public Parser(scanner.Scanner sc) throws ScanErrorException {
+    public Parser(scanner.Scanner sc) throws ScanErrorException 
+    {
         this.sc = sc;
         this.ctok = this.sc.nextToken();
-        this.v = new HashMap<String, Object>();
+        this.var = new HashMap<String, Object>();
     }
 
     /**
@@ -40,9 +43,11 @@ public class Parser {
      * @throws ScanErrorException if scanner encounters an illegal character
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    private void eat(String e) throws ScanErrorException {
+    private void eat(String e) throws ScanErrorException 
+    {
         if (e.equals(ctok)) ctok = sc.nextToken();
-        else throw new IllegalArgumentException("expected \"" + e + "\", actually ctok \"" + ctok + "\"");
+        else throw new IllegalArgumentException("expected \"" + e + 
+                "\", actually ctok \"" + ctok + "\"");
     }
 
     /**
@@ -53,17 +58,24 @@ public class Parser {
      * @throws ScanErrorException if scanner encounters an illegal character
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    public void parseStatement() throws ScanErrorException {
-        while (ctok.equals("WRITELN")) {
+    public void parseStatement() throws ScanErrorException 
+    {
+        while (ctok.equals("WRITELN")) 
+        {
             eat("WRITELN");
             eat("(");
-            if (isBool(ctok) || v.get(ctok) instanceof Boolean || ctok.equals("NOT")) {
+            if (isBool(ctok) || var.get(ctok) instanceof Boolean || ctok.equals("NOT")) 
+            {
                 System.out.println(parseBoolExpression());
-            } else if (ctok.equals("\"") || v.get(ctok) instanceof String) {
+            } 
+            else if (ctok.equals("\"") || var.get(ctok) instanceof String) 
+            {
                 String lhs = parseStrExpression();
                 if (isRelOp(ctok)) System.out.println(parseRelOp(lhs));
                 else System.out.println(lhs);
-            } else { // num expr
+            }
+            else
+            { // num expr
                 int lhs = parseExpression();
                 if (isRelOp(ctok)) System.out.println(parseRelOp(lhs));
                 else System.out.println(lhs);
@@ -72,69 +84,87 @@ public class Parser {
             eat(";");
         }
 
-        if (ctok.equals("READLN")) {
+        if (ctok.equals("READLN")) 
+        {
             java.util.Scanner scn = new java.util.Scanner(System.in);
             eat("READLN");
             eat("(");
             System.out.print("WRITE TO " + ctok + ":\t");
             String in = scn.nextLine();
-            if (in.matches("\\d+")) v.put(ctok, Integer.parseInt(in));
-            else if (this.isBool(in)) v.put(ctok, in.equals("TRUE"));
-            else v.put(ctok, in); // string
+            if (in.matches("\\d+")) var.put(ctok, Integer.parseInt(in));
+            else if (this.isBool(in)) var.put(ctok, in.equals("TRUE"));
+            else var.put(ctok, in); // string
             eat(ctok);
             eat(")");
             eat(";");
         }
 
-        if (ctok.equals("BEGIN")) {
+        if (ctok.equals("BEGIN")) 
+        {
             eat("BEGIN");
             while(!ctok.equals("END")) parseStatement();
             eat("END");
             eat(";");
         } 
 
-        if(this.isID(ctok)) {
+        if(this.isID(ctok)) 
+        {
             String tmpv = ctok;
             eat(ctok);
-            if (ctok.equals(":=")) {
+            if (ctok.equals(":=")) 
+            {
                 eat(":=");
 
-                if (isBool(ctok) || v.get(ctok) instanceof Boolean || ctok.equals("NOT")) {
+                if (isBool(ctok) || var.get(ctok) instanceof Boolean || ctok.equals("NOT")) 
+                {
                     boolean tmp = parseBoolExpression();
-                    v.put(tmpv, tmp);
-                } else if (ctok.equals("\"") || v.get(ctok) instanceof String) {
+                    var.put(tmpv, tmp);
+                } 
+                else if (ctok.equals("\"") || var.get(ctok) instanceof String) 
+                {
                     String lhs = parseStrExpression();
-                    if (isRelOp(ctok)) v.put(tmpv, parseRelOp(lhs));
-                    else v.put(tmpv, lhs);
-                } else if (ctok.equals("array")) { // array declaration
+                    if (isRelOp(ctok)) var.put(tmpv, parseRelOp(lhs));
+                    else var.put(tmpv, lhs);
+                } 
+                else if (ctok.equals("array")) 
+                { // array declaration
                     eat("array");
                     eat("[");
                     int l = parseExpression();
                     eat(",");
                     int r = parseExpression();
                     eat("]");
-                    v.put(tmpv, new HashMap<Integer, Object>());
-                } else { // int
+                    var.put(tmpv, new HashMap<Integer, Object>());
+                }
+                else 
+                { // int
                     int lhs = parseExpression();
-                    if (isRelOp(ctok)) v.put(tmpv, parseRelOp(lhs));
-                    else v.put(tmpv, lhs);
+                    if (isRelOp(ctok)) var.put(tmpv, parseRelOp(lhs));
+                    else var.put(tmpv, lhs);
                 }
                 eat(";");
-            } else if (ctok.equals("[")) { // array element assign
+            } 
+            else if (ctok.equals("[")) 
+            { // array element assign
                 eat("[");
                 int idx = parseExpression();
                 eat("]");
                 eat(":=");
                 @SuppressWarnings("unchecked")
-                HashMap<Integer, Object> arr = (HashMap<Integer, Object>) v.get(tmpv);
+                HashMap<Integer, Object> arr = (HashMap<Integer, Object>) var.get(tmpv);
 
-                if (isBool(ctok) || v.get(ctok) instanceof Boolean || ctok.equals("NOT")) {
+                if (isBool(ctok) || var.get(ctok) instanceof Boolean || ctok.equals("NOT")) 
+                {
                     arr.put(idx, parseBoolExpression());
-                } else if (ctok.equals("\"") || v.get(ctok) instanceof String) {
+                }
+                else if (ctok.equals("\"") || var.get(ctok) instanceof String) 
+                {
                     String lhs = parseStrExpression();
                     if (isRelOp(ctok)) arr.put(idx, parseRelOp(lhs));
                     else arr.put(idx, lhs);
-                } else {
+                }
+                else
+                {
                     int lhs = parseExpression();
                     if (isRelOp(ctok)) arr.put(idx, parseRelOp(lhs));
                     else arr.put(idx, lhs);
@@ -143,7 +173,8 @@ public class Parser {
             }
         } 
 
-        if (ctok.equals("(*")) {
+        if (ctok.equals("(*")) 
+        {
             eat("(*");
             while (!ctok.equals("*)")) eat(ctok);
             eat("*)");
@@ -156,11 +187,15 @@ public class Parser {
      * @postcondition int token eaten
      * @return value of eaten int
      */
-    private int parseNumber() throws ScanErrorException {
+    private int parseNumber() throws ScanErrorException 
+    {
         int n = -Integer.MAX_VALUE;
-        try {
+        try 
+        {
             n = Integer.parseInt(ctok);
-        } catch (NumberFormatException e) {
+        } 
+        catch (NumberFormatException e) 
+        {
             System.out.println("num wrong format check parser parseNumber(): " + e);
         }
         eat(ctok);
@@ -173,11 +208,15 @@ public class Parser {
      * @postcondition bool token eaten
      * @return value of eaten bool
      */
-    private boolean parseBool() throws ScanErrorException {
+    private boolean parseBool() throws ScanErrorException 
+    {
         boolean b = false;
-        try {
-            b = (ctok.equals("TRUE") ? true : false);
-        } catch (NumberFormatException e) {
+        try 
+        {
+            b = ctok.equals("TRUE");
+        }
+        catch (NumberFormatException e) 
+        {
             System.out.println("bool wrong format check parser parseBool(): " + e);
         }
         eat(ctok);
@@ -190,10 +229,12 @@ public class Parser {
      * @postcondition all tokens through closing " eaten
      * @return string literal value with '_' replace by ' '
      */
-    private String parseStr() throws ScanErrorException {
+    private String parseStr() throws ScanErrorException 
+    {
         String s = "";
         eat("\"");
-        while (!ctok.equals("\"")) {
+        while (!ctok.equals("\"")) 
+        {
             s += ctok;
             eat(ctok);
         }
@@ -202,13 +243,15 @@ public class Parser {
     }
 
     /**
-     * parse an int factor (+unary operations): number, var, negative, parenthesized expression, #sfact
+     * parse an int factor (+unary operations): 
+     * number, var, negative, parenthesized expression, #sfact
      * @precondition ctok is at the start of an int factor
      * @postcondition factor tokens eaten
      * @return int value of the factor
      */
-    public int parseFactor() throws ScanErrorException {
-        return this.pFHelper(false);
+    public int parseFactor() throws ScanErrorException 
+    {
+        return this.pfHelper(false);
     }
 
     /**
@@ -218,32 +261,43 @@ public class Parser {
      * @param sign accumulated sign; 1 -> negative, 0 -> positive
      * @return signed int value of factor
      */
-    private int pFHelper(boolean sign) throws ScanErrorException {
-        if (ctok.matches("\\d+")) {
+    private int pfHelper(boolean sign) throws ScanErrorException 
+    {
+        if (ctok.matches("\\d+")) 
+        {
             return parseNumber() * (sign ? -1 : 1);
-        } else if (this.isID(ctok)) {
+        }
+        else if (this.isID(ctok))
+        {
             String a = ctok;
             eat(ctok);
-            if (ctok.equals("[")) { // is an array int member
+            if (ctok.equals("[")) 
+            { // is an array int member
                 eat("[");
                 int idx = parseExpression();
                 eat("]");
                 
                 @SuppressWarnings("unchecked")
-                int elm = (Integer) ((HashMap<Integer, Object>) v.get(a)).get(idx);
+                int elm = (Integer) ((HashMap<Integer, Object>) var.get(a)).get(idx);
                 return elm * (sign ? -1 : 1);
             }
-            int val = (Integer) v.get(a) * (sign ? -1 : 1);
+            int val = (Integer) var.get(a) * (sign ? -1 : 1);
             return val;
-        } else if (ctok.equals("-")) {
+        } 
+        else if (ctok.equals("-")) 
+        {
             eat("-");
-            return pFHelper(!sign);
-        } else if (ctok.equals("(")) {
+            return pfHelper(!sign);
+        } 
+        else if (ctok.equals("(")) 
+        {
             eat("(");
             int tmp = parseExpression();
             eat(")");
             return tmp * (sign ? -1 : 1);
-        } else if (ctok.equals("#")) { // take string len
+        } 
+        else if (ctok.equals("#")) 
+        { // take string len
             eat("#");
             String s = parseStrFactor();
             return s.length() * (sign ? -1 : 1);
@@ -258,8 +312,9 @@ public class Parser {
      * @postcondition factor tokens are eaten
      * @return bool value of the factor
      */
-    public boolean parseBoolFactor() throws ScanErrorException {
-        return this.pBFHelper(false);
+    public boolean parseBoolFactor() throws ScanErrorException 
+    {
+        return this.pbfHelper(false);
     }
 
     /**
@@ -269,27 +324,36 @@ public class Parser {
      * @param sign accumulated negation; 1 -> !bool, 0 -> bool
      * @return signed bool value of factor
      */
-    private boolean pBFHelper(boolean sign) throws ScanErrorException {
-        if (this.isBool(ctok)) {
+    private boolean pbfHelper(boolean sign) throws ScanErrorException 
+    {
+        if (this.isBool(ctok)) 
+        {
             return (sign ? !parseBool() : parseBool());
-        } else if (this.isID(ctok)) {
+        }
+        else if (this.isID(ctok)) 
+        {
             String a = ctok;
             eat(ctok);
-            if (ctok.equals("[")) { // array bool member
+            if (ctok.equals("[")) 
+            { // array bool member
                 eat("[");
                 int idx = parseExpression();
                 eat("]");
 
                 @SuppressWarnings("unchecked")
-                boolean elm = (Boolean) ((HashMap<Integer, Object>) v.get(a)).get(idx);
+                boolean elm = (Boolean) ((HashMap<Integer, Object>) var.get(a)).get(idx);
                 return sign ? !elm : elm;
             }
-            boolean val = (sign ? !(Boolean) v.get(a) : (Boolean) v.get(a));
+            boolean val = (sign ? !(Boolean) var.get(a) : (Boolean) var.get(a));
             return val;
-        } else if (ctok.equals("NOT")) {
+        } 
+        else if (ctok.equals("NOT")) 
+        {
             eat("NOT");
-            return pBFHelper(!sign);
-        } else if (ctok.equals("(")) {
+            return pbfHelper(!sign);
+        }
+        else if (ctok.equals("(")) 
+        {
             eat("(");
             boolean tmp = parseBoolExpression();
             eat(")");
@@ -305,8 +369,9 @@ public class Parser {
      * @postcondition factor tokens eaten
      * @return string value of the factor
      */
-    public String parseStrFactor() throws ScanErrorException {
-        return this.pSFHelper();
+    public String parseStrFactor() throws ScanErrorException 
+    {
+        return this.psfHelper();
     }
 
     /**
@@ -315,24 +380,31 @@ public class Parser {
      * @postcondition factor tokens eaten
      * @return string value of the factor, or "" if no match
      */
-    private String pSFHelper() throws ScanErrorException {
-        if (ctok.equals("\"")) { // at start of str
+    private String psfHelper() throws ScanErrorException 
+    {
+        if (ctok.equals("\"")) 
+        { // at start of str
             return parseStr();
-        } else if (this.isID(ctok)) {
+        }
+        else if (this.isID(ctok)) 
+        {
             String a = ctok;
             eat(ctok);
-            if (ctok.equals("[")) { // array string member
+            if (ctok.equals("[")) 
+            { // array string member
                 eat("[");
                 int idx = parseExpression();
                 eat("]");
 
                 @SuppressWarnings("unchecked")
-                String elm = (String) ((HashMap<Integer, Object>) v.get(a)).get(idx);
+                String elm = (String) ((HashMap<Integer, Object>) var.get(a)).get(idx);
                 return elm;
             }
-            String val = (String) v.get(a);
+            String val = (String) var.get(a);
             return val;
-        } else if (ctok.equals("(")) {
+        } 
+        else if (ctok.equals("(")) 
+        {
             eat("(");
             String tmp = parseStrExpression();
             eat(")");
@@ -348,13 +420,28 @@ public class Parser {
      * @postcondition term tokens eaten
      * @return int value of the term 
      */
-    public int parseTerm() throws ScanErrorException {
+    public int parseTerm() throws ScanErrorException 
+    {
         int t1 = parseFactor();
-        while(ctok.equals("*") || ctok.equals("/") || ctok.equals("mod")) {
-            switch(ctok) {
-                case "*" -> {eat(ctok); t1 *= p();}
-                case "/" -> {eat(ctok); t1 /= p();}
-                case "mod" -> {eat(ctok); t1 %= p();}
+        while(ctok.equals("*") || ctok.equals("/") || ctok.equals("mod")) 
+        {
+            switch(ctok) 
+            {
+                case "*" -> 
+                {
+                    eat(ctok);
+                    t1 *= pi();
+                }
+                case "/" -> 
+                {
+                    eat(ctok); 
+                    t1 /= pi();
+                }
+                case "mod" -> 
+                {
+                    eat(ctok);
+                    t1 %= pi();
+                }
             }
         }
 
@@ -368,27 +455,35 @@ public class Parser {
      * @postcondition factor tokens eaten
      * @return int value of factor
      */
-    private int p() throws ScanErrorException {
-        boolean pflag = (ctok.equals("(") ? true : false);
+    private int pi() throws ScanErrorException 
+    {
+        boolean pflag = ctok.equals("(");
         if (pflag) eat(ctok);
-        int N = -1;
+        int n = -1;
         boolean nflag = ctok.equals("-");
         if (nflag) eat("-");
-        if (ctok.matches("\\d+")) {
-            N = parseExpression();
-            if (nflag) N *= -1;
-        } else if (this.isID(ctok)) {
-            N = (Integer) v.get(ctok) * (nflag ? -1 : 1);
+        if (ctok.matches("\\d+")) 
+        {
+            n = parseExpression();
+            if (nflag) n *= -1;
+        }
+        else if (this.isID(ctok)) 
+        {
+            n = (Integer) var.get(ctok) * (nflag ? -1 : 1);
             eat(ctok);
-        } else if (ctok.equals("("))  {
-            N = p() * (nflag ? -1 : 1);
-        } else {
+        }
+        else if (ctok.equals("("))  
+        {
+            n = pi() * (nflag ? -1 : 1);
+        }
+        else
+        {
             System.out.println("!!uh oh!!" + ctok);
         }
 
         if (pflag) eat(")");
 
-        return N;
+        return n;
     }
 
     /**
@@ -397,11 +492,18 @@ public class Parser {
      * @postcondition term tokens eaten
      * @return bool value of the term 
      */
-    public boolean parseBoolTerm() throws ScanErrorException {
+    public boolean parseBoolTerm() throws ScanErrorException 
+    {
         boolean t1 = parseBoolFactor();
-        while(ctok.equals("AND")) {
-            switch(ctok) {
-                case "AND" -> {eat(ctok); t1 &= pb();}
+        while(ctok.equals("AND")) 
+        {
+            switch(ctok) 
+            {
+                case "AND" -> 
+                {
+                    eat(ctok); 
+                    t1 &= pb();
+                }
             }
         }
 
@@ -415,27 +517,35 @@ public class Parser {
      * @postcondition factor tokens eaten
      * @return bool value of factor
      */
-    private boolean pb() throws ScanErrorException {
-        boolean pflag = (ctok.equals("(") ? true : false);
+    private boolean pb() throws ScanErrorException 
+    {
+        boolean pflag = ctok.equals("(");
         if (pflag) eat(ctok);
-        boolean N = false;
+        boolean n = false;
         boolean nflag = ctok.equals("NOT");
         if (nflag) eat("NOT");
-        if (isBool(ctok)) {
-            N = parseBoolExpression();
-            if (nflag) N = !N;
-        } else if (this.isID(ctok)) {
-            N = (nflag ? !(Boolean) v.get(ctok) : (Boolean) v.get(ctok));
+        if (isBool(ctok)) 
+        {
+            n = parseBoolExpression();
+            if (nflag) n = !n;
+        }
+        else if (this.isID(ctok)) 
+        {
+            n = (nflag ? !(Boolean) var.get(ctok) : (Boolean) var.get(ctok));
             eat(ctok);
-        } else if (ctok.equals("("))  {
-            N = (nflag ? !pb() : pb());
-        } else {
+        }
+        else if (ctok.equals("("))  
+        {
+            n = (nflag ? !pb() : pb());
+        }
+        else 
+        {
             System.out.println("!!uh oh!!" + ctok);
         }
 
         if (pflag) eat(")");
 
-        return N;
+        return n;
     }
 
     /**
@@ -444,9 +554,11 @@ public class Parser {
      * @postcondition term tokens eaten
      * @return string value of the term 
      */
-    public String parseStrTerm() throws ScanErrorException {
+    public String parseStrTerm() throws ScanErrorException 
+    {
         String t1 = parseStrFactor();
-        while (ctok.equals("+")) { // concat
+        while (ctok.equals("+")) 
+        { // concat
             eat("+");
             t1 += parseStrFactor();
         }
@@ -456,18 +568,24 @@ public class Parser {
     // public String ps() throws ScanErrorException {...} // not needed, refer above method
 
     /**
-     * parse an int expression, handling + and - --- binary operations of equal priority (but below * / mod)
+     * parse an int expression, handling + and - : 
+     * binary operations of equal priority (but below * / mod)
      * @precondition ctok at start of int expression
      * @postcondition expression tokens eaten
      * @return int value of the expression 
      */
-    public int parseExpression() throws ScanErrorException {
+    public int parseExpression() throws ScanErrorException 
+    {
         int t = parseTerm();
-        while (ctok.equals("+") || ctok.equals("-")) {
-            if (ctok.equals("+")) { 
+        while (ctok.equals("+") || ctok.equals("-")) 
+        {
+            if (ctok.equals("+")) 
+            { 
                 eat("+");
                 t += parseTerm(); 
-            } else if (ctok.equals("-")) { 
+            }
+            else if (ctok.equals("-")) 
+            { 
                 eat("-"); 
                 t -= parseTerm(); 
             }
@@ -482,9 +600,11 @@ public class Parser {
      * @postcondition expression tokens eaten
      * @return bool value of the expression
      */
-    public boolean parseBoolExpression() throws ScanErrorException {
+    public boolean parseBoolExpression() throws ScanErrorException 
+    {
         boolean t = parseBoolTerm();
-        while (ctok.equals("OR")) {
+        while (ctok.equals("OR")) 
+        {
             // OR is only operator impl. lower than AND.
             // otherwise switch on ctok
             eat("OR");
@@ -500,7 +620,8 @@ public class Parser {
      * @postcondition expression tokens eaten
      * @return string value of expression
      */
-    public String parseStrExpression() throws ScanErrorException {
+    public String parseStrExpression() throws ScanErrorException 
+    {
         return parseStrTerm();
     } // only 1 binary expression precedence level
 
@@ -511,11 +632,13 @@ public class Parser {
      * @param lhs int operand on lhs
      * @return bool result of relational operator
      */
-    private boolean parseRelOp(int lhs) throws ScanErrorException {
+    private boolean parseRelOp(int lhs) throws ScanErrorException 
+    {
         String op = ctok; 
         eat(ctok);
         int rhs = parseExpression();
-        return switch(op) {
+        return switch(op) 
+        {
             case ">=" -> lhs >= rhs;
             case "<=" -> lhs <= rhs;
             case "="  -> lhs == rhs;
@@ -533,11 +656,13 @@ public class Parser {
      * @param lhs String operand on lhs
      * @return bool result of relational operator
      */
-    private boolean parseRelOp(String lhs) throws ScanErrorException {
+    private boolean parseRelOp(String lhs) throws ScanErrorException 
+    {
         String op = ctok;
         eat(ctok);
         String rhs = parseStrExpression();
-        return switch(op) {
+        return switch(op) 
+        {
             case "=" -> lhs.equals(rhs);
             case "<>" -> !lhs.equals(rhs);
             case "<" -> lhs.compareTo(rhs) < 0;
@@ -553,7 +678,8 @@ public class Parser {
      * @param tok token to test
      * @return true if tok is valid id & not reserved keyword
      */
-    private boolean isID(String tok) {
+    private boolean isID(String tok) 
+    {
         // any valid var name in java that is not reserved
         return tok.matches("^[a-zA-Z_$][a-zA-Z_$0-9]*$") &&
             !KEYWORDS.contains(tok);
@@ -564,7 +690,8 @@ public class Parser {
      * @param tok token to test
      * @return true if tok is TRUE or FALSE
      */
-    private boolean isBool(String tok) {
+    private boolean isBool(String tok) 
+    {
         return tok.equals("TRUE") || tok.equals("FALSE");
     }
 
@@ -573,7 +700,8 @@ public class Parser {
      * @param tok token to test
      * @return true if tok is one of =, <>, <, >, <=, >=
      */
-    private boolean isRelOp(String tok) {
+    private boolean isRelOp(String tok) 
+    {
         return tok.equals(">=") || tok.equals("<=") || tok.equals("=") ||
                tok.equals("<>") || tok.equals("<")  || tok.equals(">");
     }
