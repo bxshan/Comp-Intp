@@ -1,0 +1,8 @@
+BEGIN
+   WRITELN(1);
+   WRITELN(2);
+   BEGIN
+        WRITELN(3);
+    END;
+END;
+.

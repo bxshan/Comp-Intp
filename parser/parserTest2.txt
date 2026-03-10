@@ -1,0 +1,4 @@
+WRITELN(2 + 3 * 4);
+WRITELN(2 * 3 + 4);
+WRITELN((2 + 3) * 4);
+.

@@ -1,0 +1,4 @@
+WRITELN(6 * 2 / 3);
+WRITELN(6 / 2 * 3);
+WRITELN(6 / (2 * 3));
+.
