@@ -15,4 +15,4 @@ BEGIN
   WRITELN (y);
   WRITELN (1 = 2); (* prints "FALSE" *)
 END;
-.
+$

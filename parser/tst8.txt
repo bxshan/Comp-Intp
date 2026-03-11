@@ -4,5 +4,7 @@ BEGIN
   z := "";
   str := x + y;
   WRITELN(x + z + y + z + z + x + "_" + y);
+  WRITELN("LENGTH_OF_x:_");
+  WRITELN(#x);
 END;
-.
+$

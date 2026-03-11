@@ -5,5 +5,4 @@ BEGIN
     WRITELN(3);
   END;
 END;
-.
-    
+$
