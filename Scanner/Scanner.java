@@ -21,7 +21,7 @@ public class Scanner
 
     // excluding '/': is handled specially in nextToken() to check for comments
     // must exclude '$' and '^'
-    private static final String OPS = "=+-*%()@;:<>#'\\\",{}[]&!_";
+    private static final String OPS = "=+-*%()@;:<>#'\\\",{}[]&!_.";
 
     /**
      * Scanner constructor for construction of a scanner that 
@@ -60,7 +60,7 @@ public class Scanner
         try
         {
             int r = in.read();
-            if (r == -1 || r == '.')  this.eof = true;
+            if (r == -1 || r == '$')  this.eof = true;
             else this.currentChar = (char) r;
         } 
         catch (Exception e) 
@@ -254,6 +254,9 @@ public class Scanner
             } else if ((ret.equals("(") && currentChar == '*')) {
                 eat('*');
                 ret += "*";
+            } else if ((ret.equals(".") && currentChar == '.')) {
+                eat('.');
+                ret += '.';
             }
         }
 

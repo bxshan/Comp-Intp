@@ -186,12 +186,11 @@ public class Tester
         try 
         {
             String dir = 
-                "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Parser/parserTest4.txt";
+                "/Users/box/Desktop/Desktop - box mac/src/harkerCompIntp/Parser/tst8.txt";
             FileInputStream fis = new FileInputStream(dir);
             Scanner s = new Scanner(fis);
             Parser p = new Parser(s);
             test1(p);
-            testAll();
         } 
         catch (Exception e) 
         {

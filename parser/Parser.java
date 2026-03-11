@@ -131,7 +131,7 @@ public class Parser
                     eat("array");
                     eat("[");
                     int l = parseExpression();
-                    eat(",");
+                    eat("..");
                     int r = parseExpression();
                     eat("]");
                     var.put(tmpv, new HashMap<Integer, Object>());
