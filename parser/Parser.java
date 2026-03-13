@@ -6,6 +6,7 @@ import java.util.*;
  * Parser.java is a simple parser for Compilers and Interpreters (2025-2026 S2) 
  * @author Boxuan Shan
  * @version 1.0
+ * @date 03/11/2026
  *  
  * Usage:
  * receive a stream of tokens from scanner.Scanner, then excecutes Pascal-like statements
@@ -29,6 +30,8 @@ public class Parser
      * instantiates scanner to read from, ctok current token to first token, 
      * var the HashMap storing var declarations
      * @param sc the scanner to take tokens from
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public Parser(scanner.Scanner sc) throws ScanErrorException 
     {
@@ -186,6 +189,8 @@ public class Parser
      * @precondition ctok is int 
      * @postcondition int token eaten
      * @return value of eaten int
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private int parseNumber() throws ScanErrorException 
     {
@@ -207,6 +212,8 @@ public class Parser
      * @precondition ctok is TRUE or FALSE
      * @postcondition bool token eaten
      * @return value of eaten bool
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private boolean parseBool() throws ScanErrorException 
     {
@@ -228,6 +235,8 @@ public class Parser
      * @precondition ctok is opening "
      * @postcondition all tokens through closing " eaten
      * @return string literal value with '_' replace by ' '
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private String parseStr() throws ScanErrorException 
     {
@@ -248,6 +257,8 @@ public class Parser
      * @precondition ctok is at the start of an int factor
      * @postcondition factor tokens eaten
      * @return int value of the factor
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public int parseFactor() throws ScanErrorException 
     {
@@ -260,6 +271,8 @@ public class Parser
      * @postcondition factor tokens eaten
      * @param sign accumulated sign; 1 -> negative, 0 -> positive
      * @return signed int value of factor
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private int pfHelper(boolean sign) throws ScanErrorException 
     {
@@ -311,6 +324,8 @@ public class Parser
      * @precondition ctok is at the start of a bool factor
      * @postcondition factor tokens are eaten
      * @return bool value of the factor
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public boolean parseBoolFactor() throws ScanErrorException 
     {
@@ -323,6 +338,8 @@ public class Parser
      * @postcondition factor tokens eaten
      * @param sign accumulated negation; 1 -> !bool, 0 -> bool
      * @return signed bool value of factor
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private boolean pbfHelper(boolean sign) throws ScanErrorException 
     {
@@ -368,6 +385,8 @@ public class Parser
      * @precondition ctok is at start of string factor
      * @postcondition factor tokens eaten
      * @return string value of the factor
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public String parseStrFactor() throws ScanErrorException 
     {
@@ -379,6 +398,8 @@ public class Parser
      * @precondition ctok is at start of string factor
      * @postcondition factor tokens eaten
      * @return string value of the factor, or "" if no match
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private String psfHelper() throws ScanErrorException 
     {
@@ -419,6 +440,8 @@ public class Parser
      * @precondition ctok is at start of int term
      * @postcondition term tokens eaten
      * @return int value of the term 
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public int parseTerm() throws ScanErrorException 
     {
@@ -454,6 +477,8 @@ public class Parser
      * @precondition ctok is at start of int factor or '('
      * @postcondition factor tokens eaten
      * @return int value of factor
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private int pi() throws ScanErrorException 
     {
@@ -491,6 +516,8 @@ public class Parser
      * @precondition ctok at start of boolean term
      * @postcondition term tokens eaten
      * @return bool value of the term 
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public boolean parseBoolTerm() throws ScanErrorException 
     {
@@ -516,6 +543,8 @@ public class Parser
      * @precondition ctok is at start of bool factor or '('
      * @postcondition factor tokens eaten
      * @return bool value of factor
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private boolean pb() throws ScanErrorException 
     {
@@ -553,6 +582,8 @@ public class Parser
      * @precondition ctok is at start of string term
      * @postcondition term tokens eaten
      * @return string value of the term 
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public String parseStrTerm() throws ScanErrorException 
     {
@@ -573,6 +604,8 @@ public class Parser
      * @precondition ctok at start of int expression
      * @postcondition expression tokens eaten
      * @return int value of the expression 
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public int parseExpression() throws ScanErrorException 
     {
@@ -599,6 +632,8 @@ public class Parser
      * @precondition ctok at start of bool expression
      * @postcondition expression tokens eaten
      * @return bool value of the expression
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public boolean parseBoolExpression() throws ScanErrorException 
     {
@@ -619,6 +654,8 @@ public class Parser
      * @precondition ctok at start of string expression
      * @postcondition expression tokens eaten
      * @return string value of expression
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public String parseStrExpression() throws ScanErrorException 
     {
@@ -631,6 +668,8 @@ public class Parser
      * @postcondition relop and rhs tokens eaten
      * @param lhs int operand on lhs
      * @return bool result of relational operator
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private boolean parseRelOp(int lhs) throws ScanErrorException 
     {
@@ -655,6 +694,8 @@ public class Parser
      * @postcondition relop and rhs tokens eaten
      * @param lhs String operand on lhs
      * @return bool result of relational operator
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
      */
     private boolean parseRelOp(String lhs) throws ScanErrorException 
     {
