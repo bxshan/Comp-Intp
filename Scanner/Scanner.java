@@ -4,6 +4,18 @@ import java.io.*;
  * Scanner is a simple scanner for Compilers and Interpreters (2014-2015) lab exercise 1
  * @author Boxuan Shan
  * @version 1.0
+ *
+ * Questions:
+ * 1.) What if the next character had been a newline? An open parenthesis?
+ *      If it is a newline, we should still check for the next character after, since an open parenthesis
+ *      would also be correct syntactically, even though its not good style.
+ *      If it is an open parenthesis, we should prepare to read a boolena expression to determine the 
+ *      behavior of the if statement
+ * 2.) What will be the parameter you pass to eat? Can you think about how this lookahead might be useful later?
+ *      Should pass in the token we expect to see next to eat, or the token that currentChar should
+ *      be on currently. This lookahead is useful for determining syntax errors in the code: if the 
+ *      lookahead does not match the character actually present in the file, we know that theyre must 
+ *      be a syntax error. 
  *  
  * Usage:
  * Used to scan an input file and sequentially output tokens present in that file
