@@ -1,0 +1,6 @@
+BEGIN
+  x := 5;
+  y := 3;
+  WRITELN(x * -y + 100);
+END;
+$

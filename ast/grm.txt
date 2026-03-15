@@ -1,0 +1,25 @@
+stmts → stmts stmt | ε
+
+stmt → WRITELN(expr); | READLN(id); | BEGIN stmts END; | id := expr; | (* ... *)
+     | id := array[iexpr,iexpr]; | id[iexpr] := expr;
+
+expr → bexpr | iexpr relop iexpr | iexpr | sexpr | sexpr relop sexpr
+
+bexpr → bexpr OR bterm | bterm
+bterm → bterm AND bfact | bfact
+bfact → NOT bfact | (bexpr) | TRUE | FALSE | id | id[iexpr]
+
+iexpr → iexpr + iterm | iexpr - iterm | iterm
+iterm → iterm * ifactor | iterm / ifactor | iterm mod ifactor | ifactor
+ifactor → (iexpr) | -ifactor | [/d+] | id | id[iexpr] | #sfact
+
+sexpr → sexpr + sterm | sterm
+sterm → sfact
+sfact → (sexpr) | "literal" | id | id[iexpr]
+
+relop → = | <= | >= | <> | < | >
+
+id → [Map<String, Object> v]
+
+---
+'_' used as ' ' in strings
