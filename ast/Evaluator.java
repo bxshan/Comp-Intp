@@ -5,7 +5,7 @@ import environment.*;
 
 public class Evaluator {
     public void exec(Statement stmt, Environment env) {
-        System.out.println(stmt);
+        // System.out.println(stmt);
         switch (stmt) {
             case Writeln w -> System.out.println(eval(w.getExpression(), env));
             case ArrayAssignment aa -> { // must be before assignment
@@ -22,6 +22,14 @@ public class Evaluator {
             case If i -> {
                 boolean c = (java.lang.Boolean) eval(i.getCond(), env);
                 if (c) exec(i.getThen(), env);
+                else if (i.getElse() != null) exec(i.getElse(), env);
+            }
+            case While w -> {
+                boolean c = (java.lang.Boolean) eval(w.getCond(), env);
+                while(c) {
+                    exec(w.getDo(), env);
+                    c = (java.lang.Boolean) eval(w.getCond(), env);
+                }
             }
             default -> throw new RuntimeException("unknown class of stmt in Evaluator/exec");
         }
@@ -51,7 +59,14 @@ public class Evaluator {
                             case "*" -> i1 * v2;
                             case "/" -> i1 / v2;
                             case "mod" -> i1 % v2;
-                                default -> throw new RuntimeException("check op " + bo.getOp());
+
+                            case ">=" -> i1 >= v2;
+                            case "<=" -> i1 <= v2;
+                            case "="  -> i1 == v2;
+                            case "<>" -> i1 != v2;
+                            case "<"  -> i1 < v2;
+                            case ">"  -> i1 > v2;
+                            default -> throw new RuntimeException("check op " + bo.getOp());
                         };
                     }
                     case String s1 -> {

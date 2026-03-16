@@ -20,7 +20,9 @@ public class Parser
             "BEGIN", "END", "WRITELN",
             "READLN", "EOF", "TRUE",
             "FALSE", "NOT", "AND",
-            "OR", "mod", "array"
+            "OR", "mod", "array",
+            "IF", "THEN", "ELSE",
+            "WHILE"
             );
 
     /**
@@ -57,7 +59,12 @@ public class Parser
     }
     
     public void parse() throws ScanErrorException {
-        ev.exec(parseStatement(), env);
+        // ev.exec(parseStatement(), env);
+        while (ctok != null/* && !ctok.equals("$")*/) {
+            Statement s = parseStatement();
+            if (s == null) break;
+            ev.exec(s, env);
+        }
     }
 
     /**
@@ -222,14 +229,45 @@ public class Parser
             } else {
                 Expression lhs = parseExpression();
                 if (isRelOp(ctok)) {
-                    c = new ast.Boolean(parseRelOp((Integer) ev.eval(lhs, env)));
+                    String op = ctok;
+                    eat(ctok);
+                    c = new BinOp(op, lhs, parseExpression());
                 } else {
                     c = lhs;
                 }
             }
             eat("THEN");
             Statement t = parseStatement();
+            if (ctok.equals("ELSE")) {
+                eat("ELSE");
+                Statement e = parseStatement();
+                return new If(c, t, e);
+            }
             return new If(c, t);
+        }
+
+        if (ctok.equals("WHILE")) {
+            eat("WHILE");
+            HashMap<String, Object> v = env.getVars();
+            Expression c;
+            if (!ctok.matches("\\d+") && (isBool(ctok) ||
+                    (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
+                    ctok.equals("NOT"))) {
+                c = new ast.Boolean(parseBoolExpression());
+            } else {
+                Expression lhs = parseExpression();
+                if (isRelOp(ctok)) {
+                    String op = ctok;
+                    eat(ctok);
+                    c = new BinOp(op, lhs, parseExpression());
+                } else {
+                    c = lhs;
+                }
+            }
+            eat("DO");
+            Statement d = parseStatement();
+
+            return new While(c, d);
         }
 
         if (ctok.equals("(*")) 

@@ -3,19 +3,19 @@ package ast;
 public class If extends Statement {
     private Expression condition;
     private Statement then;
-    // private Statement _else;
+    private Statement _else;
 
     public If(Expression condition, Statement then) {
         this.condition = condition;
         this.then = then;
-        // this._else = null;
+        this._else = null;
     }
 
-    // public If(Expression condition, Statement then, Statement _else) {
-    //     this.condition = condition;
-    //     this.then = then;
-    //     this._else = _else;
-    // }
+    public If(Expression condition, Statement then, Statement _else) {
+        this.condition = condition;
+        this.then = then;
+        this._else = _else;
+    }
 
     public Expression getCond() {
         return this.condition;
@@ -25,12 +25,14 @@ public class If extends Statement {
         return this.then;
     }
 
-    // public Statement getElse() {
-    //     return this._else;
-    // }
+    public Statement getElse() {
+        return this._else;
+    }
 
     @Override
     public String toString() {
-        return "IF " + condition + " THEN " + then;
+        String res = "IF " + condition + " THEN " + then;
+        if (_else != null) res += " ELSE " + _else;
+        return res;
     }
 }

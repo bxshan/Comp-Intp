@@ -22,7 +22,7 @@ public class Tester {
             
             HashMap<String, Object> vm = p.getVarMap();
             for (String v : vm.keySet()) {
-                System.out.println(v + " = " + vm.get(v));
+                System.out.println(v + "\t=\t" + vm.get(v));
             }
         } catch (Exception e) {
             System.out.println("check ast.Tester\n\t");
@@ -31,8 +31,10 @@ public class Tester {
     }
 
     public static void main(String[] args) throws Exception {
-        for(int tc = 0; tc <= 8; tc++) {
+        for(int tc = 0; tc <= 10; tc++) {
+            if (tc==10) System.out.println("!!!");
             if (tc==4) continue;
+            // if (tc==8) continue;
             try {
                 System.out.println("tc " + tc + ":");
                 String dir = 
