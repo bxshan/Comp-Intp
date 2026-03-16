@@ -31,7 +31,7 @@ public class Tester {
     }
 
     public static void main(String[] args) throws Exception {
-        for(int tc = 0; tc <= 7; tc++) {
+        for(int tc = 0; tc <= 8; tc++) {
             if (tc==4) continue;
             try {
                 System.out.println("tc " + tc + ":");

@@ -1,0 +1,9 @@
+IF 1 <> 1 
+THEN WRITELN("1_!=_1");
+
+IF 1 < 2
+THEN BEGIN
+  WRITELN("IN_BEGIN_");
+  WRIETLN("BLOCK")
+END;
+$
