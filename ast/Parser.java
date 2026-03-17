@@ -78,276 +78,261 @@ public class Parser
      */
     public Statement parseStatement() throws Throwable 
     {
-        // System.out.println(ctok);
-        if (ctok.equals("WRITELN")) 
-        {
-            eat("WRITELN");
-            eat("(");
-            Expression exp;
-            HashMap<String, Object> v = env.getVars();
-            if (isBool(ctok) ||
-                    (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
-                    ctok.equals("NOT"))
-            {
-                boolean boolVal = parseBoolExpression();
-                exp = new ast.Boolean(boolVal);
-            } 
-            else if (ctok.equals("\"") ||
-                    (v.containsKey(ctok) && v.get(ctok) instanceof String))
-            {
-                String strVal = parseStrExpression();
-                exp = new SString(strVal);
-            }
-            else
-            { // num expr, or int relop (boolean result)
-                Expression lhs = parseExpression();
-                if (isRelOp(ctok)) {
-                    boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
-                    exp = new ast.Boolean(boolVal);
-                } else {
-                    exp = lhs;
-                }
-            }
-            eat(")");
-            eat(";");
-
-            return new Writeln(exp);
-        }
-
-        if (ctok.equals("READLN")) 
-        {
-            java.util.Scanner scn = new java.util.Scanner(System.in);
-            eat("READLN");
-            eat("(");
-            String varName = ctok;
-            System.out.print("WRITE TO " + varName + ": ");
-            String in = scn.nextLine();
-            Variable v = new Variable(varName);
-            if (in.matches("\\d+")) env.setVar(varName, Integer.parseInt(in));
-            else if (this.isBool(in)) env.setVar(varName, in.equals("TRUE"));
-            else env.setVar(varName, in); // string
-            eat(varName);
-            eat(")");
-            eat(";");
-
-            return new Readln(v);
-        }
-
-        if (ctok.equals("BEGIN")) 
-        {
-            eat("BEGIN");
-            ArrayList<Statement> stmts = new ArrayList<Statement>();
-            while(!ctok.equals("END")) stmts.add(parseStatement());
-            eat("END");
-            eat(";");
-            return new Block(stmts);
-        } 
-
-        if(this.isID(ctok)) 
-        {
-            String tmpv = ctok;
-            eat(ctok);
-            HashMap<String, Object> v = env.getVars();
-            if (ctok.equals(":=")) 
-            {
-                eat(":=");
+        switch (ctok) {
+            case "WRITELN" -> {
+                eat("WRITELN");
+                eat("(");
                 Expression exp;
-
-                if (!ctok.matches("\\d+") && (isBool(ctok) ||
-                        (v.containsKey(tmpv) && v.get(tmpv) instanceof java.lang.Boolean) ||
-                        ctok.equals("NOT"))) 
+                HashMap<String, Object> v = env.getVars();
+                if (isBool(ctok) ||
+                        (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
+                        ctok.equals("NOT"))
                 {
-                    boolean tmp = parseBoolExpression();
-                    if (!v.containsKey(tmpv)) env.setVar(tmpv, tmp);
-                    exp = new ast.Boolean(tmp);
+                    boolean boolVal = parseBoolExpression();
+                    exp = new ast.Boolean(boolVal);
                 } 
                 else if (ctok.equals("\"") ||
-                        (v.containsKey(tmpv) && v.get(tmpv) instanceof String) ||
                         (v.containsKey(ctok) && v.get(ctok) instanceof String))
                 {
-                    String lhs = parseStrExpression();
-                    if (!v.containsKey(tmpv)) env.setVar(tmpv, lhs);
-                    exp = new SString(lhs);
-                } 
-                else if (ctok.equals("array")) 
-                { 
-                    eat("array");
-                    eat("[");
-                    Expression l = parseExpression();
-                    eat("..");
-                    Expression r = parseExpression();
-                    eat("]");
-                    if (!v.containsKey(tmpv)) env.setVar(tmpv, new HashMap<Integer, Object>());
-                    exp = new Array((Integer) ev.eval(l, env), (Integer) ev.eval(r, env));
+                    String strVal = parseStrExpression();
+                    exp = new SString(strVal);
                 }
                 else
-                { // int, or int relop (boolean result)
+                { // num expr, or int relop (boolean result)
                     Expression lhs = parseExpression();
                     if (isRelOp(ctok)) {
                         boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
-                        if (!v.containsKey(tmpv)) env.setVar(tmpv, boolVal);
                         exp = new ast.Boolean(boolVal);
                     } else {
-                        if (!v.containsKey(tmpv)) env.setVar(tmpv, 0);
                         exp = lhs;
                     }
                 }
+                eat(")");
                 eat(";");
-                return new Assignment(new Variable(tmpv), exp);
-            } 
-            else if (ctok.equals("[")) 
-            { 
-                eat("[");
-                Expression idx = parseExpression();
-                eat("]");
-                eat(":=");
-                @SuppressWarnings("unchecked")
-                HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(tmpv);
-
-                Expression exp;
-                if (isBool(ctok) || 
-                        (v.containsKey(ctok) && env.getObjVar(ctok) instanceof java.lang.Boolean) ||
-                        ctok.equals("NOT"))
-                    exp = new ast.Boolean(parseBoolExpression());
-                else if (ctok.equals("\"") ||
-                        (v.containsKey(ctok) && env.getObjVar(ctok) instanceof String))
-                    exp = new SString(parseStrExpression());
-                else
-                    exp = parseExpression();
+                return new Writeln(exp);
+            }
+            case "READLN" -> {
+                java.util.Scanner scn = new java.util.Scanner(System.in);
+                eat("READLN");
+                eat("(");
+                String varName = ctok;
+                System.out.print("WRITE TO " + varName + ": ");
+                String in = scn.nextLine();
+                Variable v = new Variable(varName);
+                if (in.matches("\\d+")) env.setVar(varName, Integer.parseInt(in));
+                else if (this.isBool(in)) env.setVar(varName, in.equals("TRUE"));
+                else env.setVar(varName, in); // string
+                eat(varName);
+                eat(")");
                 eat(";");
-                return new ArrayAssignment(new Variable(tmpv), idx, exp);
-            }
-        } 
 
-        if (ctok.equals("IF")) {
-            eat("IF");
-            Expression c;
-            HashMap<String, Object> v = env.getVars();
-            if (!ctok.matches("\\d+") && (isBool(ctok) ||
-                    (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
-                    ctok.equals("NOT"))) { // just a normal bool
-                c = new ast.Boolean(parseBoolExpression());
-            } else { // check lhs relop rhs (expr)
-                Expression lhs = parseExpression();
-                if (isRelOp(ctok)) {
-                    String op = ctok;
+                return new Readln(v);
+            }
+            case "BEGIN" -> {
+                eat("BEGIN");
+                ArrayList<Statement> stmts = new ArrayList<Statement>();
+                while(!ctok.equals("END")) stmts.add(parseStatement());
+                eat("END");
+                eat(";");
+                return new Block(stmts);
+            }
+            case "IF" -> {
+                eat("IF");
+                Expression c;
+                HashMap<String, Object> v = env.getVars();
+                if (!ctok.matches("\\d+") && (isBool(ctok) ||
+                        (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
+                        ctok.equals("NOT"))) { // just a normal bool
+                    c = new ast.Boolean(parseBoolExpression());
+                } else { // check lhs relop rhs (expr)
+                    Expression lhs = parseExpression();
+                    if (isRelOp(ctok)) {
+                        String op = ctok;
+                        eat(ctok);
+                        c = new BinOp(op, lhs, parseExpression());
+                    } else c = lhs; 
+                }
+                eat("THEN");
+                Statement t = parseStatement();
+
+                if (ctok.equals("ELSE")) {
+                    Statement e;
+                    eat("ELSE");
+                    e = parseStatement();
+
+                    return new If(c, t, e);
+                }
+                return new If(c, t);
+            }
+            case "WHILE" -> {
+                eat("WHILE");
+                HashMap<String, Object> v = env.getVars();
+                Expression c;
+                if (!ctok.matches("\\d+") && (isBool(ctok) ||
+                        (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
+                        ctok.equals("NOT"))) { // just a normal bool
+                    c = new ast.Boolean(parseBoolExpression());
+                } else { // check lhs relop rhs (expr)
+                    Expression lhs = parseExpression();
+                    if (isRelOp(ctok)) {
+                        String op = ctok;
+                        eat(ctok);
+                        c = new BinOp(op, lhs, parseExpression());
+                    } else c = lhs;
+                }
+                eat("DO");
+                Statement d = parseStatement();
+
+                return new While(c, d);
+            }
+            case "FOR" -> {
+                eat("FOR");
+                HashMap<String, Object> v = env.getVars();
+                Assignment i = (Assignment) parseStatement(true);
+
+                eat("TO");
+
+                Expression t;
+
+                if (!ctok.matches("\\d+") && (isBool(ctok) ||
+                        (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
+                        ctok.equals("NOT"))) { // just a normal bool
+                    t = new ast.Boolean(parseBoolExpression());
+                } else { // check lhs relop rhs (expr)
+                    Expression lhs = parseExpression();
+                    if (isRelOp(ctok)) {
+                        String op = ctok;
+                        eat(ctok);
+                        t = new BinOp(op, lhs, parseExpression());
+                    } else t = lhs;
+                }
+
+                eat("DO");
+                Statement d = parseStatement();
+
+                return new For(i, t, d);
+            }
+            case "REPEAT" -> {
+                eat("REPEAT");
+                HashMap<String, Object> v = env.getVars();
+                Statement r = parseStatement();
+
+                eat("UNTIL");
+
+                Expression u;
+
+                if (!ctok.matches("\\d+") && (isBool(ctok) ||
+                        (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
+                        ctok.equals("NOT"))) { // just a normal bool
+                    u = new ast.Boolean(parseBoolExpression());
+                } else { // check lhs relop rhs (expr)
+                    Expression lhs = parseExpression();
+                    if (isRelOp(ctok)) {
+                        String op = ctok;
+                        eat(ctok);
+                        u = new BinOp(op, lhs, parseExpression());
+                    } else u = lhs;
+                }
+
+                return new RepeatUntil(r, u);
+            }
+            case "BREAK" -> {
+                eat("BREAK");
+                eat(";");
+                return new Break();
+            }
+            case "CONTINUE" -> {
+                eat("CONTINUE");
+                eat(";");
+                return new Continue();
+            }
+            case "EOF", "$" -> {
+                return null;
+            }
+            case "(*" -> {
+                eat("(*");
+                while (!ctok.equals("*)")) eat(ctok);
+                eat("*)");
+                return null; 
+            }
+            default -> {
+                if(this.isID(ctok)) {
+                    String tmpv = ctok;
                     eat(ctok);
-                    c = new BinOp(op, lhs, parseExpression());
-                } else c = lhs; 
+                    HashMap<String, Object> v = env.getVars();
+                    if (ctok.equals(":=")) 
+                    {
+                        eat(":=");
+                        Expression exp;
+
+                        if (!ctok.matches("\\d+") && (isBool(ctok) ||
+                                    (v.containsKey(tmpv) && v.get(tmpv) instanceof java.lang.Boolean) ||
+                                    ctok.equals("NOT"))) 
+                        {
+                            boolean tmp = parseBoolExpression();
+                            if (!v.containsKey(tmpv)) env.setVar(tmpv, tmp);
+                            exp = new ast.Boolean(tmp);
+                        } 
+                        else if (ctok.equals("\"") ||
+                                (v.containsKey(tmpv) && v.get(tmpv) instanceof String) ||
+                                (v.containsKey(ctok) && v.get(ctok) instanceof String))
+                        {
+                            String lhs = parseStrExpression();
+                            if (!v.containsKey(tmpv)) env.setVar(tmpv, lhs);
+                            exp = new SString(lhs);
+                        } 
+                        else if (ctok.equals("array")) 
+                        { 
+                            eat("array");
+                            eat("[");
+                            Expression l = parseExpression();
+                            eat("..");
+                            Expression r = parseExpression();
+                            eat("]");
+                            if (!v.containsKey(tmpv)) env.setVar(tmpv, new HashMap<Integer, Object>());
+                            exp = new Array((Integer) ev.eval(l, env), (Integer) ev.eval(r, env));
+                        }
+                        else
+                        { // int, or int relop (boolean result)
+                            Expression lhs = parseExpression();
+                            if (isRelOp(ctok)) {
+                                boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
+                                if (!v.containsKey(tmpv)) env.setVar(tmpv, boolVal);
+                                exp = new ast.Boolean(boolVal);
+                            } else {
+                                if (!v.containsKey(tmpv)) env.setVar(tmpv, 0);
+                                exp = lhs;
+                            }
+                        }
+                        eat(";");
+                        return new Assignment(new Variable(tmpv), exp);
+                    } 
+                    else if (ctok.equals("[")) 
+                    { 
+                        eat("[");
+                        Expression idx = parseExpression();
+                        eat("]");
+                        eat(":=");
+                        @SuppressWarnings("unchecked")
+                        HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(tmpv);
+
+                        Expression exp;
+                        if (isBool(ctok) || 
+                                (v.containsKey(ctok) && env.getObjVar(ctok) instanceof java.lang.Boolean) ||
+                                ctok.equals("NOT"))
+                            exp = new ast.Boolean(parseBoolExpression());
+                        else if (ctok.equals("\"") ||
+                                (v.containsKey(ctok) && env.getObjVar(ctok) instanceof String))
+                            exp = new SString(parseStrExpression());
+                        else
+                            exp = parseExpression();
+                        eat(";");
+                        return new ArrayAssignment(new Variable(tmpv), idx, exp);
+                    }
+                } else throw new IllegalArgumentException("Unrecognized statement or syntax error at token: " + ctok);
             }
-            eat("THEN");
-            Statement t = parseStatement();
-
-            if (ctok.equals("ELSE")) {
-                Statement e;
-                eat("ELSE");
-                e = parseStatement();
-
-                return new If(c, t, e);
-            }
-            return new If(c, t);
         }
-
-        if (ctok.equals("WHILE")) {
-            eat("WHILE");
-            HashMap<String, Object> v = env.getVars();
-            Expression c;
-            if (!ctok.matches("\\d+") && (isBool(ctok) ||
-                    (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
-                    ctok.equals("NOT"))) { // just a normal bool
-                c = new ast.Boolean(parseBoolExpression());
-            } else { // check lhs relop rhs (expr)
-                Expression lhs = parseExpression();
-                if (isRelOp(ctok)) {
-                    String op = ctok;
-                    eat(ctok);
-                    c = new BinOp(op, lhs, parseExpression());
-                } else c = lhs;
-            }
-            eat("DO");
-            Statement d = parseStatement();
-
-            return new While(c, d);
-        }
-
-        if (ctok.equals("FOR")) {
-            eat("FOR");
-            HashMap<String, Object> v = env.getVars();
-            Assignment i = (Assignment) parseStatement(true);
-
-            eat("TO");
-
-            Expression t;
-
-            if (!ctok.matches("\\d+") && (isBool(ctok) ||
-                    (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
-                    ctok.equals("NOT"))) { // just a normal bool
-                t = new ast.Boolean(parseBoolExpression());
-            } else { // check lhs relop rhs (expr)
-                Expression lhs = parseExpression();
-                if (isRelOp(ctok)) {
-                    String op = ctok;
-                    eat(ctok);
-                    t = new BinOp(op, lhs, parseExpression());
-                } else t = lhs;
-            }
-
-            eat("DO");
-            Statement d = parseStatement();
-
-            return new For(i, t, d);
-        }
-
-        if (ctok.equals("REPEAT")) {
-            eat("REPEAT");
-            HashMap<String, Object> v = env.getVars();
-            Statement r = parseStatement();
-
-            eat("UNTIL");
-
-            Expression u;
-
-            if (!ctok.matches("\\d+") && (isBool(ctok) ||
-                    (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
-                    ctok.equals("NOT"))) { // just a normal bool
-                u = new ast.Boolean(parseBoolExpression());
-            } else { // check lhs relop rhs (expr)
-                Expression lhs = parseExpression();
-                if (isRelOp(ctok)) {
-                    String op = ctok;
-                    eat(ctok);
-                    u = new BinOp(op, lhs, parseExpression());
-                } else u = lhs;
-            }
-
-            return new RepeatUntil(r, u);
-        }
-
-        if (ctok.equals("BREAK")) {
-            eat("BREAK");
-            eat(";");
-            return new Break();
-        }
-
-        if (ctok.equals("CONTINUE")) {
-            eat("CONTINUE");
-            eat(";");
-            return new Continue();
-        }
-
-        if (ctok.equals("EOF") || ctok.equals("$")) {
-            return null;
-        }
-
-        if (ctok.equals("(*")) 
-        {
-            eat("(*");
-            while (!ctok.equals("*)")) eat(ctok);
-            eat("*)");
-            return null; 
-        }
-
-        throw new IllegalArgumentException("Unrecognized statement or syntax error at token: " + ctok);
+        return null;
     }
 
     public Statement parseStatement(boolean inFor) throws ScanErrorException {
