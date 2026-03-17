@@ -5,7 +5,7 @@ import java.util.*;
 import java.io.*;
 
 public class Tester {
-    static void test(scanner.Scanner s, ast.Parser p, ast.Evaluator ev) {
+    static void test(scanner.Scanner s, ast.Parser p, ast.Evaluator ev) throws Throwable {
         System.out.println("=====================================");
 
         try {
@@ -30,9 +30,8 @@ public class Tester {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        for(int tc = 0; tc <= 10; tc++) {
-            if (tc==10) System.out.println("!!!");
+    public static void main(String[] args) throws Throwable {
+        for(int tc = 0; tc <= 13; tc++) {
             if (tc==4) continue;
             // if (tc==8) continue;
             try {

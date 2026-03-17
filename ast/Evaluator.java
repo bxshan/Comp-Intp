@@ -4,17 +4,24 @@ import java.util.*;
 import environment.*;
 
 public class Evaluator {
-    public void exec(Statement stmt, Environment env) {
+    public void exec(Statement stmt, Environment env) throws Throwable {
         // System.out.println(stmt);
         switch (stmt) {
+            case Break _ -> throw new ThrowBreak();
+            case Continue _ -> throw new ThrowContinue();
             case Writeln w -> System.out.println(eval(w.getExpression(), env));
             case ArrayAssignment aa -> { // must be before assignment
                 @SuppressWarnings("unchecked")
                 HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(aa.getVar().getName());
                 arr.put((Integer) eval(aa.getIdx(), env), eval(aa.getExpression(), env));
             }
-            case Assignment a -> env.setVar(a.getVar().getName(), eval(a.getExpression(), env));
-            case Block b -> { for(Statement s : b.getStmts()) { if (s != null) exec(s, env); } }
+            case Assignment a -> {
+                env.setVar(a.getVar().getName(), eval(a.getExpression(), env)); 
+                // System.out.println(a);
+                // System.out.println(eval(a.getExpression(), env));
+                // System.out.println("a is " + env.getVars().get("a"));
+            }
+            case Block b -> { for(Statement s : b.getStmts()) { if (s != null) exec(s, env);} }
             case Readln r -> {
                 Scanner s = new Scanner(System.in);
                 env.setVar(r.getVar().getName(), s.nextInt());
@@ -27,9 +34,48 @@ public class Evaluator {
             case While w -> {
                 boolean c = (java.lang.Boolean) eval(w.getCond(), env);
                 while(c) {
-                    exec(w.getDo(), env);
-                    c = (java.lang.Boolean) eval(w.getCond(), env);
+                    try {
+                        exec(w.getDo(), env);
+                        c = (java.lang.Boolean) eval(w.getCond(), env);
+                    } catch (ThrowBreak tb) {
+                        break;
+                    } catch (ThrowContinue tc) {
+                        c = (java.lang.Boolean) eval(w.getCond(), env);
+                        continue;
+                    }
                 }
+            }
+            case For f -> { // var must be an integer, to must be a int expr
+                Assignment i = (Assignment) f.getInit();
+                this.exec(i, env);
+                boolean c = (java.lang.Boolean) eval(new BinOp("<", f.getVar(), f.getTo()), env);
+                while(c) {
+                    try {
+                        exec(f.getDo(), env);
+                        env.setVar(f.getVar().getName(), env.getVar(f.getVar().getName()) + 1);
+                        c = (java.lang.Boolean) eval(new BinOp("<", f.getVar(), f.getTo()), env);
+                    } catch (ThrowBreak tb) {
+                        break;
+                    } catch (ThrowContinue tc) { // increment idx and upd cond
+                        env.setVar(f.getVar().getName(), env.getVar(f.getVar().getName()) + 1);
+                        c = (java.lang.Boolean) eval(new BinOp("<", f.getVar(), f.getTo()), env);
+                        continue;
+                    }
+                }
+            }
+            case RepeatUntil ru -> {
+                boolean c;
+                do {
+                    try {
+                        exec(ru.getRepeat(), env);
+                        c = (java.lang.Boolean) eval(ru.getUntil(), env);
+                    } catch (ThrowBreak tb) {
+                        break;
+                    } catch (ThrowContinue tc) {
+                        c = (java.lang.Boolean) eval(ru.getUntil(), env);
+                        continue;
+                    }
+                } while (!c);
             }
             default -> throw new RuntimeException("unknown class of stmt in Evaluator/exec");
         }
