@@ -49,7 +49,17 @@ public class Tester {
                 System.out.println("skipping tc " + tc + "...\n");
                 continue;
             }
-
         }
+
+        System.out.println("sieve of eratosthenes: ");
+        String dir = 
+            "/Users/box/Desktop/src/HarkerCompIntp/ast/sieve.txt";
+        FileInputStream fis = new FileInputStream(dir);
+        scanner.Scanner scanner = new scanner.Scanner(fis);
+        ast.Parser parser = new ast.Parser(scanner);
+        ast.Evaluator ev = new ast.Evaluator();
+        test(scanner, parser, ev);
+        System.out.println("=====================================");
+        System.out.println("=====================================\n\n");
     }
 }

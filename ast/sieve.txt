@@ -1,0 +1,22 @@
+n := 100;
+sieve := array[1..n];
+
+(* init all to 1 *)
+FOR i := 1 TO n DO
+  sieve[i] := TRUE;
+
+(* sieve *)
+FOR i := 2 TO n DO BEGIN
+  IF sieve[i] THEN BEGIN
+    j := i * i;
+    WHILE j <= n DO BEGIN
+      sieve[j] := FALSE;
+      j := j + i;
+    END;
+  END;
+END;
+
+(* output primes *)
+FOR i := 2 TO n DO
+  IF sieve[i] THEN WRITELN(i);
+$
