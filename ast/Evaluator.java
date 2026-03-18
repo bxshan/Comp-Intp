@@ -7,6 +7,7 @@ public class Evaluator {
     public void exec(Statement stmt, Environment env) throws Throwable {
         // System.out.println(stmt);
         switch (stmt) {
+            case Comment _ -> { return; }
             case Break _ -> throw new ThrowBreak();
             case Continue _ -> throw new ThrowContinue();
             case Writeln w -> System.out.println(eval(w.getExpression(), env));

@@ -63,6 +63,7 @@ public class Parser
         // ev.exec(parseStatement(), env);
         while (ctok != null && !ctok.equals("$")) {
             Statement s = parseStatement();
+            // if (s == null) continue;
             if (s == null) break;
             ev.exec(s, env);
         }
@@ -253,7 +254,7 @@ public class Parser
                 eat("(*");
                 while (!ctok.equals("*)")) eat(ctok);
                 eat("*)");
-                return null; 
+                return new Comment();
             }
             default -> {
                 if(this.isID(ctok)) {
