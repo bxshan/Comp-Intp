@@ -3,104 +3,187 @@ package ast;
 import java.util.*;
 import environment.*;
 
-public class Evaluator {
-    public void exec(Statement stmt, Environment env) throws Throwable {
+/**
+ * Evaluator class to execute statements and evaluate expressions
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class Evaluator
+{
+    /**
+     * Executes a statement
+     * @param stmt statement to execute
+     * @param env of vars 
+     * @throws Throwable for break and continue
+     */
+    public void exec(Statement stmt, Environment env) throws Throwable
+    {
         // System.out.println(stmt);
-        switch (stmt) {
-            case Comment _ -> { return; }
-            case Break _ -> throw new ThrowBreak();
-            case Continue _ -> throw new ThrowContinue();
+        switch (stmt)
+        {
+            case Comment c ->
+            {
+                return;
+            }
+            case Break bk -> throw new ThrowBreak();
+            case Continue ctn -> throw new ThrowContinue();
             case Writeln w -> System.out.println(eval(w.getExpression(), env));
-            case ArrayAssignment aa -> { // must be before assignment
+            case ArrayAssignment aa ->
+            {
+                // must be before assignment
                 @SuppressWarnings("unchecked")
-                HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(aa.getVar().getName());
+                HashMap<Integer, Object> arr =
+                    (HashMap<Integer, Object>) env.getObjVar(aa.getVar().getName());
                 arr.put((Integer) eval(aa.getIdx(), env), eval(aa.getExpression(), env));
             }
-            case Assignment a -> {
+            case Assignment a ->
+            {
                 env.setVar(a.getVar().getName(), eval(a.getExpression(), env)); 
                 // System.out.println(a);
                 // System.out.println(eval(a.getExpression(), env));
                 // System.out.println("a is " + env.getVars().get("a"));
             }
-            case Block b -> { for(Statement s : b.getStmts()) { if (s != null) exec(s, env);} }
-            case Readln r -> {
+            case Block b ->
+            {
+                for(Statement s : b.getStmts())
+                {
+                    if (s != null) exec(s, env);
+                }
+            }
+            case Readln r ->
+            {
                 Scanner s = new Scanner(System.in);
                 env.setVar(r.getVar().getName(), s.nextInt());
             }
-            case If i -> {
+            case If i ->
+            {
                 boolean c = (java.lang.Boolean) eval(i.getCond(), env);
                 if (c) exec(i.getThen(), env);
                 else if (i.getElse() != null) exec(i.getElse(), env);
             }
-            case While w -> {
+            case While w ->
+            {
                 boolean c = (java.lang.Boolean) eval(w.getCond(), env);
-                while(c) {
-                    try {
+                while(c)
+                {
+                    try
+                    {
                         exec(w.getDo(), env);
                         c = (java.lang.Boolean) eval(w.getCond(), env);
-                    } catch (ThrowBreak tb) {
+                    }
+                    catch (ThrowBreak tb)
+                    {
                         break;
-                    } catch (ThrowContinue tc) {
+                    }
+                    catch (ThrowContinue tc)
+                    {
                         c = (java.lang.Boolean) eval(w.getCond(), env);
                         continue;
                     }
                 }
             }
-            case For f -> { // var must be an integer, to must be a int expr
+            case For f ->
+            {
+                // var must be an integer, to must be a int expr
                 Assignment i = (Assignment) f.getInit();
                 this.exec(i, env);
                 boolean c = (java.lang.Boolean) eval(new BinOp("<", f.getVar(), f.getTo()), env);
-                while(c) {
-                    try {
+                while(c)
+                {
+                    try
+                    {
                         exec(f.getDo(), env);
                         env.setVar(f.getVar().getName(), env.getVar(f.getVar().getName()) + 1);
                         c = (java.lang.Boolean) eval(new BinOp("<", f.getVar(), f.getTo()), env);
-                    } catch (ThrowBreak tb) {
+                    }
+                    catch (ThrowBreak tb)
+                    {
                         break;
-                    } catch (ThrowContinue tc) { // increment idx and upd cond
+                    }
+                    catch (ThrowContinue tc)
+                    {
+                        // increment idx and upd cond
                         env.setVar(f.getVar().getName(), env.getVar(f.getVar().getName()) + 1);
                         c = (java.lang.Boolean) eval(new BinOp("<", f.getVar(), f.getTo()), env);
                         continue;
                     }
                 }
             }
-            case RepeatUntil ru -> {
+            case RepeatUntil ru ->
+            {
                 boolean c;
-                do {
-                    try {
+                do
+                {
+                    try
+                    {
                         exec(ru.getRepeat(), env);
                         c = (java.lang.Boolean) eval(ru.getUntil(), env);
-                    } catch (ThrowBreak tb) {
+                    }
+                    catch (ThrowBreak tb)
+                    {
                         break;
-                    } catch (ThrowContinue tc) {
+                    }
+                    catch (ThrowContinue tc)
+                    {
                         c = (java.lang.Boolean) eval(ru.getUntil(), env);
                         continue;
                     }
-                } while (!c);
+                } 
+                while (!c);
             }
             default -> throw new RuntimeException("unknown class of stmt in Evaluator/exec");
         }
     }
 
-    public Object eval(Expression e, Environment env) {
-        switch (e) {
-            case Number n -> { return n.getVal(); }
-            case Boolean b -> { return b.getVal(); }
-            case SString ss -> { return ss.getVal(); }
-            case Variable v -> { return env.getObjVar(v.getName()); }
-            case Array a -> { return new HashMap<Integer, Object>(); }
-            case ArrayElement ae -> { 
+    /**
+     * Evaluates an expression
+     * @param e expression to evaluate
+     * @param env of vars 
+     * @return Object that e evaluates to
+     */
+    public Object eval(Expression e, Environment env)
+    {
+        switch (e)
+        {
+            case Number n ->
+            {
+                return n.getVal();
+            }
+            case Boolean b ->
+            {
+                return b.getVal();
+            }
+            case SString ss ->
+            {
+                return ss.getVal();
+            }
+            case Variable v ->
+            {
+                return env.getObjVar(v.getName());
+            }
+            case Array a ->
+            {
+                return new HashMap<Integer, Object>();
+            }
+            case ArrayElement ae ->
+            { 
                 @SuppressWarnings("unchecked")
-                HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(ae.getName());
+                HashMap<Integer, Object> arr =
+                    (HashMap<Integer, Object>) env.getObjVar(ae.getName());
                 return arr.get((Integer) eval(ae.getIdx(), env));
             }
-            case BinOp bo -> {
+            case BinOp bo ->
+            {
                 Object v1 = eval(bo.getExpr1(), env);
-                switch(v1) {
-                    case Integer i1 -> {
+                switch(v1)
+                {
+                    case Integer i1 ->
+                    {
                         int v2 = (Integer) eval(bo.getExpr2(), env);
 
-                        return switch (bo.getOp()) {
+                        return switch (bo.getOp())
+                        {
                             case "+" -> i1 + v2;
                             case "-" -> i1 - v2;
                             case "*" -> i1 * v2;
@@ -116,18 +199,24 @@ public class Evaluator {
                             default -> throw new RuntimeException("check op " + bo.getOp());
                         };
                     }
-                    case String s1 -> {
+                    case String s1 ->
+                    {
                         String v2 = (String) eval(bo.getExpr2(), env);
 
-                        return switch (bo.getOp()) {
+                        return switch (bo.getOp())
+                        {
                             case "+" -> s1 + v2;
-                                default -> throw new RuntimeException("check op " + bo.getOp());
+                            default -> throw new RuntimeException("check op " + bo.getOp());
                         };
                     }
-                    default -> { throw new RuntimeException("eval binop v1 " + v1 + " type not recognized"); }
+                    default ->
+                    {
+                        throw new RuntimeException("eval binop v1 " + v1 + " type not recognized");
+                    }
                 }
             }
-            default -> throw new RuntimeException("unknown class of e in Evaluator/eval: " + e.getClass());
+            default -> throw new RuntimeException(
+                    "unknown class of e in Evaluator/eval: " + e.getClass());
         }
     }
 }

@@ -1,24 +1,53 @@
 package ast;
 
-public class While extends Statement {
+/**
+ * While type node
+ * extends abstract Statement
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class While extends Statement
+{
     private Expression condition;
     private Statement _do;
 
-    public While(Expression condition, Statement _do) {
+    /**
+     * While type node constructor
+     * @param condition condition
+     * @param _do _do
+     */
+    public While(Expression condition, Statement _do)
+    {
         this.condition = condition;
         this._do = _do;
     }
 
-    public Expression getCond() {
+    /**
+     * gets cond
+     * @return cond as Expression
+     */
+    public Expression getCond()
+    {
         return this.condition;
     }
 
-    public Statement getDo() {
+    /**
+     * gets do
+     * @return do as Statement
+     */
+    public Statement getDo()
+    {
         return this._do;
     }
 
+    /**
+     * toString override
+     * @return string representation of While type 
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         String res = "WHILE " + condition + " DO " + _do;
         return res;
     }

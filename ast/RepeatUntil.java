@@ -1,26 +1,54 @@
 package ast;
 
-public class RepeatUntil extends Statement {
+/**
+ * RepeatUntil type node
+ * extends abstract Statement
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class RepeatUntil extends Statement
+{
     private Statement repeat;
     private Expression until;
 
-    public RepeatUntil(Statement repeat, Expression until) {
+    /**
+     * RepeatUntil type node constructor
+     * @param repeat repeat
+     * @param until until
+     */
+    public RepeatUntil(Statement repeat, Expression until)
+    {
         this.repeat = repeat;
         this.until = until;
     }
 
-    public Statement getRepeat() {
+    /**
+     * gets repeat
+     * @return repeat as Statement
+     */
+    public Statement getRepeat()
+    {
         return this.repeat;
     }
 
-    public Expression getUntil() {
+    /**
+     * gets until
+     * @return until as Expression
+     */
+    public Expression getUntil()
+    {
         return this.until;
     }
 
+    /**
+     * toString override
+     * @return string representation of RepeatUntil type 
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         String res = "REPEAT " + repeat + " UNTIL " + until;
         return res;
     }
 }
-

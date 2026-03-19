@@ -1,18 +1,41 @@
 package ast;
 
-public class Readln extends Statement {
+/**
+ * Readln type node
+ * extends abstract Statement
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class Readln extends Statement
+{
     private Variable var;
 
-    public Readln(Variable var) {
+    /**
+     * Readln type node constructor
+     * @param var var
+     */
+    public Readln(Variable var)
+    {
         this.var = var;
     }
 
-    public Variable getVar() {
+    /**
+     * gets var
+     * @return var as Variable
+     */
+    public Variable getVar()
+    {
         return this.var;
     }
 
+    /**
+     * toString override
+     * @return string representation of Readln type 
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "READLN(" + var.toString() + ");";
     }
 }

@@ -1,18 +1,41 @@
 package ast;
 
-public class Number extends Expression {
-    private int n;
+/**
+ * Number type node
+ * extends abstract Expression
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class Number extends Expression
+{
+    private int num;
 
-    public Number(int n) {
-        this.n = n;
+    /**
+     * Number type node constructor
+     * @param num num
+     */
+    public Number(int num)
+    {
+        this.num = num;
     }
 
-    public int getVal() {
-        return this.n;
+    /**
+     * gets val
+     * @return val as int
+     */
+    public int getVal()
+    {
+        return this.num;
     }
 
+    /**
+     * toString override
+     * @return string representation of Number type 
+     */
     @Override
-    public String toString() {
-        return Integer.toString(n);
+    public String toString()
+    {
+        return Integer.toString(num);
     }
 }

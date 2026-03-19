@@ -1,24 +1,53 @@
 package ast;
 
-public class Assignment extends Statement {
+/**
+ * Assignment type node
+ * extends abstract Statement
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class Assignment extends Statement
+{
     private Variable var;
     private Expression expr;
 
-    public Assignment(Variable var, Expression expr) {
+    /**
+     * Assignment type node constructor
+     * @param var var
+     * @param expr expr
+     */
+    public Assignment(Variable var, Expression expr)
+    {
         this.var = var;
         this.expr = expr;
     }
 
-    public Variable getVar() {
+    /**
+     * gets var
+     * @return var as Variable
+     */
+    public Variable getVar()
+    {
         return this.var;
     }
 
-    public Expression getExpression() {
+    /**
+     * gets expression
+     * @return expression as Expression
+     */
+    public Expression getExpression()
+    {
         return this.expr;
     }
 
+    /**
+     * toString override
+     * @return string representation of Assignment type 
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         return var.toString() + " := " + expr.toString() + ";";
     }
 }

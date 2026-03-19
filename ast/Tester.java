@@ -4,11 +4,27 @@ import scanner.*;
 import java.util.*;
 import java.io.*;
 
-public class Tester {
-    static void test(scanner.Scanner s, ast.Parser p, ast.Evaluator ev) throws Throwable {
+/**
+ * Tester for ast/parser.java
+ *
+ * @author Boxuan Shan
+ * @version 03192024
+ */
+public class Tester
+{
+    /**
+     * tests parser on one test case txt file
+     * @param s Scanner to test
+     * @param p Parse to test
+     * @param ev Evaluator to test
+     * @throws Throwable for break and continue
+     */
+    static void test(scanner.Scanner s, ast.Parser p, ast.Evaluator ev) throws Throwable
+    {
         System.out.println("=====================================");
 
-        try {
+        try
+        {
             // Statement ast = p.parseStatement();
             // ev.exec(ast, p.getEnv());
 
@@ -21,20 +37,33 @@ public class Tester {
             System.out.println("fin vars: ");
             
             HashMap<String, Object> vm = p.getVarMap();
-            for (String v : vm.keySet()) {
+            for (String v : vm.keySet())
+            {
                 System.out.println(v + "\t=\t" + vm.get(v));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.out.println("check ast.Tester\n\t");
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) throws Throwable {
-        for(int tc = 0; tc <= 13; tc++) {
-            if (tc==4) continue;
-            // if (tc==8) continue;
-            try {
+    /**
+     * main function
+     * iterates and tests tc 0 to 13 in order, 
+     * then tests impl. of sieve of eratosthenes
+     * @param args cli args
+     * @throws Throwable for break and continue
+     */
+    public static void main(String[] args) throws Throwable
+    {
+        int tcR = 13;
+        for(int tc = 0; tc <= tcR; tc++)
+        {
+            if (tc==4) continue; // skip the READLN case so to not interrupt testing
+            try
+            {
                 System.out.println("tc " + tc + ":");
                 String dir = 
                     "/Users/box/Desktop/src/HarkerCompIntp/ast/tst"+tc+".txt";
@@ -45,7 +74,9 @@ public class Tester {
                 test(scanner, parser, ev);
                 System.out.println("=====================================");
                 System.out.println("=====================================\n\n");
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 System.out.println("skipping tc " + tc + "...\n");
                 continue;
             }

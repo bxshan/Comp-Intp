@@ -1,18 +1,41 @@
 package ast;
 
-public class Writeln extends Statement {
+/**
+ * Writeln type node
+ * extends abstract Statement
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class Writeln extends Statement
+{
     private Expression expr;
 
-    public Writeln(Expression expr) {
+    /**
+     * Writeln type node constructor
+     * @param expr expr
+     */
+    public Writeln(Expression expr)
+    {
         this.expr = expr;
     }
 
-    public Expression getExpression() {
+    /**
+     * gets expression
+     * @return expression as Expression
+     */
+    public Expression getExpression()
+    {
         return this.expr;
     }
 
+    /**
+     * toString override
+     * @return string representation of Writeln type 
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "WRITELN(" + expr.toString() + ");";
     }
 }

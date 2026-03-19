@@ -1,18 +1,41 @@
 package ast;
 
-public class SString extends Expression {
-    private String s;
+/**
+ * SString type node
+ * extends abstract Expression
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class SString extends Expression
+{
+    private String str;
 
-    public String getVal() {
-        return this.s;
+    /**
+     * SString type node constructor
+     * @param str str
+     */
+    public SString(String str)
+    {
+        this.str = str;
     }
 
-    public SString(String s) {
-        this.s = s;
+    /**
+     * gets val
+     * @return val as String
+     */
+    public String getVal()
+    {
+        return this.str;
     }
 
+    /**
+     * toString override
+     * @return string representation of SString type 
+     */
     @Override
-    public String toString() {
-        return this.s;
+    public String toString()
+    {
+        return this.str;
     }
 }

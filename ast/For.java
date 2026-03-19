@@ -1,38 +1,77 @@
 package ast;
 
-public class For extends Statement {
+/**
+ * For type node
+ * extends abstract Statement
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class For extends Statement
+{
     private Assignment init;
     private Expression to;
     private Statement _do;
-    private Variable v;
+    private Variable var;
 
-    public For(Assignment init, Expression to, Statement _do) {
+    /**
+     * For type node constructor
+     * @param init init
+     * @param to to
+     * @param _do _do
+     */
+    public For(Assignment init, Expression to, Statement _do)
+    {
         this.init = init;
         this.to = to;
         this._do = _do;
-        this.v = init.getVar();
+        this.var = init.getVar();
     }
 
-    public Assignment getInit() {
+    /**
+     * gets init
+     * @return init as Assignment
+     */
+    public Assignment getInit()
+    {
         return this.init;
     }
 
-    public Expression getTo() {
+    /**
+     * gets to
+     * @return to as Expression
+     */
+    public Expression getTo()
+    {
         return this.to;
     }
 
-    public Statement getDo() {
+    /**
+     * gets do
+     * @return do as Statement
+     */
+    public Statement getDo()
+    {
         return this._do;
     }
 
-    public Variable getVar() {
-        return this.v;
+    /**
+     * gets var
+     * @return var as Variable
+     */
+    public Variable getVar()
+    {
+        return this.var;
     }
 
+    /**
+     * toString override
+     * @return string representation of For type 
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         String res = "FOR " + init + " TO " + to + " DO " + _do;
         return res;
     }
 }
-

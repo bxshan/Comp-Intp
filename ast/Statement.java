@@ -1,5 +1,11 @@
 package ast;
 
-public abstract class Statement {
-
+/**
+ * Statement type node
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public abstract class Statement
+{
 }

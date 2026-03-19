@@ -1,18 +1,41 @@
 package ast;
 
-public class Boolean extends Expression {
-    private boolean b;
+/**
+ * Boolean type node
+ * extends abstract Expression
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class Boolean extends Expression
+{
+    private boolean bool;
 
-    public boolean getVal() {
-        return this.b;
+    /**
+     * Boolean type node constructor
+     * @param bool bool
+     */
+    public Boolean(boolean bool)
+    {
+        this.bool = bool;
     }
 
-    public Boolean(boolean b) {
-        this.b = b;
+    /**
+     * gets val
+     * @return val as boolean
+     */
+    public boolean getVal()
+    {
+        return this.bool;
     }
 
+    /**
+     * toString override
+     * @return string representation of Boolean type 
+     */
     @Override
-    public String toString() {
-        return b ? "TRUE" : "FALSE";
+    public String toString()
+    {
+        return bool ? "TRUE" : "FALSE";
     }
 }

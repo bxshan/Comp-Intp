@@ -1,24 +1,53 @@
 package ast;
 
-public class Array extends Expression {
+/**
+ * Array type node
+ * extends abstract Expression
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class Array extends Expression 
+{
     private int start;
     private int end;
 
-    public Array(int start, int end) {
+    /**
+     * Array type node constructor
+     * @param start start idx
+     * @param end end idx
+     */
+    public Array(int start, int end) 
+    {
         this.start = start;
         this.end = end;
     }
 
-    public int getStart() {
+    /**
+     * gets start idx
+     * @return start idx as int
+     */
+    public int getStart() 
+    {
         return this.start;
     }
 
-    public int getEnd() {
+    /**
+     * gets end idx
+     * @return end idx as int
+     */
+    public int getEnd() 
+    {
         return this.end;
     }
 
+    /**
+     * toString override
+     * @return string representation of Array type 
+     */
     @Override
-    public String toString() {
+    public String toString() 
+    {
         return "array[" + start + ".." + end + "]";
     }
 }

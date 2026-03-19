@@ -1,19 +1,44 @@
 package ast;
 
-public class ArrayAssignment extends Assignment {
+/**
+ * ArrayAssignment type node
+ * extends concrete Assignment 
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class ArrayAssignment extends Assignment 
+{
     private Expression idx;
 
-    public ArrayAssignment(Variable var, Expression idx, Expression expr) {
+    /**
+     * ArrayAssignment type node constructor
+     * @param var name of Array var
+     * @param idx idx to assign
+     * @param expr expr to assign var[idx] to
+     */
+    public ArrayAssignment(Variable var, Expression idx, Expression expr) 
+    {
         super(var, expr);
         this.idx = idx;
     }
 
-    public Expression getIdx() {
+    /**
+     * gets assign idx
+     * @return idx as Expression
+     */
+    public Expression getIdx() 
+    {
         return this.idx;
     }
 
+    /**
+     * toString override
+     * @return string representation of ArrayAssignment type 
+     */
     @Override
-    public String toString() {
+    public String toString() 
+    {
         return getVar().toString() + "[" + idx + "] := " + getExpression().toString() + ";";
     }
 }

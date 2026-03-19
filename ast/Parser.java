@@ -4,9 +4,11 @@ import environment.*;
 import java.util.*;
 
 /**
+ * Parser that generates an AST 
+ * from stream of tokens from Scanner 
+ *
  * @author Boxuan Shan
  * @version 1.0
- *  
  */
 public class Parser 
 {
@@ -42,7 +44,12 @@ public class Parser
         this.ev = new Evaluator();
     }
 
-    public HashMap<String, Object> getVarMap() {
+    /**
+     * gets variable map in this environment
+     * @return HashMap of vars in this env
+     */
+    public HashMap<String, Object> getVarMap()
+    {
         return env.getVars();
     }
 
@@ -59,9 +66,18 @@ public class Parser
                 "\", actually ctok \"" + ctok + "\"");
     }
     
-    public void parse() throws Throwable {
+    /**
+     * keeps calling parseStatement() 
+     * and executing the returned statement
+     * until EOF
+     * this is what Tester.java calls once
+     * @throws Throwable for break and continue
+     */
+    public void parse() throws Throwable
+    {
         // ev.exec(parseStatement(), env);
-        while (ctok != null && !ctok.equals("$")) {
+        while (ctok != null && !ctok.equals("$"))
+        {
             Statement s = parseStatement();
             // if (s == null) continue;
             if (s == null) break;
@@ -74,13 +90,16 @@ public class Parser
      *      assignment, array declaration, array element assignment, comment
      * @precondition ctok is at start of a valid statement or EOF
      * @postcondition all tokens of the statement eaten
+     * @return Statement parsed
      * @throws ScanErrorException if scanner encounters an illegal character
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
     public Statement parseStatement() throws Throwable 
     {
-        switch (ctok) {
-            case "WRITELN" -> {
+        switch (ctok)
+        {
+            case "WRITELN" ->
+            {
                 eat("WRITELN");
                 eat("(");
                 Expression exp;
@@ -99,12 +118,16 @@ public class Parser
                     exp = new SString(strVal);
                 }
                 else
-                { // num expr, or int relop (boolean result)
+                {
+                    // num expr, or int relop (boolean result)
                     Expression lhs = parseExpression();
-                    if (isRelOp(ctok)) {
+                    if (isRelOp(ctok))
+                    {
                         boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
                         exp = new ast.Boolean(boolVal);
-                    } else {
+                    }
+                    else
+                    {
                         exp = lhs;
                     }
                 }
@@ -112,7 +135,8 @@ public class Parser
                 eat(";");
                 return new Writeln(exp);
             }
-            case "READLN" -> {
+            case "READLN" ->
+            {
                 java.util.Scanner scn = new java.util.Scanner(System.in);
                 eat("READLN");
                 eat("(");
@@ -129,7 +153,8 @@ public class Parser
 
                 return new Readln(v);
             }
-            case "BEGIN" -> {
+            case "BEGIN" ->
+            {
                 eat("BEGIN");
                 ArrayList<Statement> stmts = new ArrayList<Statement>();
                 while(!ctok.equals("END")) stmts.add(parseStatement());
@@ -137,26 +162,35 @@ public class Parser
                 eat(";");
                 return new Block(stmts);
             }
-            case "IF" -> {
+            case "IF" ->
+            {
                 eat("IF");
                 Expression c;
                 HashMap<String, Object> v = env.getVars();
                 if (!ctok.matches("\\d+") && (isBool(ctok) ||
                         (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
-                        ctok.equals("NOT"))) { // just a normal bool
+                        ctok.equals("NOT")))
+                {
+                    // just a normal bool
                     c = new ast.Boolean(parseBoolExpression());
-                } else { // check lhs relop rhs (expr)
+                }
+                else
+                {
+                    // check lhs relop rhs (expr)
                     Expression lhs = parseExpression();
-                    if (isRelOp(ctok)) {
+                    if (isRelOp(ctok))
+                    {
                         String op = ctok;
                         eat(ctok);
                         c = new BinOp(op, lhs, parseExpression());
-                    } else c = lhs; 
+                    }
+                    else c = lhs; 
                 }
                 eat("THEN");
                 Statement t = parseStatement();
 
-                if (ctok.equals("ELSE")) {
+                if (ctok.equals("ELSE"))
+                {
                     Statement e;
                     eat("ELSE");
                     e = parseStatement();
@@ -165,28 +199,37 @@ public class Parser
                 }
                 return new If(c, t);
             }
-            case "WHILE" -> {
+            case "WHILE" ->
+            {
                 eat("WHILE");
                 HashMap<String, Object> v = env.getVars();
                 Expression c;
                 if (!ctok.matches("\\d+") && (isBool(ctok) ||
                         (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
-                        ctok.equals("NOT"))) { // just a normal bool
+                        ctok.equals("NOT")))
+                {
+                    // just a normal bool
                     c = new ast.Boolean(parseBoolExpression());
-                } else { // check lhs relop rhs (expr)
+                }
+                else
+                {
+                    // check lhs relop rhs (expr)
                     Expression lhs = parseExpression();
-                    if (isRelOp(ctok)) {
+                    if (isRelOp(ctok))
+                    {
                         String op = ctok;
                         eat(ctok);
                         c = new BinOp(op, lhs, parseExpression());
-                    } else c = lhs;
+                    }
+                    else c = lhs;
                 }
                 eat("DO");
                 Statement d = parseStatement();
 
                 return new While(c, d);
             }
-            case "FOR" -> {
+            case "FOR" ->
+            {
                 eat("FOR");
                 HashMap<String, Object> v = env.getVars();
                 Assignment i = (Assignment) parseStatement(true);
@@ -197,15 +240,22 @@ public class Parser
 
                 if (!ctok.matches("\\d+") && (isBool(ctok) ||
                         (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
-                        ctok.equals("NOT"))) { // just a normal bool
+                        ctok.equals("NOT")))
+                {
+                    // just a normal bool
                     t = new ast.Boolean(parseBoolExpression());
-                } else { // check lhs relop rhs (expr)
+                }
+                else
+                {
+                    // check lhs relop rhs (expr)
                     Expression lhs = parseExpression();
-                    if (isRelOp(ctok)) {
+                    if (isRelOp(ctok))
+                    {
                         String op = ctok;
                         eat(ctok);
                         t = new BinOp(op, lhs, parseExpression());
-                    } else t = lhs;
+                    }
+                    else t = lhs;
                 }
 
                 eat("DO");
@@ -213,7 +263,8 @@ public class Parser
 
                 return new For(i, t, d);
             }
-            case "REPEAT" -> {
+            case "REPEAT" ->
+            {
                 eat("REPEAT");
                 HashMap<String, Object> v = env.getVars();
                 Statement r = parseStatement();
@@ -224,40 +275,53 @@ public class Parser
 
                 if (!ctok.matches("\\d+") && (isBool(ctok) ||
                         (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
-                        ctok.equals("NOT"))) { // just a normal bool
+                        ctok.equals("NOT")))
+                {
+                    // just a normal bool
                     u = new ast.Boolean(parseBoolExpression());
-                } else { // check lhs relop rhs (expr)
+                }
+                else
+                {
+                    // check lhs relop rhs (expr)
                     Expression lhs = parseExpression();
-                    if (isRelOp(ctok)) {
+                    if (isRelOp(ctok))
+                    {
                         String op = ctok;
                         eat(ctok);
                         u = new BinOp(op, lhs, parseExpression());
-                    } else u = lhs;
+                    }
+                    else u = lhs;
                 }
 
                 return new RepeatUntil(r, u);
             }
-            case "BREAK" -> {
+            case "BREAK" ->
+            {
                 eat("BREAK");
                 eat(";");
                 return new Break();
             }
-            case "CONTINUE" -> {
+            case "CONTINUE" ->
+            {
                 eat("CONTINUE");
                 eat(";");
                 return new Continue();
             }
-            case "EOF", "$" -> {
+            case "EOF", "$" ->
+            {
                 return null;
             }
-            case "(*" -> {
+            case "(*" ->
+            {
                 eat("(*");
                 while (!ctok.equals("*)")) eat(ctok);
                 eat("*)");
                 return new Comment();
             }
-            default -> {
-                if(this.isID(ctok)) {
+            default ->
+            {
+                if(this.isID(ctok))
+                {
                     String tmpv = ctok;
                     eat(ctok);
                     HashMap<String, Object> v = env.getVars();
@@ -267,7 +331,8 @@ public class Parser
                         Expression exp;
 
                         if (!ctok.matches("\\d+") && (isBool(ctok) ||
-                                    (v.containsKey(tmpv) && v.get(tmpv) instanceof java.lang.Boolean) ||
+                                    (v.containsKey(tmpv) && 
+                                     v.get(tmpv) instanceof java.lang.Boolean) ||
                                     ctok.equals("NOT"))) 
                         {
                             boolean tmp = parseBoolExpression();
@@ -290,17 +355,22 @@ public class Parser
                             eat("..");
                             Expression r = parseExpression();
                             eat("]");
-                            if (!v.containsKey(tmpv)) env.setVar(tmpv, new HashMap<Integer, Object>());
+                            if (!v.containsKey(tmpv))
+                                env.setVar(tmpv, new HashMap<Integer, Object>());
                             exp = new Array((Integer) ev.eval(l, env), (Integer) ev.eval(r, env));
                         }
                         else
-                        { // int, or int relop (boolean result)
+                        {
+                            // int, or int relop (boolean result)
                             Expression lhs = parseExpression();
-                            if (isRelOp(ctok)) {
+                            if (isRelOp(ctok))
+                            {
                                 boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
                                 if (!v.containsKey(tmpv)) env.setVar(tmpv, boolVal);
                                 exp = new ast.Boolean(boolVal);
-                            } else {
+                            }
+                            else
+                            {
                                 if (!v.containsKey(tmpv)) env.setVar(tmpv, 0);
                                 exp = lhs;
                             }
@@ -315,11 +385,13 @@ public class Parser
                         eat("]");
                         eat(":=");
                         @SuppressWarnings("unchecked")
-                        HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(tmpv);
+                        HashMap<Integer, Object> arr = 
+                            (HashMap<Integer, Object>) env.getObjVar(tmpv);
 
                         Expression exp;
                         if (isBool(ctok) || 
-                                (v.containsKey(ctok) && env.getObjVar(ctok) instanceof java.lang.Boolean) ||
+                                (v.containsKey(ctok) && 
+                                 env.getObjVar(ctok) instanceof java.lang.Boolean) ||
                                 ctok.equals("NOT"))
                             exp = new ast.Boolean(parseBoolExpression());
                         else if (ctok.equals("\"") ||
@@ -330,13 +402,26 @@ public class Parser
                         eat(";");
                         return new ArrayAssignment(new Variable(tmpv), idx, exp);
                     }
-                } else throw new IllegalArgumentException("Unrecognized statement or syntax error at token: " + ctok);
+                }
+                else throw new IllegalArgumentException(
+                        "Unrecognized statement or syntax error at token: " + ctok);
             }
         }
         return null;
     }
 
-    public Statement parseStatement(boolean inFor) throws ScanErrorException {
+    /**
+     * parseStatement() overload to parse the variable declaration in a FOR 
+     * only difference is that it does not eat a ';' after declaration
+     * @precondition ctok is at start of var declaration in FOR 
+     * @postcondition all tokens of the var declaration are eaten
+     * @param inFor true if in a FOR: either one calls this method overload
+     * @return var declaration parsed
+     * @throws ScanErrorException if scanner encounters an illegal character
+     * @throws IllegalArgumentException if token sequence does not match grammar
+     */
+    public Statement parseStatement(boolean inFor) throws ScanErrorException
+    {
         // System.out.println("in special");
         if(this.isID(ctok)) 
         {
@@ -349,7 +434,8 @@ public class Parser
                 Expression exp;
 
                 if (!ctok.matches("\\d+") && (isBool(ctok) ||
-                        (v.containsKey(tmpv) && v.get(tmpv) instanceof java.lang.Boolean) ||
+                        (v.containsKey(tmpv) && 
+                         v.get(tmpv) instanceof java.lang.Boolean) ||
                         ctok.equals("NOT"))) 
                 {
                     boolean tmp = parseBoolExpression();
@@ -376,13 +462,17 @@ public class Parser
                     exp = new Array((Integer) ev.eval(l, env), (Integer) ev.eval(r, env));
                 }
                 else
-                { // int, or int relop (boolean result)
+                {
+                    // int, or int relop (boolean result)
                     Expression lhs = parseExpression();
-                    if (isRelOp(ctok)) {
+                    if (isRelOp(ctok))
+                    {
                         boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
                         if (!v.containsKey(tmpv)) env.setVar(tmpv, boolVal);
                         exp = new ast.Boolean(boolVal);
-                    } else {
+                    }
+                    else
+                    {
                         if (!v.containsKey(tmpv)) env.setVar(tmpv, 0);
                         exp = lhs;
                     }
@@ -401,7 +491,8 @@ public class Parser
 
                 Expression exp;
                 if (isBool(ctok) || 
-                        (v.containsKey(ctok) && env.getObjVar(ctok) instanceof java.lang.Boolean) ||
+                        (v.containsKey(ctok) && 
+                         env.getObjVar(ctok) instanceof java.lang.Boolean) ||
                         ctok.equals("NOT"))
                     exp = new ast.Boolean(parseBoolExpression());
                 else if (ctok.equals("\"") ||
@@ -518,7 +609,8 @@ public class Parser
             String a = ctok;
             eat(ctok);
             if (ctok.equals("[")) 
-            { // is an array int member
+            {
+                // is an array int member
                 eat("[");
                 Expression idx = parseExpression();
                 eat("]");
@@ -539,16 +631,19 @@ public class Parser
             eat(")");
         } 
         else if (ctok.equals("#"))
-        { // take string len
+        {
+            // take string len
             eat("#");
             String s = parseStrFactor();
             e = new Number(s.length());
         }
-        else {
+        else
+        {
             throw new IllegalArgumentException("Unexpected token in pfHelper: " + ctok);
         }
 
-        if (sign) {
+        if (sign)
+        {
             return new BinOp("-", new Number(0), e);
         }
         return e;
@@ -587,13 +682,15 @@ public class Parser
             String a = ctok;
             eat(ctok);
             if (ctok.equals("[")) 
-            { // array bool member
+            {
+                // array bool member
                 eat("[");
                 Expression idx = parseExpression();
                 eat("]");
 
                 @SuppressWarnings("unchecked")
-                boolean elm = (boolean) ((HashMap<Integer, Object>) env.getObjVar(a)).get(ev.eval(idx, env));
+                boolean elm = (boolean) ((HashMap<Integer, Object>) env.getObjVar(a))
+                        .get(ev.eval(idx, env));
                 return sign ? !elm : elm;
             }
             boolean val = (sign ? !((boolean) env.getObjVar(a)) : (boolean) env.getObjVar(a));
@@ -639,7 +736,8 @@ public class Parser
     private String psfHelper() throws ScanErrorException 
     {
         if (ctok.equals("\"")) 
-        { // at start of str
+        {
+            // at start of str
             return parseStr();
         }
         else if (this.isID(ctok)) 
@@ -647,13 +745,15 @@ public class Parser
             String a = ctok;
             eat(ctok);
             if (ctok.equals("[")) 
-            { // array string member
+            {
+                // array string member
                 eat("[");
                 Expression idx = parseExpression();
                 eat("]");
 
                 @SuppressWarnings("unchecked")
-                String elm = (String) ((HashMap<Integer, Object>) env.getObjVar(a)).get(ev.eval(idx, env));
+                String elm = (String) ((HashMap<Integer, Object>) env.getObjVar(a))
+                        .get(ev.eval(idx, env));
                 return elm;
             }
             String val = (String) env.getObjVar(a);
@@ -748,10 +848,10 @@ public class Parser
             switch(ctok) 
             {
                 case "AND" -> 
-                    {
-                        eat(ctok); 
-                        t1 &= pb();
-                    }
+                {
+                    eat(ctok); 
+                    t1 &= pb();
+                }
             }
         }
 
@@ -810,7 +910,8 @@ public class Parser
     {
         String t1 = parseStrFactor();
         while (ctok.equals("+")) 
-        { // concat
+        {
+            // concat
             eat("+");
             t1 += parseStrFactor();
         }

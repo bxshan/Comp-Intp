@@ -1,25 +1,53 @@
 package ast;
 
-public class ArrayElement extends Expression {
+/**
+ * ArrayElement type node
+ * extends abstract Expression
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class ArrayElement extends Expression
+{
     private String name;
     private Expression idx;
 
-    public ArrayElement(String name, Expression idx) {
+    /**
+     * ArrayElement type node constructor
+     * @param name name of Array
+     * @param idx idx of Array
+     */
+    public ArrayElement(String name, Expression idx)
+    {
         this.name = name;
         this.idx = idx;
     }
 
-
-    public String getName() {
+    /**
+     * gets name
+     * @return name of Array
+     */
+    public String getName()
+    {
         return this.name;
     }
 
-    public Expression getIdx() {
+    /**
+     * gets idx of ArrayElement
+     * @return idx as Expression
+     */
+    public Expression getIdx()
+    {
         return this.idx;
     }
 
+    /**
+     * toString override
+     * @return string representation of ArrayElement type 
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         return name + "[" + idx + "]";
     }
 }

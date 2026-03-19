@@ -1,36 +1,77 @@
 package ast;
 
-public class If extends Statement {
+/**
+ * If type node
+ * extends abstract Statement
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class If extends Statement
+{
     private Expression condition;
     private Statement then;
     private Statement _else;
 
-    public If(Expression condition, Statement then) {
+    /**
+     * If type node constructor
+     * @param condition condition
+     * @param then then
+     */
+    public If(Expression condition, Statement then)
+    {
         this.condition = condition;
         this.then = then;
         this._else = null;
     }
 
-    public If(Expression condition, Statement then, Statement _else) {
+    /**
+     * If type node constructor
+     * @param condition condition
+     * @param then then
+     * @param _else _else
+     */
+    public If(Expression condition, Statement then, Statement _else)
+    {
         this.condition = condition;
         this.then = then;
         this._else = _else;
     }
 
-    public Expression getCond() {
+    /**
+     * gets cond
+     * @return cond as Expression
+     */
+    public Expression getCond()
+    {
         return this.condition;
     }
 
-    public Statement getThen() {
+    /**
+     * gets then
+     * @return then as Statement
+     */
+    public Statement getThen()
+    {
         return this.then;
     }
 
-    public Statement getElse() {
+    /**
+     * gets else
+     * @return else as Statement
+     */
+    public Statement getElse()
+    {
         return this._else;
     }
 
+    /**
+     * toString override
+     * @return string representation of If type 
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         String res = "IF " + condition + " THEN " + then;
         if (_else != null) res += " ELSE " + _else;
         return res;

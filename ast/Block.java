@@ -3,22 +3,46 @@ package ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Block extends Statement {
+/**
+ * Block type node
+ * extends abstract Statement
+ *
+ * @author Boxuan Shan
+ * @version 03192026
+ */
+public class Block extends Statement
+{
     private List<Statement> stmts;
 
-    public Block(ArrayList<Statement> stmts) {
+    /**
+     * Block type node constructor
+     * @param stmts stmts
+     */
+    public Block(ArrayList<Statement> stmts)
+    {
         this.stmts = stmts;
     }
 
-    public List<Statement> getStmts() {
+    /**
+     * gets stmts
+     * @return stmts as List<Statement>
+     */
+    public List<Statement> getStmts()
+    {
         return this.stmts;
     }
 
+    /**
+     * toString override
+     * @return string representation of Block type 
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         StringBuilder sb = new StringBuilder();
         sb.append("BEGIN\n");
-        for (Statement stmt : stmts) {
+        for (Statement stmt : stmts)
+        {
             sb.append("  " + stmt.toString() + "\n");
         }
         sb.append("END;");
