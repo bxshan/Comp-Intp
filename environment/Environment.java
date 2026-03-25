@@ -1,33 +1,80 @@
 package environment;
+import procedures.*;
 
 import java.util.*;
 
 /**
- * Environemnt class to manage variables in a scope
+ * Environment class to manage variables in some scope
  *
  * @author Boxuan Shan
- * @version 03192026
+ * @version 03242026
  */
 public class Environment 
 {
     private HashMap<String, Object> var;
+    private HashMap<String, Statement> proc;
+    private Environment parent;
 
     /**
-     * snvironment constructor, initializes var
+     * default Environment constructor
      */
     public Environment() 
     {
-        var = new HashMap<>();
+        this(null);
     }
 
     /**
-     * sets a variable in this env
+     * Environment constructor with parent scope
+     * @param parent parent environment
+     */
+    public Environment(Environment parent)
+    {
+        var = new HashMap<String, Object>();
+        proc = new HashMap<String, Statement>();
+        this.parent = parent;
+    }
+
+    /**
+     * sets a variable in this env or parent env
      * @param v name of var to set
      * @param value value of var to set to
      */
     public void setVar(String v, Object value) 
     {
-        var.put(v, value);
+        if (var.containsKey(v) || parent == null) var.put(v, value); // prioritize local change before parent
+        else parent.setVar(v, value);
+    }
+
+    /**
+     * sets a variable specifically in this local scope
+     * @param v name of var
+     * @param value value
+     */
+    public void setLocalVar(String v, Object value) 
+    {
+        var.put(v, value); 
+    }
+
+    /**
+     * sets a procedure in this env
+     * @param v name of proc to set
+     * @param stmt body of proc to set to
+     */
+    public void setProc(String v, Statement stmt) 
+    {
+        if (parent != null) parent.setProc(v, stmt);
+        else proc.put(v, stmt); 
+    }
+
+    /**
+     * gets a procedure in this env
+     * @param v name of proc to get
+     * @return Statement representing proc body
+     */
+    public Statement getProc(String v) {
+        if (parent != null) return parent.getProc(v);
+        else if (proc.containsKey(v)) return proc.get(v);
+        else throw new IllegalArgumentException("proc " + v + " is not declared\n");
     }
 
     /**
@@ -39,7 +86,7 @@ public class Environment
     { // for int only
         Object value = getObjVar(v);
         if (value instanceof Integer) return (Integer) value;
-        throw new IllegalArgumentException("var " + var + " is not int\n");
+        throw new IllegalArgumentException("var " + v + " is not int\n");
     }
 
     /**
@@ -50,7 +97,8 @@ public class Environment
     public Object getObjVar(String v)
     { // for Object subtypes
         if (var.containsKey(v)) return var.get(v);
-        throw new IllegalArgumentException("var " + var + "not found or is not Obj\n");
+        if (parent != null) return parent.getObjVar(v);
+        throw new IllegalArgumentException("var " + v + " not found\n");
     }
 
     /**
