@@ -1,0 +1,61 @@
+(* BFS Implementation using flattened 1D array as a Queue *)
+
+BEGIN
+  max_nodes := 4;
+  graph := array[0..15];
+  visited := array[0..3];
+  
+  (* Simple array acting as a queue *)
+  queue := array[0..10];
+  head := 0;
+  tail := 0;
+  
+  FOR i := 0 TO 3 DO
+    visited[i] := FALSE;
+    
+  FOR i := 0 TO 15 DO
+    graph[i] := 0;
+    
+  (* Edges *)
+  graph[0 * 4 + 1] := 1;
+  graph[1 * 4 + 0] := 1;
+  graph[0 * 4 + 2] := 1;
+  graph[2 * 4 + 0] := 1;
+  graph[1 * 4 + 3] := 1;
+  graph[3 * 4 + 1] := 1;
+  graph[2 * 4 + 3] := 1;
+  graph[3 * 4 + 2] := 1;
+
+  WRITELN("Starting_BFS:");
+  
+  (* Enqueue starting node 0 *)
+  queue[tail] := 0;
+  tail := tail + 1;
+  visited[0] := TRUE;
+  
+  WHILE head < tail DO BEGIN
+    (* Dequeue *)
+    current := queue[head];
+    head := head + 1;
+    
+    WRITELN("Visiting_Node_");
+    WRITELN(current);
+    
+    (* Check neighbors *)
+    neighbor := 0;
+    WHILE neighbor < max_nodes DO BEGIN
+      idx := (current * max_nodes) + neighbor;
+      
+      IF graph[idx] = 1 THEN BEGIN
+        IF NOT visited[neighbor] THEN BEGIN
+          visited[neighbor] := TRUE;
+          queue[tail] := neighbor;
+          tail := tail + 1;
+        END;
+      END;
+      
+      neighbor := neighbor + 1;
+    END;
+  END;
+END;
+$

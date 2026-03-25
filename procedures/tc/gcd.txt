@@ -1,0 +1,33 @@
+(* Greatest Common Divisor (Euclidean Algorithm) *)
+
+PROCEDURE gcd(a, b);
+BEGIN
+  WHILE b <> 0 DO BEGIN
+    temp := b;
+    b := a mod b;
+    a := temp;
+  END;
+  gcd := a;
+END;
+
+PROCEDURE gcdRec(a, b);
+BEGIN
+  IF b = 0 THEN gcdRec := a;
+  ELSE gcdRec := gcdRec(b, a mod b);
+END;
+
+BEGIN
+  n1 := 48;
+  n2 := 18;
+  
+  WRITELN("Finding_GCD_of_48_and_18");
+  
+  WRITELN("Iterative:");
+  resIter := gcd(n1, n2);
+  WRITELN(resIter);
+  
+  WRITELN("Recursive:");
+  resRec := gcdRec(n1, n2);
+  WRITELN(resRec);
+END;
+$
