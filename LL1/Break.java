@@ -1,0 +1,11 @@
+package LL1;
+
+/**
+ * Break type node
+ * extends abstract Statement
+ *
+ * @author Boxuan Shan
+ * @version 02242025
+ */
+public class Break extends Statement
+{}

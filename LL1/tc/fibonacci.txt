@@ -1,0 +1,28 @@
+(* Fibonacci Generator (Recursive & Iterative) *)
+
+PROCEDURE fibRec(n);
+BEGIN
+  IF n <= 0 THEN fibRec := 0;
+  ELSE IF n = 1 THEN fibRec := 1;
+  ELSE fibRec := fibRec(n - 1) + fibRec(n - 2);
+END;
+
+BEGIN
+  WRITELN("Fibonacci_Recursive_10th:");
+  res := fibRec(10);
+  WRITELN(res);
+  
+  WRITELN("Fibonacci_Iterative_Sequence_Up_To_10:");
+  N := 10;
+  a := 0;
+  b := 1;
+  WRITELN(a);
+  WRITELN(b);
+  FOR i := 2 TO N DO BEGIN
+    next_fib := a + b;
+    WRITELN(next_fib);
+    a := b;
+    b := next_fib;
+  END;
+END;
+$
