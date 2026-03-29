@@ -150,7 +150,7 @@ public class Parser
                         (v.containsKey(ctok) && v.get(ctok) instanceof String))
                 {
                     String strVal = parseStrExpression();
-                    exp = new SString(strVal);
+                    exp = new _String(strVal);
                 }
                 else
                 {
@@ -381,7 +381,7 @@ public class Parser
                         {
                             String lhs = parseStrExpression();
                             if (!v.containsKey(tmpv)) env.setVar(tmpv, lhs);
-                            exp = new SString(lhs);
+                            exp = new _String(lhs);
                         } 
                         else if (ctok.equals("array")) 
                         {
@@ -429,7 +429,7 @@ public class Parser
                             exp = new procedures.Boolean(parseBoolExpression());
                         else if (ctok.equals("\"") ||
                                 (v.containsKey(ctok) && env.getObjVar(ctok) instanceof String))
-                            exp = new SString(parseStrExpression());
+                            exp = new _String(parseStrExpression());
                         else
                             exp = parseExpression();
                         eat(";");
@@ -498,7 +498,7 @@ public class Parser
                 {
                     String lhs = parseStrExpression();
                     if (!v.containsKey(tmpv)) env.setVar(tmpv, lhs);
-                    exp = new SString(lhs);
+                    exp = new _String(lhs);
                 } 
                 else if (ctok.equals("array")) 
                 {
@@ -547,7 +547,7 @@ public class Parser
                     exp = new procedures.Boolean(parseBoolExpression());
                 else if (ctok.equals("\"") ||
                         (v.containsKey(ctok) && env.getObjVar(ctok) instanceof String))
-                    exp = new SString(parseStrExpression());
+                    exp = new _String(parseStrExpression());
                 else
                     exp = parseExpression();
                 return new ArrayAssignment(new Variable(tmpv), idx, exp);

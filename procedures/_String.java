@@ -1,21 +1,21 @@
 package procedures;
 
 /**
- * SString type node
+ * _String type node
  * extends abstract Expression
  *
  * @author Boxuan Shan
  * @version 02242025
  */
-public class SString extends Expression
+public class _String extends Expression
 {
     private String str;
 
     /**
-     * SString type node constructor
+     * _String type node constructor
      * @param str str
      */
-    public SString(String str)
+    public _String(String str)
     {
         this.str = str;
     }
@@ -31,7 +31,7 @@ public class SString extends Expression
 
     /**
      * toString override
-     * @return string representation of SString type 
+     * @return string representation of _String type 
      */
     @Override
     public String toString()

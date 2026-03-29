@@ -167,7 +167,7 @@ public class Evaluator
             {
                 return b.getVal();
             }
-            case SString ss ->
+            case _String ss ->
             {
                 return ss.getVal();
             }
