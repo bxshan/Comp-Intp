@@ -19,7 +19,11 @@ public class Tester
      * @param ev Evaluator to test
      * @throws Throwable for break and continue
      */
-    static void test(scanner.Scanner s, procedures.Parser p, procedures.Evaluator ev) throws Throwable
+    static void test(
+            scanner.Scanner s, 
+            procedures.Parser p, 
+            procedures.Evaluator ev
+            ) throws Throwable
     {
         System.out.println("=====================================");
 

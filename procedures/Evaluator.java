@@ -17,7 +17,8 @@ public class Evaluator
      * @param env environment of vars
      * @throws Throwable for break and continue
      */
-    public void exec(Program p, Environment env) throws Throwable {
+    public void exec(Program p, Environment env) throws Throwable 
+    {
         ArrayList<Statement> stmts = p.getStmts();
         for(Statement stmt : stmts) exec(stmt, env);
     }
@@ -139,7 +140,8 @@ public class Evaluator
                 } 
                 while (!c);
             }
-            case ProcedureDeclaration pd -> {
+            case ProcedureDeclaration pd -> 
+            {
                 env.setProc(pd.getName(), pd); 
             }
 
@@ -227,7 +229,8 @@ public class Evaluator
                     }
                 }
             }
-            case ProcedureCall pc -> {
+            case ProcedureCall pc -> 
+            {
                 String name = pc.getName();
                 ProcedureDeclaration pd = (ProcedureDeclaration) env.getProc(name);
                 ArrayList<String> params = pd.getParams();
@@ -240,9 +243,12 @@ public class Evaluator
                 // for returns
                 localEnv.setLocalVar(name, 0);
                 
-                try {
+                try 
+                {
                     this.exec(pd.getStmt(), localEnv);
-                } catch (ThrowBreak tb) { // EXIT
+                } 
+                catch (ThrowBreak tb)
+                { // EXIT
                     // caught EXIT signal, stop executing procedure body
                 }
 

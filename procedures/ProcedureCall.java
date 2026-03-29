@@ -1,20 +1,44 @@
 package procedures;
-import java.util.ArrayList;
+import java.util.*;
 
-public class ProcedureCall extends Expression {
+/**
+ * ProcedureCall type node
+ * extends abstract Expression
+ *
+ * @author Boxuan Shan
+ * @version 03282025
+ */
+public class ProcedureCall extends Expression 
+{
     private String name;
     private ArrayList<Expression> args;
 
-    public ProcedureCall(String name, ArrayList<Expression> args) {
+    /**
+     * ProcedureCall node constructor
+     * @param name name of procedure
+     * @param args list of args
+     */
+    public ProcedureCall(String name, ArrayList<Expression> args) 
+    {
         this.name = name;
         this.args = args;
     }
 
-    public String getName() {
+    /**
+     * gets name
+     * @return name of proc
+     */
+    public String getName() 
+    {
         return this.name;
     }
 
-    public ArrayList<Expression> getArgs() {
+    /**
+     * gets args
+     * @return list of args
+     */
+    public ArrayList<Expression> getArgs() 
+    {
         return this.args;
     }
 }

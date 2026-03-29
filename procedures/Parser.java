@@ -54,7 +54,12 @@ public class Parser
         return env.getVars();
     }
 
-    public Environment getEnv() {
+    /**
+     * gets global environment
+     * @return golbal env
+     */
+    public Environment getEnv() 
+    {
         return this.env;
     }
 
@@ -72,12 +77,17 @@ public class Parser
     }
     
     /**
+     * parses entire program, returns program object
+     * parses any number of procedure declarations, 
+     * then any number of statements
+     * @return Program object parsed
      * @throws Throwable for break and continue
      */
     public Program parseProgram() throws Throwable
     {
         ArrayList<Statement> s = new ArrayList<Statement>();
-        while (ctok != null && !ctok.equals("$") && !ctok.equals("EOF")) {
+        while (ctok != null && !ctok.equals("$") && !ctok.equals("EOF")) 
+        {
             if (ctok.equals("PROCEDURE")) s.add(parseProcDec());
             else s.add(parseStatement());
         }
@@ -89,14 +99,16 @@ public class Parser
      * @return ProcedureDeclaration parsed
      * @throws Throwable if parse fails
      */
-    public ProcedureDeclaration parseProcDec() throws Throwable {
+    public ProcedureDeclaration parseProcDec() throws Throwable 
+    {
         eat("PROCEDURE");
         String name = ctok;
         eat(ctok);
         eat("(");
 
         ArrayList<String> params = new ArrayList<>();
-        while (!ctok.equals(")")) {
+        while (!ctok.equals(")")) 
+        {
             params.add(ctok);
             eat(ctok);
             if (ctok.equals(",")) eat(",");
@@ -427,14 +439,18 @@ public class Parser
                     {
                         eat("(");
                         ArrayList<Expression> args = new ArrayList<Expression>();
-                        while(!ctok.equals(")")) {
+                        while(!ctok.equals(")")) 
+                        {
                             args.add(parseExpression());
                             if(ctok.equals(",")) eat(",");
                         }
                         eat(")");
                         eat(";");
                         // throw the output away into a dummy variable
-                        return new Assignment(new Variable("__ignore"), new ProcedureCall(tmpv, args));
+                        return new Assignment(
+                                new Variable("__ignore"), 
+                                new ProcedureCall(tmpv, args)
+                                );
                     }
                 }
                 else throw new IllegalArgumentException(
@@ -645,10 +661,13 @@ public class Parser
                 eat("]");
 
                 e = new ArrayElement(a, idx);
-            } else if (ctok.equals("(")) { // proc
+            } 
+            else if (ctok.equals("(")) 
+            { // proc
                 eat("(");
                 ArrayList<Expression> args = new ArrayList<Expression>();
-                while(!ctok.equals(")")) {
+                while(!ctok.equals(")")) 
+                {
                     args.add(parseExpression());
                     if(ctok.equals(",")) eat(",");
                 }
@@ -724,27 +743,25 @@ public class Parser
                 Expression idx = parseExpression();
                 eat("]");
 
-                // Return a dummy false for parse time, evaluator will handle it at runtime.
-                // Or better, let evaluator handle bool logic by returning AST nodes.
-                // For now, since your architecture evaluates booleans at parse time,
-                // we have a chicken/egg problem where arrays aren't filled yet.
-                // BUT wait! This is boolean evaluation at PARSE time. 
-                // Let's just return false if it's not set.
-                
                 boolean elm = false;
-                try {
+                try 
+                {
                     @SuppressWarnings("unchecked")
                     HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(a);
                     Object valObj = arr.get(ev.eval(idx, env));
-                    if (valObj != null) {
-                        elm = (boolean) valObj;
-                    }
-                } catch (Exception ignored) { }
+                    if (valObj != null) elm = (boolean) valObj;
+                } 
+                catch (Exception ignored) 
+                {
+                }
                 return sign ? !elm : elm;
-            } else if (ctok.equals("(")) {
+            } 
+            else if (ctok.equals("(")) 
+            {
                 eat("(");
                 ArrayList<Expression> args = new ArrayList<Expression>();
-                while(!ctok.equals(")")) {
+                while(!ctok.equals(")")) 
+                {
                     args.add(parseExpression());
                     if(ctok.equals(',')) eat(",");
                 }
@@ -810,19 +827,24 @@ public class Parser
                 eat("]");
 
                 String elm = "";
-                try {
+                try 
+                {
                     @SuppressWarnings("unchecked")
                     HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(a);
                     Object valObj = arr.get(ev.eval(idx, env));
-                    if (valObj != null) {
-                        elm = (String) valObj;
-                    }
-                } catch (Exception ignored) { }
+                    if (valObj != null) elm = (String) valObj;
+                } 
+                catch (Exception ignored) 
+                {
+                }
                 return elm;
-            } else if (ctok.equals("(")) {
+            } 
+            else if (ctok.equals("(")) 
+            {
                 eat("(");
                 ArrayList<Expression> args = new ArrayList<Expression>();
-                while(!ctok.equals(")")) {
+                while(!ctok.equals(")")) 
+                {
                     args.add(parseExpression());
                     if(ctok.equals(',')) eat(",");
                 }
