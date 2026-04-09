@@ -23,7 +23,7 @@ public class Tester
             scanner.Scanner s, 
             procedures.Parser p, 
             procedures.Evaluator ev
-            ) throws Throwable
+    ) throws Throwable
     {
         System.out.println("=====================================");
 

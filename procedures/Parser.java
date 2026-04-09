@@ -27,7 +27,7 @@ public class Parser
             "WHILE", "FOR", "REPEAT",
             "UNTIL", "BREAK", "CONTINUE", 
             "PROCEDURE", "__ignore", "EXIT"
-            );
+    );
 
     /**
      * constructor for Parser
@@ -744,16 +744,11 @@ public class Parser
                 eat("]");
 
                 boolean elm = false;
-                try 
-                {
-                    @SuppressWarnings("unchecked")
-                    HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(a);
-                    Object valObj = arr.get(ev.eval(idx, env));
-                    if (valObj != null) elm = (boolean) valObj;
-                } 
-                catch (Exception ignored) 
-                {
-                }
+                @SuppressWarnings("unchecked")
+                HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(a);
+                Object valObj = arr.get(ev.eval(idx, env));
+                if (valObj != null) elm = (boolean) valObj;
+
                 return sign ? !elm : elm;
             } 
             else if (ctok.equals("(")) 
@@ -827,16 +822,11 @@ public class Parser
                 eat("]");
 
                 String elm = "";
-                try 
-                {
-                    @SuppressWarnings("unchecked")
-                    HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(a);
-                    Object valObj = arr.get(ev.eval(idx, env));
-                    if (valObj != null) elm = (String) valObj;
-                } 
-                catch (Exception ignored) 
-                {
-                }
+                @SuppressWarnings("unchecked")
+                HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(a);
+                Object valObj = arr.get(ev.eval(idx, env));
+                if (valObj != null) elm = (String) valObj;
+
                 return elm;
             } 
             else if (ctok.equals("(")) 
