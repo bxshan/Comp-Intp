@@ -3,3 +3,4 @@
 *.ctxt
 *.class
 jflex/jflex-1.9.1/
+./mars.jar
