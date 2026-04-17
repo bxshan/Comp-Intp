@@ -1,0 +1,9 @@
+i := 0;
+sum := 0;
+REPEAT BEGIN
+  sum := sum + 1;
+  i := i + 1;
+  WRITELN(sum);
+END;
+UNTIL i > 10
+$

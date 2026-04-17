@@ -1,0 +1,20 @@
+BEGIN
+  READLN(x); (* 1000001  asdadads aasd 1212312 <= :==
+  *)
+  y := 98;
+  a := 47;
+y := y - -1;
+  b := 9;
+  c := a + b;
+  WRITELN(1 * x / -(3 + c * -(-8)));
+  WRITELN(1 + 2 + 3 + 4 + 5 + 6 + 7 + y * -(0));
+  BEGIN
+    (* askd kjsd jkn db jkqwe nwq *)
+    o := 10;
+    p := 7;
+    WRITELN(o mod p);
+  END;
+END;
+.
+    
+

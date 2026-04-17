@@ -1,0 +1,17 @@
+PROCEDURE print(n);
+BEGIN
+  WRITELN(n+0);
+  WRITELN(n+1);
+  WRITELN(n+2);
+  WRITELN(n+3);
+  EXIT;
+  WRITELN(n+4);
+  WRITELN(n+5);
+END;
+
+BEGIN
+  n := 0;
+  print(n);
+END;
+
+$

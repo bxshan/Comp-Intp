@@ -1,0 +1,56 @@
+package procedures;
+import java.util.*;
+
+/**
+ * ProcedureDeclaration type node
+ * extends abstract Statement 
+ *
+ * @author Boxuan Shan
+ * @version 03282025
+ */
+public class ProcedureDeclaration extends Statement 
+{
+    private String name;
+    private ArrayList<String> params;
+    private Statement stmt;
+
+    /**
+     * ProcedureDeclaration type node constructor
+     * @param name name of proc
+     * @param params list of parameters
+     * @param stmt statement corresponding to procedure
+     */
+    public ProcedureDeclaration(String name, ArrayList<String> params, Statement stmt) 
+    {
+        this.name = name;
+        this.params = params;
+        this.stmt = stmt;
+    }
+
+    /**
+     * gets name
+     * @return name of proc
+     */
+    public String getName() 
+    {
+        return this.name;
+    }
+
+    /**
+     * gets params 
+     * @return list of params 
+     */
+    public ArrayList<String> getParams() 
+    {
+        return this.params;
+    }
+
+    /**
+     * gets stmt
+     * @return stmt of proc
+     */
+    public Statement getStmt() 
+    {
+        return this.stmt;
+    }
+}

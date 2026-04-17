@@ -1,0 +1,36 @@
+(* Bubble Sort Algorithm *)
+
+BEGIN
+  size := 5;
+  arr := array[0..4];
+  
+  (* Unsorted array *)
+  arr[0] := 64;
+  arr[1] := 34;
+  arr[2] := 25;
+  arr[3] := 12;
+  arr[4] := 22;
+  
+  WRITELN("Before_Sort:");
+  FOR i := 0 TO size - 1 DO
+    WRITELN(arr[i]);
+    
+  (* Bubble Sort logic *)
+  FOR i := 0 TO size - 2 DO BEGIN
+    stopIdx := size - i - 2;
+    FOR j := 0 TO stopIdx DO BEGIN
+      idxNext := j + 1;
+      IF arr[j] > arr[idxNext] THEN BEGIN
+        (* Swap *)
+        temp := arr[j];
+        arr[j] := arr[idxNext];
+        arr[idxNext] := temp;
+      END;
+    END;
+  END;
+  
+  WRITELN("After_Sort:");
+  FOR i := 0 TO size - 1 DO
+    WRITELN(arr[i]);
+END;
+$

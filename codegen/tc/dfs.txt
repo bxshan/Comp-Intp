@@ -1,0 +1,53 @@
+(* DFS Implementation using flattened 1D Adjacency Matrix *)
+
+PROCEDURE dfs(node);
+BEGIN
+  visited[node] := TRUE;
+  WRITELN("Visiting_Node_");
+  WRITELN(node);
+
+  neighbor := 0;
+  WHILE neighbor < max_nodes DO BEGIN
+    idx := (node * max_nodes) + neighbor;
+    
+    IF graph[idx] = 1 THEN BEGIN
+      IF NOT visited[neighbor] THEN BEGIN
+        ignore := dfs(neighbor);
+      END;
+    END;
+    
+    neighbor := neighbor + 1;
+  END;
+END;
+
+BEGIN
+  max_nodes := 4;
+  graph := array[0..15];
+  visited := array[0..3];
+  
+  FOR i := 0 TO 3 DO
+    visited[i] := FALSE;
+    
+  FOR i := 0 TO 15 DO
+    graph[i] := 0;
+    
+  (* Edge 0-1 *)
+  graph[0 * 4 + 1] := 1;
+  graph[1 * 4 + 0] := 1;
+  
+  (* Edge 0-2 *)
+  graph[0 * 4 + 2] := 1;
+  graph[2 * 4 + 0] := 1;
+  
+  (* Edge 1-3 *)
+  graph[1 * 4 + 3] := 1;
+  graph[3 * 4 + 1] := 1;
+  
+  (* Edge 2-3 *)
+  graph[2 * 4 + 3] := 1;
+  graph[3 * 4 + 2] := 1;
+
+  WRITELN("Starting_DFS:");
+  ignore := dfs(0);
+END;
+$
