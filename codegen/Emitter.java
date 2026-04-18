@@ -29,7 +29,7 @@ public class Emitter
     {
         // if (!code.endsWith(":"))
         //     code = "\t" + code;
-        out.println(code);
+        out.print(code);
     }
 
     public void push() {

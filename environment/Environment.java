@@ -55,7 +55,6 @@ public class Environment
         var.put(v, value); 
     }
 
-    
     public void setGlobalVar(String v, Object value) {
         if (parent != null) parent.setVar(v, value);
         else var.put(v, value);

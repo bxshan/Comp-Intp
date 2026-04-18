@@ -49,11 +49,11 @@ public class Evaluator
             };
             e.emit(name + ": " + type + " " + val + "\n");
         }
-        e.emit(".text\n.globl main\nmain: #Mars will automatically look for main\n\n");
+        e.emit(".text\n.globl main\nmain:\n\n");
         // main:
         ArrayList<Statement> stmts = p.getStmts();
         for(Statement stmt : stmts) compile(stmt, env, e);
-        e.emit("\n\nli $v0 10 # normal termination\nsyscall");
+        e.emit("\n# termination\nli $v0 10\nsyscall");
         e.close();
     }
 
@@ -293,8 +293,13 @@ public class Evaluator
 
     public void compile(Expression e, Environment env, Emitter em) throws Throwable {
         switch (e) {
-            case Number n -> em.emit("li $v0, " + n.getVal() + "\n");
+            case Number n -> em.emit(
+                    "# begin expr num\n" +
+                    "li $v0, " + n.getVal() + "\n" + 
+                    "# end expr num\n"
+                    );
             case BinOp bo -> { // TODO only supporting ints rn; string concat later
+                em.emit("# begin expr binop\n");
                 compile(bo.getExpr1(), env, em); // expr1 in $v0
                 em.push(); // push $v0 to stack
                 compile(bo.getExpr2(), env, em); // expr2 in $v0
@@ -316,16 +321,21 @@ public class Evaluator
                         );
                     default -> throw new RuntimeException("do not recognize op");
                 }
+                em.emit("# end expr binop\n");
             }
             case Variable v -> {
+                em.emit("# begin expr var\n");
                 em.emit(
                         "la $t0, __var" + v.getName() + "\n" +
                         "lw $v0 ($t0)\n"
                       );
+                em.emit("# end expr var\n");
             }
             case ArrayElement ae -> {
+                em.emit("# begin expr array elem");
                 // TODO implement this!!!!!
                 System.out.println("array element compile is not impl yet!!!!");
+                em.emit("# end expr array elem");
             }
             default -> throw new RuntimeException("no expr in compile switched to");
         }
@@ -335,10 +345,10 @@ public class Evaluator
     public void compile(Statement e, Environment env, Emitter em) throws Throwable {
         switch (e) {
             case Writeln w -> {
+                em.emit("# begin stmt writeln\n");
                 // TODO currently only writeln nums
                 compile(w.getExpression(), env, em); // put into $v0
                 em.emit(
-                        "# begin writeln\n" +
                         // "li $v0, " + val + "\n" + // should alr be in $v0
                         "move $a0, $v0\n" +
                         "li $v0, 1\n" + 
@@ -347,16 +357,22 @@ public class Evaluator
                         "li $a0, 10\n" +
                         "syscall\n\n" 
                         ); // only works if val is int
+                em.emit("# end stmt writeln\n");
             }
             case Block b -> {
+                em.emit("# begin stmt block\n");
                 for(Statement s : b.getStmts()) if (s != null) compile(s, env, em);
+                em.emit("# end stmt block\n");
             }
             case Assignment a -> {
+                em.emit("# begin stmt assign\n");
                 compile(a.getExpression(), env, em); // assign to in $v0
                 em.emit("la $t0, __var" + a.getVar().getName() + "\n" +
                         "sw $v0, ($t0)\n");
+                em.emit("# end stmt assign\n");
             }
             case If i -> {
+                em.emit("# begin stmt if\n");
                 int lblid = em.nextLblId();
                 String els = "else" + lblid, endif = "endif" + lblid;
 
@@ -374,8 +390,10 @@ public class Evaluator
                     compile(i.getThen(), env, em);
                     em.emit(endif + ":\n");
                 }
+                em.emit("# end stmt if\n");
             }
             case While w -> {
+                em.emit("# begin stmt while\n");
                 int lblid = em.nextLblId();
                 String whil = "while" + lblid, endwhile = "endwhile" + lblid;
                 em.emit(whil + ":\n"); // j back here
@@ -383,6 +401,7 @@ public class Evaluator
                 compile(w.getDo(), env, em);
                 em.emit("j " + whil + "\n");
                 em.emit(endwhile + ":\n");
+                em.emit("# end stmt while\n");
             }
             default -> throw new RuntimeException("no stmt in compile switched to");
         }
@@ -392,6 +411,7 @@ public class Evaluator
     public void compile(Expression e, Environment env, Emitter em, String lbl) throws Throwable {
         switch (e) {
             case BinOp bo -> {
+                em.emit("# begin to lbl binop\n");
                 compile(bo.getExpr1(), env, em); // expr1 -> $v0
                 em.push(); // sto $v0
                 compile(bo.getExpr2(), env, em); // expr2 → $v0
@@ -406,6 +426,7 @@ public class Evaluator
                     default -> throw new RuntimeException("not a relop; why are you here");
                 };
                 em.emit(inst + " $t0, $v0, " + lbl + "\n");
+                em.emit("# end to lbl binop\n");
             }
             default -> throw new RuntimeException("probably incorrect overload of compile with expr and lbl");
         }

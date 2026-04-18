@@ -1,0 +1,11 @@
+VAR x := 10, y := 0;
+BEGIN
+  IF x > 5 THEN WRITELN(1);
+  WRITELN(x + 1);
+
+  WHILE y < 5 DO BEGIN
+    WRITELN(y);
+    y := y + 1;
+  END;
+END;
+$
