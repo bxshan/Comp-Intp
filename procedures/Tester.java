@@ -63,39 +63,39 @@ public class Tester
      */
     public static void main(String[] args) throws Throwable
     {
-        int tcR = 17;
-        for(int tc = 0; tc <= tcR; tc++)
-        {
-            if (tc==4) continue; // skip the READLN case so to not interrupt testing
-            try
-            {
-                System.out.println("tc " + tc + ":");
-                String dir = 
-                    "/Users/box/Desktop/src/HarkerCompIntp/procedures/tst"+tc+".txt";
-                FileInputStream fis = new FileInputStream(dir);
-                scanner.Scanner scanner = new scanner.Scanner(fis);
-                procedures.Parser parser = new procedures.Parser(scanner);
-                procedures.Evaluator ev = new procedures.Evaluator();
-                test(scanner, parser, ev);
-                System.out.println("=====================================");
-                System.out.println("=====================================\n\n");
-            }
-            catch (Exception e)
-            {
-                // e.printStackTrace();
-                System.out.println("skipping tc " + tc + "...\n");
-                continue;
-            }
-        }
+        // int tcR = 17;
+        // for(int tc = 0; tc <= tcR; tc++)
+        // {
+        //     if (tc==4) continue; // skip the READLN case so to not interrupt testing
+        //     try
+        //     {
+        //         System.out.println("tc " + tc + ":");
+        //         String dir = 
+        //             "/Users/box/Desktop/src/HarkerCompIntp/procedures/tst"+tc+".txt";
+        //         FileInputStream fis = new FileInputStream(dir);
+        //         scanner.Scanner scanner = new scanner.Scanner(fis);
+        //         procedures.Parser parser = new procedures.Parser(scanner);
+        //         procedures.Evaluator ev = new procedures.Evaluator();
+        //         test(scanner, parser, ev);
+        //         System.out.println("=====================================");
+        //         System.out.println("=====================================\n\n");
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         // e.printStackTrace();
+        //         System.out.println("skipping tc " + tc + "...\n");
+        //         continue;
+        //     }
+        // }
 
-        // String dir = 
-        //     "/Users/box/Desktop/src/HarkerCompIntp/procedures/tc/search.txt";
-        // FileInputStream fis = new FileInputStream(dir);
-        // scanner.Scanner scanner = new scanner.Scanner(fis);
-        // procedures.Parser parser = new procedures.Parser(scanner);
-        // procedures.Evaluator ev = new procedures.Evaluator();
-        // test(scanner, parser, ev);
-        // System.out.println("=====================================");
-        // System.out.println("=====================================\n\n");
+        String dir = 
+            "/Users/box/Desktop/src/HarkerCompIntp/procedures/tc/sort.txt";
+        FileInputStream fis = new FileInputStream(dir);
+        scanner.Scanner scanner = new scanner.Scanner(fis);
+        procedures.Parser parser = new procedures.Parser(scanner);
+        procedures.Evaluator ev = new procedures.Evaluator();
+        test(scanner, parser, ev);
+        System.out.println("=====================================");
+        System.out.println("=====================================\n\n");
     }
 }
