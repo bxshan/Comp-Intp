@@ -203,21 +203,30 @@ public class Parser
             }
             case "READLN" ->
             {
-                java.util.Scanner scn = new java.util.Scanner(System.in);
+                // java.util.Scanner scn = new java.util.Scanner(System.in);
+                // eat("READLN");
+                // eat("(");
+                // String varName = ctok;
+                // System.out.print("WRITE TO " + varName + ": ");
+                // String in = scn.nextLine();
+                // Variable v = new Variable(varName);
+                // if (in.matches("\\d+")) env.setVar(varName, Integer.parseInt(in));
+                // else if (this.isBool(in)) env.setVar(varName, in.equals("TRUE"));
+                // else env.setVar(varName, in); // string
+                // eat(varName);
+                // eat(")");
+                // eat(";");
+                //
+                // return new Readln(v);
+
+                // do not do io at compile time
                 eat("READLN");
                 eat("(");
                 String varName = ctok;
-                System.out.print("WRITE TO " + varName + ": ");
-                String in = scn.nextLine();
-                Variable v = new Variable(varName);
-                if (in.matches("\\d+")) env.setVar(varName, Integer.parseInt(in));
-                else if (this.isBool(in)) env.setVar(varName, in.equals("TRUE"));
-                else env.setVar(varName, in); // string
-                eat(varName);
+                eat(ctok);
                 eat(")");
                 eat(";");
-
-                return new Readln(v);
+                return new Readln(new Variable(varName));
             }
             case "BEGIN" ->
             {

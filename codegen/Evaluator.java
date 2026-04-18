@@ -257,10 +257,7 @@ public class Evaluator
                             default -> throw new RuntimeException("check op " + bo.getOp());
                         };
                     }
-                    default ->
-                    {
-                        throw new RuntimeException("eval binop v1 " + v1 + " type not recognized");
-                    }
+                    default -> throw new RuntimeException("eval binop v1 " + v1 + " type not recognized");
                 }
             }
             case ProcedureCall pc -> 
@@ -313,6 +310,10 @@ public class Evaluator
                         "divu $t0, $v0\n" +
                         "mflo $v0\n"
                         );
+                    case "mod" -> em.emit(
+                        "divu $t0, $v0\n" +
+                        "mfhi $v0\n" // rem in hi register
+                        );
                     default -> throw new RuntimeException("do not recognize op");
                 }
             }
@@ -326,7 +327,7 @@ public class Evaluator
                 // TODO implement this!!!!!
                 System.out.println("array element compile is not impl yet!!!!");
             }
-            default -> {}
+            default -> throw new RuntimeException("no expr in compile switched to");
         }
         em.emit("\n");
     }
@@ -359,16 +360,20 @@ public class Evaluator
                 int lblid = em.nextLblId();
                 String els = "else" + lblid, endif = "endif" + lblid;
 
-                compile(i.getCond(), env, em, els); // if not cond then skip past then
-                compile(i.getThen(), env, em);
                 if (i.getElse() != null) {
-                    em.emit( // skip else if from then (cond is true)
+                    compile(i.getCond(), env, em, els);
+                    compile(i.getThen(), env, em);
+                    em.emit(
                             "j " + endif + "\n" + 
-                            els + ":\n"
-                            );
+                            els + ":\n" 
+                           );
                     compile(i.getElse(), env, em);
+                    em.emit(endif + ":\n");
+                } else {
+                    compile(i.getCond(), env, em, endif);
+                    compile(i.getThen(), env, em);
+                    em.emit(endif + ":\n");
                 }
-                em.emit(endif + ":\n");
             }
             case While w -> {
                 int lblid = em.nextLblId();
@@ -379,7 +384,7 @@ public class Evaluator
                 em.emit("j " + whil + "\n");
                 em.emit(endwhile + ":\n");
             }
-            default -> {}
+            default -> throw new RuntimeException("no stmt in compile switched to");
         }
         em.emit("\n");
     }
@@ -398,11 +403,11 @@ public class Evaluator
                     case ">=" -> "blt";
                     case "<>" -> "beq";
                     case "=" -> "bne";
-                    default -> { throw new RuntimeException("not a relop; why are you here"); }
+                    default -> throw new RuntimeException("not a relop; why are you here");
                 };
                 em.emit(inst + " $t0, $v0, " + lbl + "\n");
             }
-            default -> {}
+            default -> throw new RuntimeException("probably incorrect overload of compile with expr and lbl");
         }
         em.emit("\n");
     }
