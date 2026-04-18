@@ -1,4 +1,4 @@
-package procedures;
+package codegen;
 
 /**
  * While type node

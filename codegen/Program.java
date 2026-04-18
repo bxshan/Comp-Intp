@@ -1,32 +1,33 @@
-package procedures;
-
-import java.util.ArrayList;
+package codegen;
+import java.util.*;
 
 /**
- * Program class 
+ * Program class
  *
  * @author Boxuan Shan
- * @version 03242025
+ * @version 04172026
  */
-public class Program 
+public class Program
 {
+    private HashMap<String, Expression> vars;
     private ArrayList<Statement> stmts;
 
     /**
      * Program constructor
+     * @param vars list of global variable names
      * @param stmts list of statements in the program
      */
-    public Program(ArrayList<Statement> stmts) 
+    public Program(HashMap<String, Expression> vars, ArrayList<Statement> stmts)
     {
+        this.vars = vars;
         this.stmts = stmts;
     }
 
-    /**
-     * gets the list of statements
-     * @return ArrayList of statements
-     */
-    public ArrayList<Statement> getStmts() 
-    {
-        return stmts;
+    public HashMap<String, Expression> getVars() { 
+        return vars; 
+    }
+
+    public ArrayList<Statement> getStmts() { 
+        return stmts; 
     }
 }

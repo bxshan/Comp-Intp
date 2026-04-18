@@ -1,4 +1,4 @@
-package procedures;
+package codegen;
 import scanner.*;
 import environment.*;
 import java.util.*;
@@ -26,7 +26,8 @@ public class Parser
             "IF", "THEN", "ELSE",
             "WHILE", "FOR", "REPEAT",
             "UNTIL", "BREAK", "CONTINUE", 
-            "PROCEDURE", "__ignore", "EXIT"
+            "PROCEDURE", "__ignore", "EXIT",
+            "VAR"
     );
 
     /**
@@ -83,15 +84,45 @@ public class Parser
      * @return Program object parsed
      * @throws Throwable for break and continue
      */
-    public Program parseProgram() throws Throwable
-    {
-        ArrayList<Statement> s = new ArrayList<Statement>();
-        while (ctok != null && !ctok.equals("$") && !ctok.equals("EOF")) 
+    public Program parseProgram() throws Throwable {
+        HashMap<String, Expression> vars = new HashMap<String, Expression>();
+        ArrayList<Statement> stmts = new ArrayList<Statement>();
+
+        while (ctok.equals("VAR")) vars.putAll(parseVarDec());
+        while (ctok != null && !ctok.equals("$") && !ctok.equals("EOF"))
         {
-            if (ctok.equals("PROCEDURE")) s.add(parseProcDec());
-            else s.add(parseStatement());
+            while (ctok.equals("PROCEDURE")) stmts.add(parseProcDec());
+            stmts.add(parseStatement());
         }
-        return new Program(s);
+
+        return new Program(vars, stmts);
+    }
+
+    public HashMap<String, Expression> parseVarDec() throws Throwable {
+        eat("VAR");
+        HashMap<String, Expression> names = new HashMap<String, Expression>();
+
+
+        String name = ctok; eat(ctok);
+        Expression init = null;
+        if (ctok.equals(":=")) {
+            eat(":=");
+            init = parseExpression();
+        }
+        names.put(name, init);
+
+        while (ctok.equals(",")) {
+            eat(",");
+            name = ctok; eat(ctok);
+            init = null;
+            if (ctok.equals(":=")) { 
+                eat(":="); 
+                init = parseExpression(); 
+            }
+            names.put(name, init);
+        }
+        eat(";");
+        return names;
     }
 
     /**
@@ -144,7 +175,7 @@ public class Parser
                         ctok.equals("NOT"))
                 {
                     boolean boolVal = parseBoolExpression();
-                    exp = new procedures.Boolean(boolVal);
+                    exp = new codegen.Boolean(boolVal);
                 } 
                 else if (ctok.equals("\"") ||
                         (v.containsKey(ctok) && v.get(ctok) instanceof String))
@@ -159,7 +190,7 @@ public class Parser
                     if (isRelOp(ctok))
                     {
                         boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
-                        exp = new procedures.Boolean(boolVal);
+                        exp = new codegen.Boolean(boolVal);
                     }
                     else
                     {
@@ -207,7 +238,7 @@ public class Parser
                         ctok.equals("NOT")))
                 {
                     // just a normal bool
-                    c = new procedures.Boolean(parseBoolExpression());
+                    c = new codegen.Boolean(parseBoolExpression());
                 }
                 else
                 {
@@ -244,7 +275,7 @@ public class Parser
                         ctok.equals("NOT")))
                 {
                     // just a normal bool
-                    c = new procedures.Boolean(parseBoolExpression());
+                    c = new codegen.Boolean(parseBoolExpression());
                 }
                 else
                 {
@@ -278,7 +309,7 @@ public class Parser
                         ctok.equals("NOT")))
                 {
                     // just a normal bool
-                    t = new procedures.Boolean(parseBoolExpression());
+                    t = new codegen.Boolean(parseBoolExpression());
                 }
                 else
                 {
@@ -313,7 +344,7 @@ public class Parser
                         ctok.equals("NOT")))
                 {
                     // just a normal bool
-                    u = new procedures.Boolean(parseBoolExpression());
+                    u = new codegen.Boolean(parseBoolExpression());
                 }
                 else
                 {
@@ -373,7 +404,7 @@ public class Parser
                         {
                             boolean tmp = parseBoolExpression();
                             if (!v.containsKey(tmpv)) env.setVar(tmpv, tmp);
-                            exp = new procedures.Boolean(tmp);
+                            exp = new codegen.Boolean(tmp);
                         } 
                         else if (ctok.equals("\"") ||
                                 (v.containsKey(tmpv) && v.get(tmpv) instanceof String) ||
@@ -403,7 +434,7 @@ public class Parser
                             {
                                 boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
                                 if (!v.containsKey(tmpv)) env.setVar(tmpv, boolVal);
-                                exp = new procedures.Boolean(boolVal);
+                                exp = new codegen.Boolean(boolVal);
                             }
                             else
                             {
@@ -426,7 +457,7 @@ public class Parser
                                 (v.containsKey(ctok) && 
                                  env.getObjVar(ctok) instanceof java.lang.Boolean) ||
                                 ctok.equals("NOT"))
-                            exp = new procedures.Boolean(parseBoolExpression());
+                            exp = new codegen.Boolean(parseBoolExpression());
                         else if (ctok.equals("\"") ||
                                 (v.containsKey(ctok) && env.getObjVar(ctok) instanceof String))
                             exp = new _String(parseStrExpression());
@@ -490,7 +521,7 @@ public class Parser
                 {
                     boolean tmp = parseBoolExpression();
                     if (!v.containsKey(tmpv)) env.setVar(tmpv, tmp);
-                    exp = new procedures.Boolean(tmp);
+                    exp = new codegen.Boolean(tmp);
                 } 
                 else if (ctok.equals("\"") ||
                         (v.containsKey(tmpv) && v.get(tmpv) instanceof String) ||
@@ -519,7 +550,7 @@ public class Parser
                     {
                         boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
                         if (!v.containsKey(tmpv)) env.setVar(tmpv, boolVal);
-                        exp = new procedures.Boolean(boolVal);
+                        exp = new codegen.Boolean(boolVal);
                     }
                     else
                     {
@@ -544,7 +575,7 @@ public class Parser
                         (v.containsKey(ctok) && 
                          env.getObjVar(ctok) instanceof java.lang.Boolean) ||
                         ctok.equals("NOT"))
-                    exp = new procedures.Boolean(parseBoolExpression());
+                    exp = new codegen.Boolean(parseBoolExpression());
                 else if (ctok.equals("\"") ||
                         (v.containsKey(ctok) && env.getObjVar(ctok) instanceof String))
                     exp = new _String(parseStrExpression());
