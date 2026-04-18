@@ -1,5 +1,5 @@
 package environment;
-import procedures.*;
+import codegen.*;
 
 import java.util.*;
 
@@ -12,7 +12,7 @@ import java.util.*;
 public class Environment 
 {
     private HashMap<String, Object> var;
-    private HashMap<String, Statement> proc;
+    private HashMap<String, ProcedureDeclaration> proc;
     private Environment parent;
 
     /**
@@ -30,7 +30,7 @@ public class Environment
     public Environment(Environment parent)
     {
         var = new HashMap<String, Object>();
-        proc = new HashMap<String, Statement>();
+        proc = new HashMap<String, ProcedureDeclaration>();
         this.parent = parent;
     }
 
@@ -55,12 +55,18 @@ public class Environment
         var.put(v, value); 
     }
 
+    
+    public void setGlobalVar(String v, Object value) {
+        if (parent != null) parent.setVar(v, value);
+        else var.put(v, value);
+    }
+
     /**
      * sets a procedure in this env
      * @param v name of proc to set
      * @param stmt body of proc to set to
      */
-    public void setProc(String v, Statement stmt) 
+    public void setProc(String v, ProcedureDeclaration stmt) 
     {
         if (parent != null) parent.setProc(v, stmt);
         else proc.put(v, stmt); 
@@ -71,7 +77,7 @@ public class Environment
      * @param v name of proc to get
      * @return Statement representing proc body
      */
-    public Statement getProc(String v) {
+    public ProcedureDeclaration getProc(String v) {
         if (parent != null) return parent.getProc(v);
         else if (proc.containsKey(v)) return proc.get(v);
         else throw new IllegalArgumentException("proc " + v + " is not declared\n");
