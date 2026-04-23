@@ -1,11 +1,48 @@
-VAR x := 10, y := 0;
-BEGIN
-  IF x > 5 THEN WRITELN(1);
-  WRITELN(x + 1);
+VAR
+  limit := 0,
+  counter := 0,
+  step := 2,
+  temp := 0,
+  i := 0,
+  myBool;
 
-  WHILE y < 5 DO BEGIN
-    WRITELN(y);
-    y := y + 1;
+BEGIN
+  READLN(limit);
+
+  (* 
+  if limit set to 7, output should be:
+  2
+  1
+  0
+  15
+  0 
+  *)
+  temp := (limit * 2 + 10) / step;
+  temp := temp mod 5;
+  WRITELN(temp);
+
+  myBool := TRUE;
+  IF myBool THEN
+    WRITELN(1);
+  ELSE
+    WRITELN(0);
+
+  counter := limit;
+  WHILE counter > 0 DO
+  BEGIN
+    counter := counter - 1;
   END;
+  WRITELN(counter);
+
+  temp := 0;
+  FOR i := 1 TO 5 DO
+    temp := temp + i;
+  WRITELN(temp);
+
+  counter := 5;
+  REPEAT
+    counter := counter - 1;
+  UNTIL counter <= 0
+  WRITELN(counter);
 END;
 $

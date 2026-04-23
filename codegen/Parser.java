@@ -174,23 +174,21 @@ public class Parser
                         (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
                         ctok.equals("NOT"))
                 {
-                    boolean boolVal = parseBoolExpression();
-                    exp = new codegen.Boolean(boolVal);
-                } 
+                    exp = parseBoolExpression();
+                }
                 else if (ctok.equals("\"") ||
                         (v.containsKey(ctok) && v.get(ctok) instanceof String))
                 {
-                    String strVal = parseStrExpression();
-                    exp = new _String(strVal);
+                    exp = parseStrExpression();
                 }
                 else
                 {
-                    // num expr, or int relop (boolean result)
                     Expression lhs = parseExpression();
                     if (isRelOp(ctok))
                     {
-                        boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
-                        exp = new codegen.Boolean(boolVal);
+                        String op = ctok;
+                        eat(ctok);
+                        exp = new BinOp(op, lhs, parseExpression());
                     }
                     else
                     {
@@ -246,12 +244,10 @@ public class Parser
                         (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
                         ctok.equals("NOT")))
                 {
-                    // just a normal bool
-                    c = new codegen.Boolean(parseBoolExpression());
+                    c = parseBoolExpression();
                 }
                 else
                 {
-                    // check lhs relop rhs (expr)
                     Expression lhs = parseExpression();
                     if (isRelOp(ctok))
                     {
@@ -259,7 +255,7 @@ public class Parser
                         eat(ctok);
                         c = new BinOp(op, lhs, parseExpression());
                     }
-                    else c = lhs; 
+                    else c = lhs;
                 }
                 eat("THEN");
                 Statement t = parseStatement();
@@ -283,12 +279,10 @@ public class Parser
                         (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
                         ctok.equals("NOT")))
                 {
-                    // just a normal bool
-                    c = new codegen.Boolean(parseBoolExpression());
+                    c = parseBoolExpression();
                 }
                 else
                 {
-                    // check lhs relop rhs (expr)
                     Expression lhs = parseExpression();
                     if (isRelOp(ctok))
                     {
@@ -317,12 +311,10 @@ public class Parser
                         (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
                         ctok.equals("NOT")))
                 {
-                    // just a normal bool
-                    t = new codegen.Boolean(parseBoolExpression());
+                    t = parseBoolExpression();
                 }
                 else
                 {
-                    // check lhs relop rhs (expr)
                     Expression lhs = parseExpression();
                     if (isRelOp(ctok))
                     {
@@ -352,12 +344,10 @@ public class Parser
                         (v.containsKey(ctok) && v.get(ctok) instanceof java.lang.Boolean) ||
                         ctok.equals("NOT")))
                 {
-                    // just a normal bool
-                    u = new codegen.Boolean(parseBoolExpression());
+                    u = parseBoolExpression();
                 }
                 else
                 {
-                    // check lhs relop rhs (expr)
                     Expression lhs = parseExpression();
                     if (isRelOp(ctok))
                     {
@@ -407,23 +397,21 @@ public class Parser
                         Expression exp;
 
                         if (!ctok.matches("\\d+") && (isBool(ctok) ||
-                                    (v.containsKey(tmpv) && 
+                                    (v.containsKey(tmpv) &&
                                      v.get(tmpv) instanceof java.lang.Boolean) ||
-                                    ctok.equals("NOT"))) 
+                                    ctok.equals("NOT")))
                         {
-                            boolean tmp = parseBoolExpression();
-                            if (!v.containsKey(tmpv)) env.setVar(tmpv, tmp);
-                            exp = new codegen.Boolean(tmp);
-                        } 
+                            exp = parseBoolExpression();
+                            if (!v.containsKey(tmpv)) env.setVar(tmpv, false);
+                        }
                         else if (ctok.equals("\"") ||
                                 (v.containsKey(tmpv) && v.get(tmpv) instanceof String) ||
                                 (v.containsKey(ctok) && v.get(ctok) instanceof String))
                         {
-                            String lhs = parseStrExpression();
-                            if (!v.containsKey(tmpv)) env.setVar(tmpv, lhs);
-                            exp = new _String(lhs);
-                        } 
-                        else if (ctok.equals("array")) 
+                            exp = parseStrExpression();
+                            if (!v.containsKey(tmpv)) env.setVar(tmpv, "");
+                        }
+                        else if (ctok.equals("array"))
                         {
                             eat("array");
                             eat("[");
@@ -437,13 +425,13 @@ public class Parser
                         }
                         else
                         {
-                            // int, or int relop (boolean result)
                             Expression lhs = parseExpression();
                             if (isRelOp(ctok))
                             {
-                                boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
-                                if (!v.containsKey(tmpv)) env.setVar(tmpv, boolVal);
-                                exp = new codegen.Boolean(boolVal);
+                                String op = ctok;
+                                eat(ctok);
+                                if (!v.containsKey(tmpv)) env.setVar(tmpv, false);
+                                exp = new BinOp(op, lhs, parseExpression());
                             }
                             else
                             {
@@ -453,8 +441,8 @@ public class Parser
                         }
                         eat(";");
                         return new Assignment(new Variable(tmpv), exp);
-                    } 
-                    else if (ctok.equals("[")) 
+                    }
+                    else if (ctok.equals("["))
                     {
                         eat("[");
                         Expression idx = parseExpression();
@@ -462,14 +450,14 @@ public class Parser
                         eat(":=");
 
                         Expression exp;
-                        if (isBool(ctok) || 
-                                (v.containsKey(ctok) && 
+                        if (isBool(ctok) ||
+                                (v.containsKey(ctok) &&
                                  env.getObjVar(ctok) instanceof java.lang.Boolean) ||
                                 ctok.equals("NOT"))
-                            exp = new codegen.Boolean(parseBoolExpression());
+                            exp = parseBoolExpression();
                         else if (ctok.equals("\"") ||
                                 (v.containsKey(ctok) && env.getObjVar(ctok) instanceof String))
-                            exp = new _String(parseStrExpression());
+                            exp = parseStrExpression();
                         else
                             exp = parseExpression();
                         eat(";");
@@ -524,23 +512,21 @@ public class Parser
                 Expression exp;
 
                 if (!ctok.matches("\\d+") && (isBool(ctok) ||
-                        (v.containsKey(tmpv) && 
+                        (v.containsKey(tmpv) &&
                          v.get(tmpv) instanceof java.lang.Boolean) ||
-                        ctok.equals("NOT"))) 
+                        ctok.equals("NOT")))
                 {
-                    boolean tmp = parseBoolExpression();
-                    if (!v.containsKey(tmpv)) env.setVar(tmpv, tmp);
-                    exp = new codegen.Boolean(tmp);
-                } 
+                    exp = parseBoolExpression();
+                    if (!v.containsKey(tmpv)) env.setVar(tmpv, false);
+                }
                 else if (ctok.equals("\"") ||
                         (v.containsKey(tmpv) && v.get(tmpv) instanceof String) ||
                         (v.containsKey(ctok) && v.get(ctok) instanceof String))
                 {
-                    String lhs = parseStrExpression();
-                    if (!v.containsKey(tmpv)) env.setVar(tmpv, lhs);
-                    exp = new _String(lhs);
-                } 
-                else if (ctok.equals("array")) 
+                    exp = parseStrExpression();
+                    if (!v.containsKey(tmpv)) env.setVar(tmpv, "");
+                }
+                else if (ctok.equals("array"))
                 {
                     eat("array");
                     eat("[");
@@ -553,13 +539,13 @@ public class Parser
                 }
                 else
                 {
-                    // int, or int relop (boolean result)
                     Expression lhs = parseExpression();
                     if (isRelOp(ctok))
                     {
-                        boolean boolVal = parseRelOp((Integer) ev.eval(lhs, env));
-                        if (!v.containsKey(tmpv)) env.setVar(tmpv, boolVal);
-                        exp = new codegen.Boolean(boolVal);
+                        String op = ctok;
+                        eat(ctok);
+                        if (!v.containsKey(tmpv)) env.setVar(tmpv, false);
+                        exp = new BinOp(op, lhs, parseExpression());
                     }
                     else
                     {
@@ -580,14 +566,14 @@ public class Parser
                 HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(tmpv);
 
                 Expression exp;
-                if (isBool(ctok) || 
-                        (v.containsKey(ctok) && 
+                if (isBool(ctok) ||
+                        (v.containsKey(ctok) &&
                          env.getObjVar(ctok) instanceof java.lang.Boolean) ||
                         ctok.equals("NOT"))
-                    exp = new codegen.Boolean(parseBoolExpression());
+                    exp = parseBoolExpression();
                 else if (ctok.equals("\"") ||
                         (v.containsKey(ctok) && env.getObjVar(ctok) instanceof String))
-                    exp = new _String(parseStrExpression());
+                    exp = parseStrExpression();
                 else
                     exp = parseExpression();
                 return new ArrayAssignment(new Variable(tmpv), idx, exp);
@@ -729,10 +715,10 @@ public class Parser
         } 
         else if (ctok.equals("#"))
         {
-            // take string len
             eat("#");
-            String s = parseStrFactor();
-            e = new Number(s.length());
+            Expression sExpr = parseStrFactor();
+            if (sExpr instanceof _String ss) e = new Number(ss.getVal().length());
+            else e = new Number(0); // TODO: runtime string length not supported
         }
         else
         {
@@ -753,7 +739,7 @@ public class Parser
      * @return bool value of the factor
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    public boolean parseBoolFactor() throws Throwable 
+    public Expression parseBoolFactor() throws Throwable
     {
         return this.pbfHelper(false);
     }
@@ -766,62 +752,53 @@ public class Parser
      * @return signed bool value of factor
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    private boolean pbfHelper(boolean sign) throws Throwable 
+    private Expression pbfHelper(boolean sign) throws Throwable
     {
-        if (this.isBool(ctok)) 
+        if (this.isBool(ctok))
         {
-            return (sign ? !parseBool() : parseBool());
+            return new codegen.Boolean(sign ? !parseBool() : parseBool());
         }
-        else if (this.isID(ctok)) 
+        else if (this.isID(ctok))
         {
             String a = ctok;
             eat(ctok);
-            if (ctok.equals("[")) 
+            if (ctok.equals("["))
             {
-                // array bool member
                 eat("[");
                 Expression idx = parseExpression();
                 eat("]");
-
-                boolean elm = false;
-                @SuppressWarnings("unchecked")
-                HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(a);
-                Object valObj = arr.get(ev.eval(idx, env));
-                if (valObj != null) elm = (boolean) valObj;
-
-                return sign ? !elm : elm;
-            } 
-            else if (ctok.equals("(")) 
+                Expression expr = new ArrayElement(a, idx);
+                return sign ? new BinOp("<>", expr, new codegen.Boolean(true)) : expr;
+            }
+            else if (ctok.equals("("))
             {
                 eat("(");
                 ArrayList<Expression> args = new ArrayList<Expression>();
-                while(!ctok.equals(")")) 
+                while(!ctok.equals(")"))
                 {
                     args.add(parseExpression());
-                    if(ctok.equals(',')) eat(",");
+                    if(ctok.equals(",")) eat(",");
                 }
                 eat(")");
-                ev.eval(new ProcedureCall(a, args), env);
-                return false; // TODO default return
+                Expression expr = new ProcedureCall(a, args);
+                return sign ? new BinOp("<>", expr, new codegen.Boolean(true)) : expr;
             }
-
-            boolean val = (sign ? !((boolean) env.getObjVar(a)) : (boolean) env.getObjVar(a));
-            return val;
-        } 
-        else if (ctok.equals("NOT")) 
+            Expression expr = new Variable(a);
+            return sign ? new BinOp("<>", expr, new codegen.Boolean(true)) : expr;
+        }
+        else if (ctok.equals("NOT"))
         {
             eat("NOT");
             return pbfHelper(!sign);
         }
-        else if (ctok.equals("(")) 
+        else if (ctok.equals("("))
         {
             eat("(");
-            boolean tmp = parseBoolExpression();
+            Expression tmp = parseBoolExpression();
             eat(")");
-            return sign ? !tmp : tmp;
+            return sign ? new BinOp("<>", tmp, new codegen.Boolean(true)) : tmp;
         }
-
-        return false;
+        return new codegen.Boolean(false);
     }
 
     /**
@@ -831,7 +808,7 @@ public class Parser
      * @return string value of the factor
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    public String parseStrFactor() throws Throwable 
+    public Expression parseStrFactor() throws Throwable
     {
         return this.psfHelper();
     }
@@ -843,58 +820,45 @@ public class Parser
      * @return string value of the factor, or "" if no match
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    private String psfHelper() throws Throwable 
+    private Expression psfHelper() throws Throwable
     {
-        if (ctok.equals("\"")) 
+        if (ctok.equals("\""))
         {
-            // at start of str
-            return parseStr();
+            return new _String(parseStr());
         }
-        else if (this.isID(ctok)) 
+        else if (this.isID(ctok))
         {
             String a = ctok;
             eat(ctok);
-            if (ctok.equals("[")) 
+            if (ctok.equals("["))
             {
-                // array string member
                 eat("[");
                 Expression idx = parseExpression();
                 eat("]");
-
-                String elm = "";
-                @SuppressWarnings("unchecked")
-                HashMap<Integer, Object> arr = (HashMap<Integer, Object>) env.getObjVar(a);
-                Object valObj = arr.get(ev.eval(idx, env));
-                if (valObj != null) elm = (String) valObj;
-
-                return elm;
-            } 
-            else if (ctok.equals("(")) 
+                return new ArrayElement(a, idx);
+            }
+            else if (ctok.equals("("))
             {
                 eat("(");
                 ArrayList<Expression> args = new ArrayList<Expression>();
-                while(!ctok.equals(")")) 
+                while(!ctok.equals(")"))
                 {
                     args.add(parseExpression());
-                    if(ctok.equals(',')) eat(",");
+                    if(ctok.equals(",")) eat(",");
                 }
                 eat(")");
-                ev.eval(new ProcedureCall(a, args), env);
-                return ""; // TODO default return
+                return new ProcedureCall(a, args);
             }
-            String val = (String) env.getObjVar(a);
-
-            return val;
-        } 
-        else if (ctok.equals("(")) 
+            return new Variable(a);
+        }
+        else if (ctok.equals("("))
         {
             eat("(");
-            String tmp = parseStrExpression();
+            Expression tmp = parseStrExpression();
             eat(")");
             return tmp;
         }
-
-        return "";
+        return new _String("");
     }
 
     /**
@@ -926,15 +890,14 @@ public class Parser
      * @return bool value of the term 
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    public boolean parseBoolTerm() throws Throwable 
+    public Expression parseBoolTerm() throws Throwable
     {
-        boolean t1 = parseBoolFactor();
-        while(ctok.equals("AND")) 
+        Expression t1 = parseBoolFactor();
+        while(ctok.equals("AND"))
         {
-            eat("AND"); 
-            t1 = t1 && parseBoolFactor();
+            eat("AND");
+            t1 = new BinOp("AND", t1, parseBoolFactor());
         }
-
         return t1;
     }
 
@@ -947,14 +910,13 @@ public class Parser
      * @return string value of the term 
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    public String parseStrTerm() throws Throwable 
+    public Expression parseStrTerm() throws Throwable
     {
-        String t1 = parseStrFactor();
-        while (ctok.equals("+")) 
+        Expression t1 = parseStrFactor();
+        while (ctok.equals("+"))
         {
-            // concat
             eat("+");
-            t1 += parseStrFactor();
+            t1 = new BinOp("+", t1, parseStrFactor());
         }
         return t1;
     }
@@ -989,17 +951,14 @@ public class Parser
      * @return bool value of the expression
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    public boolean parseBoolExpression() throws Throwable 
+    public Expression parseBoolExpression() throws Throwable
     {
-        boolean t = parseBoolTerm();
-        while (ctok.equals("OR")) 
+        Expression t = parseBoolTerm();
+        while (ctok.equals("OR"))
         {
-            // OR is only operator impl. lower than AND.
-            // otherwise switch on ctok
             eat("OR");
-            t |= parseBoolTerm(); 
+            t = new BinOp("OR", t, parseBoolTerm());
         }
-
         return t;
     }
 
@@ -1007,63 +966,12 @@ public class Parser
      * parse a string expression; delegates to parseStrTerm: no more binary operations
      * @precondition ctok at start of string expression
      * @postcondition expression tokens eaten
-     * @return string value of expression
+     * @return Expression node for the string expression
      * @throws IllegalArgumentException if token sequence does not match grammar
      */
-    public String parseStrExpression() throws Throwable 
+    public Expression parseStrExpression() throws Throwable
     {
         return parseStrTerm();
-    } // only 1 binary expression precedence level
-
-    /**
-     * parse and eval relational operator against int lhs
-     * @precondition ctok a relational operator; lhs already parsed as int
-     * @postcondition relop and rhs tokens eaten
-     * @param lhs int operand on lhs
-     * @return bool result of relational operator
-     * @throws IllegalArgumentException if token sequence does not match grammar
-     */
-    private boolean parseRelOp(int lhs) throws Throwable
-    {
-        String op = ctok; 
-        eat(ctok);
-        int rhs = (Integer) ev.eval(parseExpression(), env);
-        return switch(op) 
-        {
-            case ">=" -> lhs >= rhs;
-            case "<=" -> lhs <= rhs;
-            case "="  -> lhs == rhs;
-            case "<>" -> lhs != rhs;
-            case "<" -> lhs < rhs;
-            case ">" -> lhs > rhs;
-            default -> throw new RuntimeException("no relop detected");
-        };
-    }
-
-    /**
-     * parse and eval relational operator against String lhs
-     * @precondition ctok a relational operator; lhs already parsed as String 
-     * @postcondition relop and rhs tokens eaten
-     * @param lhs String operand on lhs
-     * @return bool result of relational operator
-     * @throws ScanErrorException if scanner encounters an illegal character
-     * @throws IllegalArgumentException if token sequence does not match grammar
-     */
-    private boolean parseRelOp(String lhs) throws Throwable 
-    {
-        String op = ctok;
-        eat(ctok);
-        String rhs = parseStrExpression();
-        return switch(op) 
-        {
-            case "=" -> lhs.equals(rhs);
-            case "<>" -> !lhs.equals(rhs);
-            case "<" -> lhs.compareTo(rhs) < 0;
-            case ">" -> lhs.compareTo(rhs) > 0;
-            case "<=" -> lhs.compareTo(rhs) <= 0;
-            case ">=" -> lhs.compareTo(rhs) >= 0;
-            default -> throw new RuntimeException("no relop detected");
-        };
     }
 
     /**

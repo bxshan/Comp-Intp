@@ -11,6 +11,9 @@ import environment.*;
  */
 public class Evaluator
 {
+    private Stack<String> breaklbl = new Stack<String>();
+    private Stack<String> contlbl = new Stack<String>();
+    private HashMap<String, Integer> arrayStarts = new HashMap<>();
     /**
      * Evaluates a program
      * @param p program to execute
@@ -27,7 +30,7 @@ public class Evaluator
         for (Statement stmt : stmts) exec(stmt, env);
     }
 
-    public void compile(Program p, Environment env, Emitter e) throws Throwable {
+    public void compile(Program p, Emitter e) throws Throwable {
         e.emit(".data\n");
         for(Map.Entry<String, Expression> me : p.getVars().entrySet()) {
             String name = "__var" + me.getKey();
@@ -40,19 +43,19 @@ public class Evaluator
                 e.emit(name + ": .space " + (a.getEnd() - a.getStart() + 1) * 4 + "\n");
                 continue;
             }
-            Object val = eval(me.getValue(), env);
-            String type = switch (val) {
-                case Integer i -> ".word";
-                case String s -> ".asciiz";
-                case java.lang.Boolean b -> { val = b ? 1 : 0; yield ".word"; }
-                default -> { throw new RuntimeException("not recognize var type dec in globl"); }
-            };
-            e.emit(name + ": " + type + " " + val + "\n");
+            switch (me.getValue()) {
+                case Number n -> e.emit(name + ": .word " + n.getVal() + "\n");
+                case _String ss -> e.emit(name + ": .asciiz \"" + ss.getVal() + "\"\n");
+                case Boolean b -> e.emit(name + ": .word " + (b.getVal() ? 1 : 0) + "\n");
+                default -> throw new RuntimeException(
+                        "global init must be literal/array/null, got: " +
+                        me.getValue().getClass().getSimpleName());
+            }
         }
         e.emit(".text\n.globl main\nmain:\n\n");
         // main:
         ArrayList<Statement> stmts = p.getStmts();
-        for(Statement stmt : stmts) compile(stmt, env, e);
+        for(Statement stmt : stmts) compile(stmt, e);
         e.emit("\n# termination\nli $v0 10\nsyscall");
         e.close();
     }
@@ -130,7 +133,7 @@ public class Evaluator
                 // var must be an integer, to must be a int expr
                 Assignment i = (Assignment) f.getInit();
                 this.exec(i, env);
-                boolean c = (java.lang.Boolean) eval(new BinOp("<", f.getVar(), f.getTo()), env);
+                boolean c = (java.lang.Boolean) eval(new BinOp("<=", f.getVar(), f.getTo()), env); // pascal for is inclusive
                 while(c)
                 {
                     try
@@ -257,6 +260,19 @@ public class Evaluator
                             default -> throw new RuntimeException("check op " + bo.getOp());
                         };
                     }
+                    case java.lang.Boolean b ->
+                    {
+                        java.lang.Boolean b1 = (java.lang.Boolean) eval(bo.getExpr2(), env);
+
+                        return switch (bo.getOp())
+                        {
+                            case "AND" -> b && b1;
+                            case "OR"  -> b || b1;
+                            case "="   -> b.equals(b1);
+                            case "<>"  -> !b.equals(b1);
+                            default -> throw new RuntimeException("check bool op " + bo.getOp());
+                        };
+                    }
                     default -> throw new RuntimeException("eval binop v1 " + v1 + " type not recognized");
                 }
             }
@@ -291,103 +307,128 @@ public class Evaluator
         }
     }
 
-    public void compile(Expression e, Environment env, Emitter em) throws Throwable {
+    public void compile(Expression e, Emitter em) throws Throwable {
         switch (e) {
             case Number n -> em.emit(
                     "# begin expr num\n" +
-                    "li $v0, " + n.getVal() + "\n" + 
+                    "li $v0, " + n.getVal() + "\n" +
                     "# end expr num\n"
                     );
-            case BinOp bo -> { // TODO only supporting ints rn; string concat later
+            case Boolean b -> em.emit(
+                    "# begin expr bool\n" +
+                    "li $v0, " + (b.getVal() ? 1 : 0) + "\n" +
+                    "# end expr bool\n"
+                    );
+            case _String ss -> em.emit( // TODO Strings cooked: use 0 as filler val
+                    "# begin expr string\n" +
+                    "li $v0, 0\n" +
+                    "# end expr string\n"
+                    );
+            case BinOp bo -> {
                 em.emit("# begin expr binop\n");
-                compile(bo.getExpr1(), env, em); // expr1 in $v0
-                em.push(); // push $v0 to stack
-                compile(bo.getExpr2(), env, em); // expr2 in $v0
-                em.pop(); // pop stack into $t0
+                compile(bo.getExpr1(), em); // expr1 in $v0
+                em.push();
+                compile(bo.getExpr2(), em); // expr2 in $v0
+                em.pop(); // $t0 = expr1, $v0 = expr2
                 switch (bo.getOp()) {
                     case "+" -> em.emit("addu $v0, $t0, $v0\n");
                     case "-" -> em.emit("subu $v0, $t0, $v0\n");
-                    case "*" -> em.emit(
-                        "multu $t0, $v0\n" +
-                        "mflo $v0\n"
-                        );
-                    case "/" -> em.emit(
-                        "divu $t0, $v0\n" +
-                        "mflo $v0\n"
-                        );
-                    case "mod" -> em.emit(
-                        "divu $t0, $v0\n" +
-                        "mfhi $v0\n" // rem in hi register
-                        );
-                    default -> throw new RuntimeException("do not recognize op");
+                    case "*" -> em.emit("multu $t0, $v0\nmflo $v0\n");
+                    case "/" -> em.emit("divu $t0, $v0\nmflo $v0\n");
+                    case "mod" -> em.emit("divu $t0, $v0\nmfhi $v0\n");
+                    // v ret bool
+                    case "<" -> em.emit("slt $v0, $t0, $v0\n");
+                    case ">" -> em.emit("slt $v0, $v0, $t0\n");
+                    case "=" -> em.emit("seq $v0, $t0, $v0\n");
+                    case "<=" -> em.emit("sle $v0, $t0, $v0\n");
+                    case ">=" -> em.emit("sle $v0, $v0, $t0\n");
+                    case "<>" -> em.emit("sne $v0, $t0, $v0\n");
+                    case "AND" -> em.emit("and $v0, $t0, $v0\n");
+                    case "OR" -> em.emit("or $v0, $t0, $v0\n");
+                    default -> throw new RuntimeException("do not recognize op: " + bo.getOp());
                 }
                 em.emit("# end expr binop\n");
             }
             case Variable v -> {
                 em.emit("# begin expr var\n");
-                em.emit(
-                        "la $t0, __var" + v.getName() + "\n" +
-                        "lw $v0 ($t0)\n"
-                      );
+                em.emit("la $t0, __var" + v.getName() + "\nlw $v0 ($t0)\n");
                 em.emit("# end expr var\n");
             }
             case ArrayElement ae -> {
-                em.emit("# begin expr array elem");
-                // TODO implement this!!!!!
-                System.out.println("array element compile is not impl yet!!!!");
-                em.emit("# end expr array elem");
+                em.emit("# begin expr array elem\n");
+                // addr of a[i] is base + (idx - 1) * 4
+                compile(ae.getIdx(), em); // idx -> $v0
+                em.emit(
+                        "subu $v0, $v0, 1\n" + // $v0 -= 1
+                        "sll $v0, $v0, 2\n" + // $v0 *= 4
+                        "la $t0, __var" + ae.getName() + "\n" + // base -> $t0
+                        "addu $t0, $t0, $v0\n" + // compute base + (idx - 1) * 4
+                        "lw $v0, ($t0)\n" // put a[i] into $v0
+                       );
+                em.emit("# end expr array elem\n");
             }
-            default -> throw new RuntimeException("no expr in compile switched to");
+            case Array a -> {} // alr handled in compile(Program) .data section
+            default -> throw new RuntimeException("no expr in compile switched to: " + e.getClass().getSimpleName());
         }
         em.emit("\n");
     }
 
-    public void compile(Statement e, Environment env, Emitter em) throws Throwable {
+    public void compile(Statement e, Emitter em) throws Throwable {
         switch (e) {
             case Writeln w -> {
                 em.emit("# begin stmt writeln\n");
-                // TODO currently only writeln nums
-                compile(w.getExpression(), env, em); // put into $v0
-                em.emit(
-                        // "li $v0, " + val + "\n" + // should alr be in $v0
-                        "move $a0, $v0\n" +
-                        "li $v0, 1\n" + 
-                        "syscall\n" +
-                        "li $v0, 11\n" +
-                        "li $a0, 10\n" +
-                        "syscall\n\n" 
-                        ); // only works if val is int
+                if (!(w.getExpression() instanceof _String)) { // TODO Strings are cooked
+                    compile(w.getExpression(), em);
+                    em.emit(
+                            "move $a0, $v0\n" +
+                            "li $v0, 1\n" +
+                            "syscall\n" +
+                            "li $v0, 11\n" +
+                            "li $a0, 10\n" +
+                            "syscall\n\n"
+                            );
+                }
                 em.emit("# end stmt writeln\n");
             }
             case Block b -> {
                 em.emit("# begin stmt block\n");
-                for(Statement s : b.getStmts()) if (s != null) compile(s, env, em);
+                for(Statement s : b.getStmts()) if (s != null) compile(s, em);
                 em.emit("# end stmt block\n");
+            }
+            case ArrayAssignment aa -> {
+                em.emit("# begin stmt arr assign\n");
+                compile(aa.getExpression(), em);
+                em.push();
+                compile(aa.getIdx(), em);
+                em.emit(
+                        "subu $v0, $v0, 1\n" +
+                        "sll $v0, $v0, 2\n" +
+                        "la $t1, __var" + aa.getVar().getName() + "\n" +
+                        "addu $t1, $t1, $v0\n"
+                       );
+                em.pop();
+                em.emit("sw $t0, ($t1)\n");
+                em.emit("# end stmt arr assign\n");
             }
             case Assignment a -> {
                 em.emit("# begin stmt assign\n");
-                compile(a.getExpression(), env, em); // assign to in $v0
-                em.emit("la $t0, __var" + a.getVar().getName() + "\n" +
-                        "sw $v0, ($t0)\n");
+                compile(a.getExpression(), em);
+                em.emit("la $t0, __var" + a.getVar().getName() + "\nsw $v0, ($t0)\n");
                 em.emit("# end stmt assign\n");
             }
             case If i -> {
                 em.emit("# begin stmt if\n");
                 int lblid = em.nextLblId();
                 String els = "else" + lblid, endif = "endif" + lblid;
-
                 if (i.getElse() != null) {
-                    compile(i.getCond(), env, em, els);
-                    compile(i.getThen(), env, em);
-                    em.emit(
-                            "j " + endif + "\n" + 
-                            els + ":\n" 
-                           );
-                    compile(i.getElse(), env, em);
+                    compile(i.getCond(), em, els);
+                    compile(i.getThen(), em);
+                    em.emit("j " + endif + "\n" + els + ":\n");
+                    compile(i.getElse(), em);
                     em.emit(endif + ":\n");
                 } else {
-                    compile(i.getCond(), env, em, endif);
-                    compile(i.getThen(), env, em);
+                    compile(i.getCond(), em, endif);
+                    compile(i.getThen(), em);
                     em.emit(endif + ":\n");
                 }
                 em.emit("# end stmt if\n");
@@ -396,26 +437,91 @@ public class Evaluator
                 em.emit("# begin stmt while\n");
                 int lblid = em.nextLblId();
                 String whil = "while" + lblid, endwhile = "endwhile" + lblid;
-                em.emit(whil + ":\n"); // j back here
-                compile(w.getCond(), env, em, endwhile);
-                compile(w.getDo(), env, em);
+                breaklbl.push(endwhile); 
+                contlbl.push(whil);
+                em.emit(whil + ":\n");
+                compile(w.getCond(), em, endwhile);
+                compile(w.getDo(), em);
                 em.emit("j " + whil + "\n");
                 em.emit(endwhile + ":\n");
+                breaklbl.pop();
+                contlbl.pop();
                 em.emit("# end stmt while\n");
             }
-            default -> throw new RuntimeException("no stmt in compile switched to");
+            case For f -> {
+                em.emit("# begin stmt for\n");
+                int lblid = em.nextLblId();
+                String fo = "for" + lblid, endfor = "endfor" + lblid, contfor = "contfor" + lblid;
+                breaklbl.push(endfor);
+                contlbl.push(contfor);
+                compile(f.getInit(), em);
+                em.emit(fo + ":\n");
+                compile(new BinOp("<=", f.getVar(), f.getTo()), em, endfor); // inclusive pascal for
+                compile(f.getDo(), em);
+                em.emit(contfor + ":\n");
+                // inc var
+                String varn = "__var" + f.getVar().getName();
+                em.emit(
+                        "lw $t0, " + varn + "\n" +
+                        "addi $t0, $t0, 1\n" +
+                        "sw $t0, " + varn + "\n"
+                        );
+                em.emit("j " + fo + "\n");
+                em.emit(endfor + ":\n");
+                breaklbl.pop();
+                contlbl.pop();
+                em.emit("# end stmt for\n");
+            }
+            case RepeatUntil ru -> {
+                em.emit("# begin stmt rep until\n");
+                int lblid = em.nextLblId();
+                String rpt = "repeat" + lblid, endrpt = "endrpt" + lblid;
+                breaklbl.push(endrpt);
+                contlbl.push(rpt);
+                em.emit(rpt + ":\n");
+                compile(ru.getRepeat(), em);
+                compile(ru.getUntil(), em, rpt);
+                em.emit(endrpt + ":\n");
+                breaklbl.pop();
+                contlbl.pop();
+                em.emit("# end stmt rep until\n");
+            }
+            case Readln rl -> {
+                em.emit("# begin stmt readln\n");
+                // TODO: use rl.getType() once Readln carries type info; default to int
+                em.emit(
+                        "li $v0, 5\n" +
+                        "syscall\n" +
+                        "la $t0, __var" + rl.getVar().getName() + "\n" +
+                        "sw $v0, ($t0)\n"
+                        );
+                em.emit("# end stmt readln\n");
+            }
+            case Comment c -> { return; }
+            case Break bk -> { em.emit("j " + breaklbl.peek() + "\n"); }
+            case Continue ct -> { em.emit("j " + contlbl.peek() + "\n"); }
+            default -> throw new RuntimeException("no stmt in compile switched to: " + e.getClass().getSimpleName());
         }
         em.emit("\n");
     }
 
-    public void compile(Expression e, Environment env, Emitter em, String lbl) throws Throwable {
+    public void compile(Expression e, Emitter em, String lbl) throws Throwable {
         switch (e) {
             case BinOp bo -> {
                 em.emit("# begin to lbl binop\n");
-                compile(bo.getExpr1(), env, em); // expr1 -> $v0
-                em.push(); // sto $v0
-                compile(bo.getExpr2(), env, em); // expr2 → $v0
-                em.pop(); // now $t0 = expr1, $v0 = expr2
+
+                // if AND or OR, 
+                if (bo.getOp().equals("AND") || bo.getOp().equals("OR")) {
+                    compile(bo, em); // eval expr to $v0
+                    em.emit("beq $v0, $zero, " + lbl + "\n");
+                    em.emit("# end to lbl binop\n");
+                    return;
+                }
+
+                compile(bo.getExpr1(), em);
+                em.push();
+                compile(bo.getExpr2(), em);
+                em.pop(); // $t0 = expr1, $v0 = expr2
                 String inst = switch (bo.getOp()) {
                     case "<" -> "bge";
                     case "<=" -> "bgt";
@@ -423,12 +529,28 @@ public class Evaluator
                     case ">=" -> "blt";
                     case "<>" -> "beq";
                     case "=" -> "bne";
-                    default -> throw new RuntimeException("not a relop; why are you here");
+                    default -> throw new RuntimeException("not a relop: " + bo.getOp());
                 };
                 em.emit(inst + " $t0, $v0, " + lbl + "\n");
                 em.emit("# end to lbl binop\n");
             }
-            default -> throw new RuntimeException("probably incorrect overload of compile with expr and lbl");
+            case Boolean b -> {
+                em.emit("# begin to lbl bool\n");
+                compile(b, em);
+                em.emit("beq $v0, $zero, " + lbl + "\n");
+                em.emit("# end to lbl bool\n");
+            }
+            case Variable v -> {
+                em.emit("# begin to lbl var\n");
+                compile(v, em);
+                em.emit("beq $v0, $zero, " + lbl + "\n");
+                em.emit("# end to lbl var\n");
+            }
+            default -> {
+                // defualt eval to $v0 and branch if 0
+                compile(e, em);
+                em.emit("beq $v0, $zero, " + lbl + "\n");
+            }
         }
         em.emit("\n");
     }
