@@ -2,8 +2,8 @@
 
 PROCEDURE binarySearch(target, len);
 BEGIN
-  low := 0;
-  high := len - 1;
+  low := 1;
+  high := len;
   foundIdx := 0 - 1;
   
   WHILE low <= high DO BEGIN
@@ -26,18 +26,18 @@ END;
 
 BEGIN
   size := 10;
-  arr := array[0..9];
+  arr := array[1..10];
   
   (* Fill array with sorted values: 10, 20, 30... *)
-  FOR i := 0 TO size - 1 DO
-    arr[i] := (i + 1) * 10;
+  FOR i := 1 TO size DO
+    arr[i] := i * 10;
     
   target := 70;
   WRITELN("Linear_Searching_for:");
   WRITELN(target);
   
   found := 0 - 1;
-  FOR i := 0 TO size - 1 DO BEGIN
+  FOR i := 1 TO size DO BEGIN
     IF arr[i] = target THEN BEGIN
       found := i;
       BREAK;

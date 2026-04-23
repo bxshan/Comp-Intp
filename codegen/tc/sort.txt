@@ -1,36 +1,31 @@
-(* Bubble Sort Algorithm *)
+VAR size, arr, i, j, stopIdx, idxNext, temp;
 
-BEGIN
-  size := 5;
-  arr := array[0..4];
-  
-  (* Unsorted array *)
-  arr[0] := 64;
-  arr[1] := 34;
-  arr[2] := 25;
-  arr[3] := 12;
-  arr[4] := 22;
-  
-  WRITELN("Before_Sort:");
-  FOR i := 0 TO size - 1 DO
-    WRITELN(arr[i]);
-    
-  (* Bubble Sort logic *)
-  FOR i := 0 TO size - 2 DO BEGIN
-    stopIdx := size - i - 2;
-    FOR j := 0 TO stopIdx DO BEGIN
-      idxNext := j + 1;
-      IF arr[j] > arr[idxNext] THEN BEGIN
-        (* Swap *)
-        temp := arr[j];
-        arr[j] := arr[idxNext];
-        arr[idxNext] := temp;
-      END;
+size := 5;
+arr := array[1..5];
+
+arr[1] := 64;
+arr[2] := 34;
+arr[3] := 25;
+arr[4] := 12;
+arr[5] := 22;
+
+WRITELN("Before_Sort:");
+FOR i := 1 TO size DO
+  WRITELN(arr[i]);
+
+FOR i := 1 TO size - 1 DO BEGIN
+  stopIdx := size - i;
+  FOR j := 1 TO stopIdx DO BEGIN
+    idxNext := j + 1;
+    IF arr[j] > arr[idxNext] THEN BEGIN
+      temp := arr[j];
+      arr[j] := arr[idxNext];
+      arr[idxNext] := temp;
     END;
   END;
-  
-  WRITELN("After_Sort:");
-  FOR i := 0 TO size - 1 DO
-    WRITELN(arr[i]);
 END;
+
+WRITELN("After_Sort:");
+FOR i := 1 TO size DO
+  WRITELN(arr[i]);
 $

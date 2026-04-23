@@ -1,7 +1,9 @@
-n := 100;
-sieve := array[1..n];
+VAR n, sieve, i, j;
 
-(* init all to 1 *)
+n := 100;
+sieve := array[1..100];
+
+(* init all to true *)
 FOR i := 1 TO n DO
   sieve[i] := TRUE;
 
