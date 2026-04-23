@@ -1,8 +1,0 @@
-PROCEDURE multiply(a, b);
-WRITELN(a * b);
-
-BEGIN
-  multiply(10, 5);
-  multiply(2, 3);
-END;
-$

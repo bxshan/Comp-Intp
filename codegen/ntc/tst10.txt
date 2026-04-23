@@ -1,7 +1,0 @@
-cnt := 0;
-WHILE cnt < 10 DO
-BEGIN
-  WRITELN(cnt);
-  cnt := cnt + 1;
-END;
-$

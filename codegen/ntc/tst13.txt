@@ -1,6 +1,0 @@
-FOR i := 0 TO 20 DO BEGIN 
-  IF i = 20 THEN BREAK;
-  IF i mod 2 = 0 THEN CONTINUE;
-  WRITELN(i);
-END;
-$
