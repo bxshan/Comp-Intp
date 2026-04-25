@@ -1,5 +1,4 @@
 package codegen;
-
 import java.util.*;
 import environment.*;
 
@@ -13,7 +12,7 @@ public class Evaluator
 {
     private Stack<String> breaklbl = new Stack<String>();
     private Stack<String> contlbl = new Stack<String>();
-    private HashMap<String, Integer> arrayStarts = new HashMap<>();
+
     /**
      * Evaluates a program
      * @param p program to execute
@@ -32,6 +31,7 @@ public class Evaluator
 
     public void compile(Program p, Emitter e) throws Throwable {
         e.emit(".data\n");
+        e.emit("__ignore: .space 1024\n"); // always push ignore variable to use proc calls as stmts
         for(Map.Entry<String, Expression> me : p.getVars().entrySet()) {
             String name = "__var" + me.getKey();
             if (me.getValue() == null) {
@@ -48,14 +48,18 @@ public class Evaluator
                 case _String ss -> e.emit(name + ": .asciiz \"" + ss.getVal() + "\"\n");
                 case Boolean b -> e.emit(name + ": .word " + (b.getVal() ? 1 : 0) + "\n");
                 default -> throw new RuntimeException(
-                        "global init must be literal/array/null, got: " +
+                        "global init must be literal/arr/null, got: " +
                         me.getValue().getClass().getSimpleName());
             }
         }
-        e.emit(".text\n.globl main\nmain:\n\n");
-        // main:
         ArrayList<Statement> stmts = p.getStmts();
-        for(Statement stmt : stmts) compile(stmt, e);
+        e.emit(".text\nj main\n\n");
+        // pass 1: emit all procedure declarations
+        for (Statement stmt : stmts) if (stmt instanceof ProcedureDeclaration) compile(stmt, e);
+        e.emit("\n.globl main\nmain:\n\n");
+        // pass 2: emit all non-procedure statements
+        for (Statement stmt : stmts) if (!(stmt instanceof ProcedureDeclaration)) compile(stmt, e);
+
         e.emit("\n# termination\nli $v0 10\nsyscall");
         e.close();
     }
@@ -70,12 +74,9 @@ public class Evaluator
     {
         switch (stmt)
         {
-            case Comment c ->
-            {
-                return;
-            }
-            case Break bk -> throw new ThrowBreak();
-            case Continue ctn -> throw new ThrowContinue();
+            case Comment _ -> { return; }
+            case Break _ -> throw new ThrowBreak();
+            case Continue _ -> throw new ThrowContinue();
             case Writeln w -> System.out.println(eval(w.getExpression(), env));
             case ArrayAssignment aa ->
             {
@@ -100,6 +101,7 @@ public class Evaluator
             {
                 Scanner s = new Scanner(System.in);
                 env.setVar(r.getVar().getName(), s.nextInt());
+                s.close();
             }
             case If i ->
             {
@@ -212,7 +214,7 @@ public class Evaluator
             {
                 return env.getObjVar(v.getName());
             }
-            case Array a ->
+            case Array _ ->
             {
                 return new HashMap<Integer, Object>();
             }
@@ -351,7 +353,18 @@ public class Evaluator
             }
             case Variable v -> {
                 em.emit("# begin expr var\n");
-                em.emit("la $t0, __var" + v.getName() + "\nlw $v0 ($t0)\n");
+                String vn = v.getName();
+                if (em.isLocVar(vn)) {
+                    // local: is on stack
+                    int ofst = em.getOffset(vn);
+                    em.emit("lw $v0, " + ofst + "($sp)\n");
+                } else {
+                    // global
+                    em.emit(
+                            "la $t0, __var" + vn + "\n" + 
+                            "lw $v0 ($t0)\n"
+                            );
+                }
                 em.emit("# end expr var\n");
             }
             case ArrayElement ae -> {
@@ -368,6 +381,24 @@ public class Evaluator
                 em.emit("# end expr array elem\n");
             }
             case Array a -> {} // alr handled in compile(Program) .data section
+            case ProcedureCall pc -> {
+                em.emit("# begin proc call\n");
+                String lbl = "proc" + pc.getName();
+                em.push("$ra"); 
+
+                ArrayList<Expression> args = pc.getArgs();
+                for(Expression arg : args) {
+                    compile(arg, em); // res in $v0
+                    em.push();
+                }
+
+                em.emit("jal " + lbl + "\n");
+
+                for(int i = 0; i < args.size(); i++) em.pop();
+
+                em.pop("$ra");
+                em.emit("# endproc call\n");
+            }
             default -> throw new RuntimeException("no expr in compile switched to: " + e.getClass().getSimpleName());
         }
         em.emit("\n");
@@ -375,6 +406,29 @@ public class Evaluator
 
     public void compile(Statement e, Emitter em) throws Throwable {
         switch (e) {
+            case ProcedureDeclaration pd -> {
+                em.emit("# begin stmt proc dec\n");
+                String lbl = "proc" + pd.getName();
+                em.emit(lbl + ":\n");
+                em.push("$zero"); // push ret var to stack as 0 init
+                em.setProcContext(pd);
+
+                for (String lcl : pd.getVars().keySet()) {
+                    em.addLcl(lcl);
+                    em.push("$zero");
+                }
+
+                compile(pd.getStmt(), em);
+
+                for (int i = 0; i < pd.getVars().size(); i++) {
+                    em.pop();
+                }
+
+                em.pop("$v0");
+                em.emit("jr $ra\n");
+                em.clearProcContext();
+                em.emit("# end stmt proc dev\n");
+            }
             case Writeln w -> {
                 em.emit("# begin stmt writeln\n");
                 if (!(w.getExpression() instanceof _String)) { // TODO Strings are cooked
@@ -397,23 +451,33 @@ public class Evaluator
             }
             case ArrayAssignment aa -> {
                 em.emit("# begin stmt arr assign\n");
-                compile(aa.getExpression(), em);
-                em.push();
-                compile(aa.getIdx(), em);
-                em.emit(
-                        "subu $v0, $v0, 1\n" +
-                        "sll $v0, $v0, 2\n" +
-                        "la $t1, __var" + aa.getVar().getName() + "\n" +
-                        "addu $t1, $t1, $v0\n"
-                       );
-                em.pop();
-                em.emit("sw $t0, ($t1)\n");
+                String vn = aa.getVar().getName();
+                if (em.isLocVar(vn)) {
+                    // TODO
+                } else {
+                    // global
+                    compile(aa.getExpression(), em);
+                    em.push();
+                    compile(aa.getIdx(), em);
+                    em.emit(
+                            "subu $v0, $v0, 1\n" +
+                            "sll $v0, $v0, 2\n" +
+                            "la $t1, __var" + vn + "\n" +
+                            "addu $t1, $t1, $v0\n"
+                           );
+                    em.pop();
+                    em.emit("sw $t0, ($t1)\n");
+                }
                 em.emit("# end stmt arr assign\n");
             }
             case Assignment a -> {
                 em.emit("# begin stmt assign\n");
-                compile(a.getExpression(), em);
-                em.emit("la $t0, __var" + a.getVar().getName() + "\nsw $v0, ($t0)\n");
+                String vn = a.getVar().getName();
+                compile(a.getExpression(), em); // expr in $v0
+                if (em.isLocVar(vn)) {
+                    int ofst = em.getOffset(vn);
+                    em.emit("sw $v0, " + ofst + "($sp)\n");
+                } else em.emit("la $t0, __var" + vn + "\nsw $v0, ($t0)\n");
                 em.emit("# end stmt assign\n");
             }
             case If i -> {
@@ -540,7 +604,7 @@ public class Evaluator
                 em.emit("beq $v0, $zero, " + lbl + "\n");
                 em.emit("# end to lbl bool\n");
             }
-            case Variable v -> {
+            case Variable v -> { // todo local ? check compile var above
                 em.emit("# begin to lbl var\n");
                 compile(v, em);
                 em.emit("beq $v0, $zero, " + lbl + "\n");

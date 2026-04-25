@@ -55,6 +55,11 @@ public class Environment
         var.put(v, value); 
     }
 
+    /**
+     * sets a var in the global scope
+     * @param v name of var
+     * @param value value
+     */
     public void setGlobalVar(String v, Object value) {
         if (parent != null) parent.setVar(v, value);
         else var.put(v, value);

@@ -32,6 +32,10 @@ public class ArrayAssignment extends Assignment
         return this.idx;
     }
 
+    public Variable getVar() {
+        return super.getVar();
+    }
+
     /**
      * toString override
      * @return string representation of ArrayAssignment type 

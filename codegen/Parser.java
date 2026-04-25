@@ -88,7 +88,11 @@ public class Parser
         HashMap<String, Expression> vars = new HashMap<String, Expression>();
         ArrayList<Statement> stmts = new ArrayList<Statement>();
 
-        while (ctok.equals("VAR")) vars.putAll(parseVarDec());
+        while (ctok.equals("VAR") || ctok.equals("(*")) { 
+            if (ctok.equals("VAR")) vars.putAll(parseVarDec()); 
+            else parseStatement(); // parse and throw away comment
+        }
+
         while (ctok != null && !ctok.equals("$") && !ctok.equals("EOF"))
         {
             while (ctok.equals("PROCEDURE")) stmts.add(parseProcDec());
@@ -137,7 +141,8 @@ public class Parser
         eat(ctok);
         eat("(");
 
-        ArrayList<String> params = new ArrayList<>();
+        ArrayList<String> params = new ArrayList<String>();
+        HashMap<String, Expression> vars = new HashMap<String, Expression>();
         while (!ctok.equals(")")) 
         {
             params.add(ctok);
@@ -147,8 +152,11 @@ public class Parser
 
         eat(")");
         eat(";");
+
+        if (ctok.equals("VAR")) vars = parseVarDec();
+
         Statement stmt = parseStatement();
-        return new ProcedureDeclaration(name, params, stmt);
+        return new ProcedureDeclaration(name, vars, params, stmt);
     }
 
     /**

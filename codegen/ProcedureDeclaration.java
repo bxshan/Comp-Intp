@@ -11,6 +11,7 @@ import java.util.*;
 public class ProcedureDeclaration extends Statement 
 {
     private String name;
+    private HashMap<String, Expression> vars;
     private ArrayList<String> params;
     private Statement stmt;
 
@@ -20,9 +21,13 @@ public class ProcedureDeclaration extends Statement
      * @param params list of parameters
      * @param stmt statement corresponding to procedure
      */
-    public ProcedureDeclaration(String name, ArrayList<String> params, Statement stmt) 
+    public ProcedureDeclaration(String name, 
+            HashMap<String, Expression> vars,
+            ArrayList<String> params, 
+            Statement stmt) 
     {
         this.name = name;
+        this.vars = vars;
         this.params = params;
         this.stmt = stmt;
     }
@@ -52,5 +57,9 @@ public class ProcedureDeclaration extends Statement
     public Statement getStmt() 
     {
         return this.stmt;
+    }
+
+    public HashMap<String, Expression> getVars() {
+        return this.vars;
     }
 }

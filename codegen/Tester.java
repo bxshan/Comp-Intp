@@ -43,9 +43,9 @@ public class Tester
                 t.printStackTrace(System.out);
             }
         }
-
+        
         // String dir = 
-        //     "/Users/box/Desktop/src/HarkerCompIntp/codegen/tst1.txt";
+        //     "/Users/box/Desktop/src/HarkerCompIntp/codegen/tst9.txt";
         // FileInputStream fis = new FileInputStream(dir);
         // scanner.Scanner scanner = new scanner.Scanner(fis);
         // codegen.Parser parser = new codegen.Parser(scanner);
