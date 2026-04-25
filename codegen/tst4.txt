@@ -1,0 +1,7 @@
+VAR i;
+
+PROCEDURE foo(x, y, z);
+BEGIN END;
+
+i := foo(4, 2 + 3, 2 * 3);
+$

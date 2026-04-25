@@ -1,0 +1,8 @@
+PROCEDURE foo(x);
+BEGIN
+  x := 1 + x;
+  WRITELN(x);
+END;
+
+foo(10);
+$

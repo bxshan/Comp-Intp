@@ -1,0 +1,23 @@
+VAR cnt, times;
+
+PROCEDURE pS(l, r);
+VAR cnt, sq;
+BEGIN
+  cnt := l;
+  WHILE cnt <= r DO 
+  BEGIN
+    sq := cnt * cnt;
+    WRITELN(sq);
+    cnt := 1 + cnt;
+    times := 1 + times;
+  END;
+END;
+
+BEGIN
+  cnt := 196;
+  times := 0;
+  pS(10, 13);
+  WRITELN(cnt);
+  WRITELN(times);
+END;
+$

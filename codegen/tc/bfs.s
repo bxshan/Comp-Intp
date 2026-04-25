@@ -1,4 +1,5 @@
 .data
+__var__ignore: .space 1024
 __varhead: .space 1024
 __varcurrent: .space 1024
 __vartail: .space 1024
@@ -10,6 +11,9 @@ __varneighbor: .space 1024
 __vargraph: .space 1024
 __varqueue: .space 1024
 .text
+j main
+
+
 .globl main
 main:
 

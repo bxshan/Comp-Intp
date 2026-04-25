@@ -1,5 +1,7 @@
 (* Fibonacci Generator (Recursive & Iterative) *)
 
+VAR res, N, a, b, i, next_fib;
+
 PROCEDURE fibRec(n);
 BEGIN
   IF n <= 0 THEN fibRec := 0;
@@ -11,7 +13,7 @@ BEGIN
   WRITELN("Fibonacci_Recursive_10th:");
   res := fibRec(10);
   WRITELN(res);
-  
+
   WRITELN("Fibonacci_Iterative_Sequence_Up_To_10:");
   N := 10;
   a := 0;

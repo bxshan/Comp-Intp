@@ -1,0 +1,9 @@
+VAR i;
+
+PROCEDURE foo();
+  WRITELN(1);
+
+BEGIN
+  i := foo();
+END;
+$

@@ -1,9 +1,13 @@
 .data
+__var__ignore: .space 1024
 __vari: .space 1024
 __varj: .space 1024
 __varsieve: .space 1024
 __varn: .space 1024
 .text
+j main
+
+
 .globl main
 main:
 

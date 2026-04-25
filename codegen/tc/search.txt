@@ -1,41 +1,44 @@
 (* Linear Search and Binary Search on an Array *)
 
+VAR size, arr, i, target, found, target2, res;
+
 PROCEDURE binarySearch(target, len);
+VAR low, high, foundIdx, mid;
 BEGIN
   low := 1;
   high := len;
   foundIdx := 0 - 1;
-  
+
   WHILE low <= high DO BEGIN
     mid := low + (high - low) / 2;
-    
+
     IF arr[mid] = target THEN BEGIN
       foundIdx := mid;
       BREAK;
     END;
-    
+
     IF arr[mid] < target THEN BEGIN
       low := mid + 1;
     END; ELSE BEGIN
       high := mid - 1;
     END;
   END;
-  
+
   binarySearch := foundIdx;
 END;
 
 BEGIN
   size := 10;
   arr := array[1..10];
-  
+
   (* Fill array with sorted values: 10, 20, 30... *)
   FOR i := 1 TO size DO
     arr[i] := i * 10;
-    
+
   target := 70;
   WRITELN("Linear_Searching_for:");
   WRITELN(target);
-  
+
   found := 0 - 1;
   FOR i := 1 TO size DO BEGIN
     IF arr[i] = target THEN BEGIN
@@ -45,11 +48,11 @@ BEGIN
   END;
   WRITELN("Found_at_Index:");
   WRITELN(found);
-  
+
   target2 := 30;
   WRITELN("Binary_Searching_for:");
   WRITELN(target2);
-  
+
   res := binarySearch(target2, size);
   WRITELN("Found_at_Index:");
   WRITELN(res);
