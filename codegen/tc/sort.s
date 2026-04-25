@@ -1,5 +1,5 @@
 .data
-__var__ignore: .space 1024
+__ignore: .space 1024
 __vararr: .space 1024
 __varidxNext: .space 1024
 __vartemp: .space 1024

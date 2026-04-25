@@ -1,5 +1,5 @@
 .data
-__var__ignore: .space 1024
+__ignore: .space 1024
 __varvisited: .space 1024
 __varmax_nodes: .space 1024
 __vari: .space 1024

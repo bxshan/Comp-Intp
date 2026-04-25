@@ -1,5 +1,5 @@
 .data
-__var__ignore: .space 1024
+__ignore: .space 1024
 __varn1: .space 1024
 __varn2: .space 1024
 __varresRec: .space 1024
