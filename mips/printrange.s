@@ -1,3 +1,7 @@
+# printrange.s
+# prints numbers from l to r inclusive, with set increment
+# @version 04152026
+# @author Boxuan Shan
 .data
 msg0: .asciiz "input l:\n"
 msg1: .asciiz "input r:\n"

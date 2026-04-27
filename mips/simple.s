@@ -1,3 +1,7 @@
+# simple.s
+# adds 2 and 3 in two registers 
+# @version 04152026
+# @author Boxuan Shan
 .text 0x00400000
 .globl main 
 main:

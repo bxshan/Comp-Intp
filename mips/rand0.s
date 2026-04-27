@@ -1,3 +1,9 @@
+# rand0.s
+# chooses a random number in 0 to 100 inclusive, 
+# then takes guesses from user until correct, giving
+# high / low feedback
+# @version 04152026
+# @author Boxuan Shan
 .data
 msg0: .asciiz "input guess [0, 100]:\t\n"
 hi: .asciiz "too high\n"

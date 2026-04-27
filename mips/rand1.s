@@ -1,3 +1,8 @@
+# rand1.s
+# binary searches on an unknown number, picked by user. 
+# user gives feedback with 0 / 1 / 2
+# @version 04152026
+# @author Boxuan Shan
 .data
 msg0: .asciiz "guess a number, in [0, 100]:\t\n"
 gs0: .asciiz "guess:\t"
@@ -64,6 +69,8 @@ li $v0, 10
 syscall
 
 # finds avg of $a0 and $a1, sto into $v0
+# @input $a0, $a1 registers containing nums to find avg of 
+# @output $v0, the avg of nums in $a0 and $a1
 avg:
 add $t4, $a0, $a1
 srl $v0, $t4, 1

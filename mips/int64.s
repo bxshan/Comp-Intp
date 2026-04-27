@@ -1,3 +1,12 @@
+# int64.s
+# performs multiplication on two 32 bit ints in hex, that will overflow. 
+# takes the hex results from the lo and hi register and parses them by 
+# sequentially taking he 4 msb from each register, converting to an ascii 
+# char, then printing out the char corresponding to the hex. this is 
+# necessary because just printing out the hi and lo registers prints the 
+# 0x prefix twice
+# @version 04162026
+# @author Boxuan Shan
 .data
 hexpfx: .asciiz "\n0x"
 .text 0x00400000
@@ -35,14 +44,18 @@ syscall
 li $v0, 10
 syscall
 
-writedec:
-move $s0, $a0
-move $s1, $a1
-li $s2, 10 # divisor
-#TODO
+# writedec:
+# move $s0, $a0
+# move $s1, $a1
+# li $s2, 10 # divisor
+# #TODO
 
 
 
+# takes in a 32 bit register representing a hex number, 
+# and prints the number out without the 0x prefix by 
+# sequentially converting the 4 msb to ascii chars.
+# @input $a0 32 bits representing a hex number
 writehex:
 move $s0, $a0
 li $s1, 8 # 8*4=32

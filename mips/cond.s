@@ -1,3 +1,7 @@
+# cond.s
+# takes input from user and determines and prints parity
+# @version 04152026
+# @author Boxuan Shan
 .data
 msg: .asciiz "input int:\t"
 odd: .asciiz "odd\n"

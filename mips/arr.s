@@ -1,3 +1,8 @@
+# arr.s
+# accepts 10 nums from user and stores them in arraay, then 
+# returns sum, min, max, mean of nums. works with float
+# @version 04152026
+# @author Boxuan Shan
 .data
 arr: .space 40 # reserve 40 bytes for 10 int32
 msg: .asciiz "input into arr:\t"
