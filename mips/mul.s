@@ -1,9 +1,10 @@
+# mul.s
+# takes two nums from user and returns their product
+# @version 04152026
+# @author Boxuan Shan
 .data
 msg: .asciiz "input int:\t"
-
 .text 0x00400000
-
-
 .globl main 
 main:
 # msg 1
