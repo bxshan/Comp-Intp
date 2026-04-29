@@ -1,3 +1,7 @@
+# main.s
+# contains all subroutines for subroutines lab
+# @version 04192026
+# @author Boxuan Shan
 .data
 list: .space 1024 # reserve 1024 bytes for listnodes
                   # 8 bytes per node, enough for 128 nodes
@@ -11,7 +15,7 @@ sw $t0, next
 
 # set up subroutine call
 li $a0, 111
-li $a1, 0
+li $a1, 0 # points to null
 # li $a1, 10000
 # li $a2, 200
 jal newlistnode
@@ -24,7 +28,7 @@ jal newlistnode
 move $t0, $v0 # now $t0 sto address of 222, which points to 111
 # now sum the list
 move $a0, $t0
-jal sumlist
+jal sumlist # should return 222 + 111 = 333
 move $t0, $v0
 
 # write output
@@ -37,12 +41,21 @@ li $v0, 10
 syscall
 
 
-square: # sample provided
+# square
+# sample provided
+# calculates square of num
+# @param $a0 register with num to square
+# @return square of num in $a0
+square: 
 multu $a0, $a0
 mflo $v0
 jr $ra
 
 
+# max2
+# returns max of 2 nums
+# @param $a0, $a1 registers with nums to find max 
+# @return max of nums in $a0 and $a1
 max2:
 bge $a0, $a1, a0max 
 a1max:
@@ -54,6 +67,10 @@ return:
 jr $ra
 
 
+# max3
+# returns max of 3 nums, using max2
+# @param $a0, $a1, $a2 registers with nums to find max
+# @return max of nums in $a0, $a1, $a2
 max3:
 subu $sp, $sp, 8
 sw $ra, 4($sp) # push ra 
@@ -71,6 +88,10 @@ addu $sp, $sp, 8
 jr $ra
 
 
+# fact
+# computes factorial
+# @param $a0 containing num to find factorial of 
+# @return factorial of num in $a0
 fact:
 bne $a0, $zero, factgoon
 li $v0, 1
@@ -90,6 +111,11 @@ mflo $v0
 jr $ra
 
 
+# fib
+# finds nth fibonacci number
+# fib(0) = 0, fib(1) = 1
+# @param $a0 register containing n
+# @return nth fibonacci number
 fib:
 bgt $a0, 1, fibgoon
 move $v0, $a0
@@ -112,6 +138,14 @@ addu $sp, $sp, 12
 jr $ra
 
 
+# newlistnode
+# constructs a new list node:
+# allocates first 4 bytes for the value of this node,
+#       and last 4 bytes for the address of the next node
+# last node points to addr 0 (null)
+# @param $a0 containing value of new node
+# @param $a1 containing address of next node
+# @return address of first byte of new node
 newlistnode: # $a0 is val, $a1 is next
 lw $t0, next # address of next free 8 bytes 
 sw $a0, 0($t0) # put val in first 4
@@ -124,6 +158,10 @@ sw $t0, next
 jr $ra
 
 
+# sumlist
+# sums values over the entire list
+# @param first byte of first listnode in list to sum
+# @return sum of vals over entire list
 sumlist:
 bne $a0, $zero, sumlistgoon 
 # if address is 0 (null)
