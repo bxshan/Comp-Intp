@@ -41,7 +41,8 @@ public class Environment
      */
     public void setVar(String v, Object value) 
     {
-        if (var.containsKey(v) || parent == null) var.put(v, value); // prioritize local change before parent
+        if (var.containsKey(v) || parent == null) 
+            var.put(v, value); // prioritize local change before parent
         else parent.setVar(v, value);
     }
 
@@ -60,7 +61,8 @@ public class Environment
      * @param v name of var
      * @param value value
      */
-    public void setGlobalVar(String v, Object value) {
+    public void setGlobalVar(String v, Object value) 
+    {
         if (parent != null) parent.setVar(v, value);
         else var.put(v, value);
     }
@@ -81,7 +83,8 @@ public class Environment
      * @param v name of proc to get
      * @return Statement representing proc body
      */
-    public ProcedureDeclaration getProc(String v) {
+    public ProcedureDeclaration getProc(String v) 
+    {
         if (parent != null) return parent.getProc(v);
         else if (proc.containsKey(v)) return proc.get(v);
         else throw new IllegalArgumentException("proc " + v + " is not declared\n");

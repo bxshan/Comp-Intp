@@ -23,11 +23,21 @@ public class Program
         this.stmts = stmts;
     }
 
-    public HashMap<String, Expression> getVars() { 
+    /**
+     * returns hashmap of global var names
+     * @return hashmap of global var names
+     */
+    public HashMap<String, Expression> getVars() 
+    {
         return vars; 
     }
 
-    public ArrayList<Statement> getStmts() { 
+    /**
+     * returns hashmap of statements in program 
+     * @return hashmap of statements in program 
+     */
+    public ArrayList<Statement> getStmts() 
+    { 
         return stmts; 
     }
 }

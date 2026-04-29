@@ -84,11 +84,13 @@ public class Parser
      * @return Program object parsed
      * @throws Throwable for break and continue
      */
-    public Program parseProgram() throws Throwable {
+    public Program parseProgram() throws Throwable 
+    {
         HashMap<String, Expression> vars = new HashMap<String, Expression>();
         ArrayList<Statement> stmts = new ArrayList<Statement>();
 
-        while (ctok.equals("VAR") || ctok.equals("(*")) { 
+        while (ctok.equals("VAR") || ctok.equals("(*")) 
+        {
             if (ctok.equals("VAR")) vars.putAll(parseVarDec()); 
             else parseStatement(); // parse and throw away comment
         }
@@ -102,24 +104,36 @@ public class Parser
         return new Program(vars, stmts);
     }
 
-    public HashMap<String, Expression> parseVarDec() throws Throwable {
+    /**
+     * parses a variable declaration in the form VAR = x[ = ...], ... ;
+     * @return a hashmap with variable names as keys and init val as values
+     *         if not init val is given, it is set to null
+     * @throws Throwable why not
+     */
+    public HashMap<String, Expression> parseVarDec() throws Throwable 
+    {
         eat("VAR");
         HashMap<String, Expression> names = new HashMap<String, Expression>();
 
 
-        String name = ctok; eat(ctok);
+        String name = ctok; 
+        eat(ctok);
         Expression init = null;
-        if (ctok.equals(":=")) {
+        if (ctok.equals(":=")) 
+        {
             eat(":=");
             init = parseExpression();
         }
         names.put(name, init);
 
-        while (ctok.equals(",")) {
+        while (ctok.equals(",")) 
+        {
             eat(",");
-            name = ctok; eat(ctok);
+            name = ctok; 
+            eat(ctok);
             init = null;
-            if (ctok.equals(":=")) { 
+            if (ctok.equals(":=")) 
+            {
                 eat(":="); 
                 init = parseExpression(); 
             }

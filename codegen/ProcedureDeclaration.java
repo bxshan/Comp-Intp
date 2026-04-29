@@ -18,6 +18,7 @@ public class ProcedureDeclaration extends Statement
     /**
      * ProcedureDeclaration type node constructor
      * @param name name of proc
+     * @param vars hashmap representing local vars present in proc
      * @param params list of parameters
      * @param stmt statement corresponding to procedure
      */
@@ -59,7 +60,12 @@ public class ProcedureDeclaration extends Statement
         return this.stmt;
     }
 
-    public HashMap<String, Expression> getVars() {
+    /**
+     * gets local vars hashmap
+     * @return hashmap of local vars
+     */
+    public HashMap<String, Expression> getVars() 
+    {
         return this.vars;
     }
 }

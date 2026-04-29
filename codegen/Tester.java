@@ -12,6 +12,15 @@ import java.io.*;
  */
 public class Tester
 {
+    /**
+     * tests compilation of one program.
+     * parses program and then compiles using parameters passed in
+     * @param s scanner to use 
+     * @param p parser to use 
+     * @param ev evaluator to use 
+     * @param em emitter to use 
+     * @throws Throwable i think i need this
+     */
     static void test(
             scanner.Scanner s, 
             codegen.Parser p, 
@@ -23,22 +32,33 @@ public class Tester
         ev.compile(pg, em);
     }
 
-    public static void main(String[] args) throws Throwable {
+    /**
+     * main method
+     * instantiates the relevant vars to pass to test and calls test
+     * @param args cli args
+     * @throws Throwable should be right
+     */
+    public static void main(String[] args) throws Throwable 
+    {
         String tcdir = "/Users/box/Desktop/src/HarkerCompIntp/codegen/tc/"; 
         File folder = new File(tcdir);
         File[] files = folder.listFiles((d, name) -> name.endsWith(".txt"));
         Arrays.sort(files);
-        for (File f : files) {
+        for (File f : files) 
+        {
             String name = f.getName();
             String outName = name.replace(".txt", ".s");
-            try {
+            try 
+            {
                 FileInputStream fis = new FileInputStream(f);
                 scanner.Scanner sc = new scanner.Scanner(fis);
                 codegen.Parser parser = new codegen.Parser(sc);
                 codegen.Evaluator ev = new codegen.Evaluator();
                 codegen.Emitter em = new codegen.Emitter(tcdir + outName);
                 test(sc, parser, ev, em);
-            } catch (Throwable t) {
+            }
+            catch (Throwable t) 
+            {
                 System.out.println("not compiled " + t.getMessage());
                 t.printStackTrace(System.out);
             }

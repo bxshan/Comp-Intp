@@ -32,7 +32,12 @@ public class ArrayAssignment extends Assignment
         return this.idx;
     }
 
-    public Variable getVar() {
+    /**
+     * gets variable of assignment
+     * @return arr var assigned to 
+     */
+    public Variable getVar() 
+    {
         return super.getVar();
     }
 
