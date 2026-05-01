@@ -17,6 +17,7 @@ public class Emitter
     private ProcedureDeclaration currpd;
     private int badht;
     private ArrayList<String> lcls; // track local vars because hashmap is unordered
+    private ArrayList<Integer> lclsz;
 
 
     /**
@@ -90,9 +91,10 @@ public class Emitter
      * add local variable to list of locals
      * @param name name of local var to add
      */
-    public void addLcl(String name) 
+    public void addLcl(String name, Integer sz) 
     {
         lcls.add(name); 
+        lclsz.add(sz);
     }
 
     /**
@@ -113,6 +115,7 @@ public class Emitter
         this.badht = 0;
         this.currpd = pd;
         this.lcls = new ArrayList<String>();
+        this.lclsz = new ArrayList<Integer>();
     }
 
     /**
@@ -155,9 +158,14 @@ public class Emitter
         if (locVarName.equals(currpd.getName()))
             // return var (proc name)
             return 4 * badht;
-        if (lcls.contains(locVarName))
+        if (lcls.contains(locVarName)) {
+            int ii = lcls.indexOf(locVarName);
+            int start = 0;
+            for (int i = 0; i < ii; i++) start += lclsz.get(i);
             // local var
-            return 4 * (badht - 1 - lcls.indexOf(locVarName));
+            // return 4 * (badht - 1 - lcls.indexOf(locVarName));
+            return 4 * (badht - 1 - start);
+        }
         // parameter
         return 4 * (badht + nparams - idx);
     }

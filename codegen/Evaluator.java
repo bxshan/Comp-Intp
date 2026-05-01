@@ -12,6 +12,7 @@ public class Evaluator
 {
     private Stack<String> breaklbl = new Stack<String>();
     private Stack<String> contlbl = new Stack<String>();
+    private ArrayList<String> strlits; // initialized in compile program
 
     /**
      * Evaluates a program
@@ -68,6 +69,14 @@ public class Evaluator
             }
         }
         ArrayList<Statement> stmts = p.getStmts();
+
+        this.strlits = this.collectStrLit(p);
+
+        for (int i = 0; i < strlits.size(); i++) {
+            String s = strlits.get(i);
+            e.emit("__strliteral" + i + ": .asciiz " + "\"" + s + "\"\n");
+        }
+
         e.emit(".text\nj main\n\n");
         // pass 1: emit all procedure declarations
         for (Statement stmt : stmts) if (stmt instanceof ProcedureDeclaration) compile(stmt, e);
@@ -77,6 +86,80 @@ public class Evaluator
 
         e.emit("\n# termination\nli $v0 10\nsyscall");
         e.close();
+    }
+
+    private ArrayList<String> collectStrLit(Program p) {
+        ArrayList<String> ret = new ArrayList<String>();
+        ArrayDeque<Statement> qstmt = new ArrayDeque<Statement>();
+        ArrayDeque<Expression> qexpr = new ArrayDeque<Expression>();
+
+        // 1. vars 
+        for (Expression initv : p.getVars().values()) if (initv != null) qexpr.add(initv);
+
+        // 2. init stmts 
+        for (Statement s : p.getStmts()) if (s != null) qstmt.add(s);
+
+        while (!qstmt.isEmpty() || !qexpr.isEmpty()) {
+            while (!qstmt.isEmpty()) {
+                Statement s = qstmt.remove();
+
+                switch (s) {
+                    case Writeln w -> qexpr.add(w.getExpression());
+                    case ArrayAssignment aa -> {
+                        qexpr.add(aa.getIdx());
+                        qexpr.add(aa.getExpression());
+                    }
+                    case Assignment a -> qexpr.add(a.getExpression());
+                    case If i -> {
+                        qexpr.add(i.getCond());
+                        if (i.getThen() != null) qstmt.add(i.getThen());
+                        if (i.getElse() != null) qstmt.add(i.getElse());
+                    }
+                    case While w -> {
+                        qexpr.add(w.getCond());
+                        if (w.getDo() != null) qstmt.add(w.getDo());
+                    }
+                    case For f -> {
+                        if (f.getInit() != null) qstmt.add(f.getInit());
+                        qexpr.add(f.getTo());
+                        if (f.getDo() != null) qstmt.add(f.getDo());
+                    }
+                    case RepeatUntil ru -> {
+                        if (ru.getRepeat() != null) qstmt.add(ru.getRepeat());
+                        qexpr.add(ru.getUntil());
+                    }
+                    case Block b -> {
+                        for (Statement child : b.getStmts()) if (child != null) qstmt.add(child);
+                    }
+                    case ProcedureDeclaration pd -> {
+                        for (Expression init : pd.getVars().values()) if (init != null) qexpr.add(init);
+                        if (pd.getStmt() != null) qstmt.add(pd.getStmt());
+                    }
+                    default -> { } // Readln / Break / Continue / Comment: no expr children
+                }
+            }
+
+            while (!qexpr.isEmpty()) {
+                Expression e = qexpr.remove();
+
+                switch (e) {
+                    case _String ss -> ret.add(ss.getVal());
+                    case BinOp bo -> {
+                        qexpr.add(bo.getExpr1());
+                        qexpr.add(bo.getExpr2());
+                    }
+                    case ProcedureCall pc -> {
+                        for (Expression arg : pc.getArgs())
+                            if (arg != null) qexpr.add(arg);
+                    }
+                    case ArrayElement ae -> qexpr.add(ae.getIdx());
+                    default -> { } // Number / Boolean / Variable / Array
+                }
+            }
+        }
+
+        return ret;
+
     }
 
     /**
@@ -349,11 +432,12 @@ public class Evaluator
                     "li $v0, " + (b.getVal() ? 1 : 0) + "\n" +
                     "# end expr bool\n"
                     );
-            case _String ss -> em.emit( // TODO Strings cooked: use 0 as filler val
-                    "# begin expr string\n" +
-                    "li $v0, 0\n" +
-                    "# end expr string\n"
-                    );
+            case _String ss -> {
+                em.emit("# begin expr string\n");
+                int idx = strlits.indexOf(ss.getVal());
+                em.emit("la $v0, __strliteral" + idx + "\n");
+                em.emit("# end expr string\n");
+            }
             case BinOp bo -> 
             {
                 em.emit("# begin expr binop\n");
@@ -403,16 +487,28 @@ public class Evaluator
             }
             case ArrayElement ae -> 
             {
+                String name = ae.getName();
                 em.emit("# begin expr array elem\n");
                 // addr of a[i] is base + (idx - 1) * 4
                 compile(ae.getIdx(), em); // idx -> $v0
-                em.emit(
-                        "subu $v0, $v0, 1\n" + // $v0 -= 1
-                        "sll $v0, $v0, 2\n" + // $v0 *= 4
-                        "la $t0, __var" + ae.getName() + "\n" + // base -> $t0
-                        "addu $t0, $t0, $v0\n" + // compute base + (idx - 1) * 4
-                        "lw $v0, ($t0)\n" // put a[i] into $v0
-                );
+                if (em.isLocVar(name)) {
+                    em.emit(
+                            "subu $v0, $v0, 1\n" +   // $v0 =- 1
+                            "sll $v0, $v0, 2\n" +    // $v0 *= 4
+                            "li $t1, " + em.getOffset(name) + "\n" + // offset of var
+                            "addu $t1, $sp, $t1\n" + // base addr on stack
+                            "subu $t1, $t1, $v0\n" + // subtract because stack grows down
+                            "lw $v0, ($t1)\n"
+                           );
+                } else {
+                    em.emit(
+                            "subu $v0, $v0, 1\n" + // $v0 -= 1
+                            "sll $v0, $v0, 2\n" + // $v0 *= 4
+                            "la $t0, __var" + name + "\n" + // base -> $t0
+                            "addu $t0, $t0, $v0\n" + // compute base + (idx - 1) * 4
+                            "lw $v0, ($t0)\n" // put a[i] into $v0
+                           );
+                }
                 em.emit("# end expr array elem\n");
             }
             case Array a -> {} // alr handled in compile(Program) .data section
@@ -462,15 +558,18 @@ public class Evaluator
                 em.push("$zero"); // push ret var to stack as 0 init
                 em.setProcContext(pd);
 
-                for (String lcl : pd.getVars().keySet()) 
+                int totalSlots = 0;
+                for (Map.Entry<String, Expression> lcl : pd.getVars().entrySet())
                 {
-                    em.addLcl(lcl);
-                    em.push("$zero");
+                    int size = (lcl.getValue() instanceof Array a) ? (a.getEnd() - a.getStart() + 1) : 1;
+                    em.addLcl(lcl.getKey(), size);
+                    for (int i = 0; i < size; i++) em.push("$zero");
+                    totalSlots += size;
                 }
 
                 compile(pd.getStmt(), em);
 
-                for (int i = 0; i < pd.getVars().size(); i++) em.pop();
+                for (int i = 0; i < totalSlots; i++) em.pop();
 
                 em.pop("$v0");
                 em.emit("jr $ra\n");
@@ -480,18 +579,19 @@ public class Evaluator
             case Writeln w -> 
             {
                 em.emit("# begin stmt writeln\n");
-                if (!(w.getExpression() instanceof _String)) 
-                { // TODO Strings are cooked
-                    compile(w.getExpression(), em);
-                    em.emit(
-                            "move $a0, $v0\n" +
-                            "li $v0, 1\n" +
-                            "syscall\n" +
-                            "li $v0, 11\n" +
-                            "li $a0, 10\n" +
-                            "syscall\n\n"
-                            );
-                }
+                compile(w.getExpression(), em);
+                em.emit("move $a0, $v0\n");
+
+                if ((w.getExpression() instanceof _String)) em.emit("li $v0, 4\n");
+                else em.emit("li $v0, 1\n"); // normal int or bool
+
+                em.emit(
+                        "syscall\n" +
+                        "li $v0, 11\n" +
+                        "li $a0, 10\n" +
+                        "syscall\n"
+                       );
+
                 em.emit("# end stmt writeln\n");
             }
             case Block b -> 
@@ -506,8 +606,19 @@ public class Evaluator
                 String vn = aa.getVar().getName();
                 if (em.isLocVar(vn)) 
                 {
-                    // TODO
-                } 
+                    compile(aa.getExpression(), em);
+                    em.push(); // save expr
+                    compile(aa.getIdx(), em); // idx -> $v0
+                    em.emit( // to calc location
+                            "subu $v0, $v0, 1\n" + 
+                            "sll $v0, $v0, 2\n" + // $v0 = 4 * ($v0 - 1)
+                            "li $t1, " + em.getOffset(vn) + "\n" + // offset into $t1
+                            "addu $t1, $sp, $t1\n" + // $t1 = $sp + $t1
+                            "subu $t1, $t1, $v0\n" // $t1 -= $v0
+                           );
+                    em.pop(); // $t0 = value to store
+                    em.emit("sw $t0, ($t1)\n");
+                }
                 else 
                 {
                     // global
@@ -593,7 +704,7 @@ public class Evaluator
                         "lw $t0, " + varn + "\n" +
                         "addi $t0, $t0, 1\n" +
                         "sw $t0, " + varn + "\n"
-                        );
+                       );
                 em.emit("j " + fo + "\n");
                 em.emit(endfor + ":\n");
                 breaklbl.pop();
