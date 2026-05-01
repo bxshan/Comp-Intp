@@ -1,31 +1,41 @@
-VAR size, arr, i, j, stopIdx, idxNext, temp;
+VAR arr, size, i, ignore;
 
-size := 5;
-arr := array[1..5];
-
-arr[1] := 64;
-arr[2] := 34;
-arr[3] := 25;
-arr[4] := 12;
-arr[5] := 22;
-
-WRITELN("Before_Sort:");
-FOR i := 1 TO size DO
-  WRITELN(arr[i]);
-
-FOR i := 1 TO size - 1 DO BEGIN
-  stopIdx := size - i;
-  FOR j := 1 TO stopIdx DO BEGIN
-    idxNext := j + 1;
-    IF arr[j] > arr[idxNext] THEN BEGIN
-      temp := arr[j];
-      arr[j] := arr[idxNext];
-      arr[idxNext] := temp;
+PROCEDURE bubbleSort(size);
+VAR i, j, stopIdx, temp;
+BEGIN
+  i := 1;
+  WHILE i <= size - 1 DO BEGIN
+    stopIdx := size - i;
+    j := 1;
+    WHILE j <= stopIdx DO BEGIN
+      IF arr[j] > arr[j + 1] THEN BEGIN
+        temp := arr[j];
+        arr[j] := arr[j + 1];
+        arr[j + 1] := temp;
+      END;
+      j := j + 1;
     END;
+    i := i + 1;
   END;
 END;
 
-WRITELN("After_Sort:");
-FOR i := 1 TO size DO
-  WRITELN(arr[i]);
+BEGIN
+  size := 5;
+  arr := array[1..5];
+  arr[1] := 64;
+  arr[2] := 34;
+  arr[3] := 25;
+  arr[4] := 12;
+  arr[5] := 22;
+
+  WRITELN("Before_Sort:");
+  FOR i := 1 TO size DO
+    WRITELN(arr[i]);
+
+  ignore := bubbleSort(size);
+
+  WRITELN("After_Sort:");
+  FOR i := 1 TO size DO
+    WRITELN(arr[i]);
+END;
 $

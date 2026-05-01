@@ -1,24 +1,26 @@
 VAR n, sieve, i, j;
 
-n := 100;
-sieve := array[1..100];
+BEGIN
+  n := 100;
+  sieve := array[1..100];
 
-(* init all to true *)
-FOR i := 1 TO n DO
-  sieve[i] := TRUE;
+  (* init all to true *)
+  FOR i := 1 TO n DO
+    sieve[i] := TRUE;
 
-(* sieve *)
-FOR i := 2 TO n DO BEGIN
-  IF sieve[i] THEN BEGIN
-    j := i * i;
-    WHILE j <= n DO BEGIN
-      sieve[j] := FALSE;
-      j := j + i;
+  (* sieve of Eratosthenes *)
+  FOR i := 2 TO n DO BEGIN
+    IF sieve[i] THEN BEGIN
+      j := i * i;
+      WHILE j <= n DO BEGIN
+        sieve[j] := FALSE;
+        j := j + i;
+      END;
     END;
   END;
-END;
 
-(* output primes *)
-FOR i := 2 TO n DO
-  IF sieve[i] THEN WRITELN(i);
+  (* output primes *)
+  FOR i := 2 TO n DO
+    IF sieve[i] THEN WRITELN(i);
+END;
 $
