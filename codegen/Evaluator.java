@@ -71,7 +71,8 @@ public class Evaluator
 
         this.strlits = this.collectStrLit(p); // call bfs
 
-        for (int i = 0; i < strlits.size(); i++) {
+        for (int i = 0; i < strlits.size(); i++) 
+        {
             String s = strlits.get(i);
             e.emit("__strliteral" + i + ": .asciiz " + "\"" + s + "\"\n");
         }
@@ -92,7 +93,8 @@ public class Evaluator
      * @param p root of ast tree
      * @return ordered literals as arraylist
      */
-    private ArrayList<String> collectStrLit(Program p) {
+    private ArrayList<String> collectStrLit(Program p) 
+    {
         ArrayList<String> ret = new ArrayList<String>();
         // queues for stmts and exprs
         ArrayDeque<Statement> qstmt = new ArrayDeque<Statement>();
@@ -104,61 +106,79 @@ public class Evaluator
         // 2. init stmts 
         for (Statement s : p.getStmts()) if (s != null) qstmt.add(s);
 
-        while (!qstmt.isEmpty() || !qexpr.isEmpty()) { // while at least 1 isnt empty
-            while (!qstmt.isEmpty()) { // go through stmts first
+        while (!qstmt.isEmpty() || !qexpr.isEmpty()) 
+        { // while at least 1 isnt empty
+            while (!qstmt.isEmpty()) 
+            { // go through stmts first
                 Statement s = qstmt.remove(); // pop
 
-                switch (s) {
+                switch (s) 
+                {
                     case Writeln w -> qexpr.add(w.getExpression());
-                    case ArrayAssignment aa -> {
+                    case ArrayAssignment aa -> 
+                    {
                         qexpr.add(aa.getIdx());
                         qexpr.add(aa.getExpression());
                     }
                     case Assignment a -> qexpr.add(a.getExpression());
-                    case If i -> {
+                    case If i -> 
+                    {
                         qexpr.add(i.getCond());
                         if (i.getThen() != null) qstmt.add(i.getThen());
                         if (i.getElse() != null) qstmt.add(i.getElse());
                     }
-                    case While w -> {
+                    case While w -> 
+                    {
                         qexpr.add(w.getCond());
                         if (w.getDo() != null) qstmt.add(w.getDo());
                     }
-                    case For f -> {
+                    case For f -> 
+                    {
                         if (f.getInit() != null) qstmt.add(f.getInit());
                         qexpr.add(f.getTo());
-                        if (f.getDo() != null) qstmt.add(f.getDo());
-                    }
-                    case RepeatUntil ru -> {
+                        if (f.getDo() != null) qstmt.add(f.getDo()); }
+                    case RepeatUntil ru -> 
+                    {
                         if (ru.getRepeat() != null) qstmt.add(ru.getRepeat());
                         qexpr.add(ru.getUntil());
                     }
-                    case Block b -> {
+                    case Block b -> 
+                    {
                         for (Statement child : b.getStmts()) if (child != null) qstmt.add(child);
                     }
-                    case ProcedureDeclaration pd -> {
-                        for (Expression init : pd.getVars().values()) if (init != null) qexpr.add(init);
+                    case ProcedureDeclaration pd -> 
+                    {
+                        for (Expression init : pd.getVars().values()) 
+                            if (init != null) qexpr.add(init);
                         if (pd.getStmt() != null) qstmt.add(pd.getStmt());
                     }
-                    default -> { } // Readln / Break / Continue / Comment: no expr children
+                    default -> 
+                    {
+                    } // Readln / Break / Continue / Comment: no expr children
                 }
             }
 
-            while (!qexpr.isEmpty()) { // same for expr
+            while (!qexpr.isEmpty()) 
+            { // same for expr
                 Expression e = qexpr.remove();
 
-                switch (e) {
+                switch (e) 
+                {
                     case _String ss -> ret.add(ss.getVal());
-                    case BinOp bo -> {
+                    case BinOp bo -> 
+                    {
                         qexpr.add(bo.getExpr1());
                         qexpr.add(bo.getExpr2());
                     }
-                    case ProcedureCall pc -> {
+                    case ProcedureCall pc -> 
+                    {
                         for (Expression arg : pc.getArgs())
                             if (arg != null) qexpr.add(arg);
                     }
                     case ArrayElement ae -> qexpr.add(ae.getIdx());
-                    default -> { } // Number / Boolean / Variable / Array
+                    default -> 
+                    {
+                    } // Number / Boolean / Variable / Array
                 }
             }
         }
@@ -436,7 +456,8 @@ public class Evaluator
                     "li $v0, " + (b.getVal() ? 1 : 0) + "\n" 
                     + "# end expr bool\n"
                     );
-            case _String ss -> {
+            case _String ss -> 
+            {
                 em.emit("# begin expr string\n");
                 int idx = strlits.indexOf(ss.getVal()); // ordered
                 em.emit("la $v0, __strliteral" + idx + "\n");
@@ -496,7 +517,8 @@ public class Evaluator
                 em.emit("# begin expr array elem\n");
                 // addr of a[i] is base of stack + offset of arr itself + (idx - 1) * 4
                 compile(ae.getIdx(), em); // idx -> $v0
-                if (em.isLocVar(name)) {
+                if (em.isLocVar(name)) 
+                {
                     em.emit(
                             "subu $v0, $v0, 1\n" +   // idx - 1
                             "sll $v0, $v0, 2\n" +    // 4 * (idx - 1)
@@ -504,15 +526,17 @@ public class Evaluator
                             "addu $t1, $sp, $t1\n" + // $t1 = base + offset
                             "subu $t1, $t1, $v0\n" + // subtract because stack grows down
                             "lw $v0, ($t1)\n" // accumulate into $v0
-                           );
-                } else {
+                    );
+                }
+                else 
+                {
                     em.emit(
                             "subu $v0, $v0, 1\n" + // idx - 1
                             "sll $v0, $v0, 2\n" + // 4 * (idx - 1)
                             "la $t0, __var" + name + "\n" + // base -> $t0, by the global var itself
                             "addu $t0, $t0, $v0\n" + // $t0 = base + 4 * (idx - 1)
                             "lw $v0, ($t0)\n" // accumulate into $v0
-                           );
+                    );
                 }
                 // too scared and confused to refactor this ^
                 em.emit("# end expr array elem\n");
@@ -569,7 +593,8 @@ public class Evaluator
                 for (Map.Entry<String, Expression> lcl : pd.getVars().entrySet())
                 {
                     // for every local var, reserve corresponding badht in stack, tracked in emitter
-                    int size = (lcl.getValue() instanceof Array a) ? (a.getEnd() - a.getStart() + 1) : 1;
+                    int size = 
+                        (lcl.getValue() instanceof Array a) ? (a.getEnd() - a.getStart() + 1) : 1;
                     em.addLcl(lcl.getKey(), size);
                     for (int i = 0; i < size; i++) em.push("$zero"); // initialize to 0
                     cnt += size;
@@ -601,7 +626,7 @@ public class Evaluator
                         "li $v0, 11\n" +
                         "li $a0, 10\n" +
                         "syscall\n"
-                       );
+                );
 
                 em.emit("# end stmt writeln\n");
             }
@@ -627,7 +652,7 @@ public class Evaluator
                             "li $t1, " + em.getOffset(vn) + "\n" + // offset -> $t1
                             "addu $t1, $sp, $t1\n" + // $t1 = offset + base
                             "subu $t1, $t1, $v0\n" // subtract location of idx bc stack grows down
-                           );
+                    );
                     em.pop(); // $t0 = val to assign
                     em.emit("sw $t0, ($t1)\n");
                 }
@@ -712,7 +737,7 @@ public class Evaluator
                         "lw $t0, " + varn + "\n" +
                         "addi $t0, $t0, 1\n" +
                         "sw $t0, " + varn + "\n"
-                       );
+                );
                 em.emit("j " + fo + "\n");
                 em.emit(endfor + ":\n");
                 breaklbl.pop();

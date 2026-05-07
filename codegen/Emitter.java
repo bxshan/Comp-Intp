@@ -90,6 +90,7 @@ public class Emitter
     /**
      * add local variable to list of locals
      * @param name name of local var to add
+     * @param sz size of local var on stack
      */
     public void addLcl(String name, Integer sz) 
     {
@@ -158,7 +159,8 @@ public class Emitter
         if (locVarName.equals(currpd.getName()))
             // return var (proc name)
             return 4 * badht;
-        if (lcls.contains(locVarName)) {
+        if (lcls.contains(locVarName)) 
+        {
             int ii = lcls.indexOf(locVarName);
             int start = 0;
             for (int i = 0; i < ii; i++) start += lclsz.get(i);
