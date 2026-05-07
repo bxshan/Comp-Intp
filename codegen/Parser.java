@@ -4,7 +4,7 @@ import environment.*;
 import java.util.*;
 
 /**
- * PROC LAB
+ * CODEGEN LAB
  *
  * @author Boxuan Shan
  * @version 03242025
@@ -443,7 +443,7 @@ public class Parser
                             eat("]");
                             if (!v.containsKey(tmpv))
                                 env.setVar(tmpv, new HashMap<Integer, Object>());
-                            exp = new Array((Integer) ev.eval(l, env), (Integer) ev.eval(r, env));
+                            exp = new Array(((Number) l).getVal(), ((Number) r).getVal());
                         }
                         else
                         {
@@ -557,7 +557,7 @@ public class Parser
                     Expression r = parseExpression();
                     eat("]");
                     if (!v.containsKey(tmpv)) env.setVar(tmpv, new HashMap<Integer, Object>());
-                    exp = new Array((Integer) ev.eval(l, env), (Integer) ev.eval(r, env));
+                    exp = new Array(((Number) l).getVal(), ((Number) r).getVal());
                 }
                 else
                 {
