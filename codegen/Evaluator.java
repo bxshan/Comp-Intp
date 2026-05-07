@@ -43,18 +43,19 @@ public class Evaluator
         e.emit(".data\n");
         // always push ignore variable to use proc calls as stmts
         e.emit("__ignore: .space 1024\n"); 
+        // now iterate through every var dec
         for(Map.Entry<String, Expression> me : p.getVars().entrySet()) 
         {
             String name = "__var" + me.getKey();
             if (me.getValue() == null) 
             {
-                // just reserve 1024 bytes: 
+                // no init: just reserve 1024 bytes: 
                 // an int32 will only need 4, but just in case for a longer string
                 e.emit(name + ": .space 1024\n");
                 continue;
             }
             if (me.getValue() instanceof Array a) 
-            { // deal with arrays
+            { // deal with arrays: 1 byte for every idx in arr
                 e.emit(name + ": .space " + (a.getEnd() - a.getStart() + 1) * 4 + "\n");
                 continue;
             }
@@ -63,14 +64,12 @@ public class Evaluator
                 case Number n -> e.emit(name + ": .word " + n.getVal() + "\n");
                 case _String ss -> e.emit(name + ": .asciiz \"" + ss.getVal() + "\"\n");
                 case Boolean b -> e.emit(name + ": .word " + (b.getVal() ? 1 : 0) + "\n");
-                default -> throw new RuntimeException(
-                        "global init must be literal/arr/null, got: " +
-                        me.getValue().getClass().getSimpleName());
+                default -> throw new RuntimeException("global init var expr wrong\n");
             }
         }
         ArrayList<Statement> stmts = p.getStmts();
 
-        this.strlits = this.collectStrLit(p);
+        this.strlits = this.collectStrLit(p); // call bfs
 
         for (int i = 0; i < strlits.size(); i++) {
             String s = strlits.get(i);
@@ -88,8 +87,14 @@ public class Evaluator
         e.close();
     }
 
+    /**
+     * perform bfs through the ast tree to collect all str literals
+     * @param p root of ast tree
+     * @return ordered literals as arraylist
+     */
     private ArrayList<String> collectStrLit(Program p) {
         ArrayList<String> ret = new ArrayList<String>();
+        // queues for stmts and exprs
         ArrayDeque<Statement> qstmt = new ArrayDeque<Statement>();
         ArrayDeque<Expression> qexpr = new ArrayDeque<Expression>();
 
@@ -99,9 +104,9 @@ public class Evaluator
         // 2. init stmts 
         for (Statement s : p.getStmts()) if (s != null) qstmt.add(s);
 
-        while (!qstmt.isEmpty() || !qexpr.isEmpty()) {
-            while (!qstmt.isEmpty()) {
-                Statement s = qstmt.remove();
+        while (!qstmt.isEmpty() || !qexpr.isEmpty()) { // while at least 1 isnt empty
+            while (!qstmt.isEmpty()) { // go through stmts first
+                Statement s = qstmt.remove(); // pop
 
                 switch (s) {
                     case Writeln w -> qexpr.add(w.getExpression());
@@ -139,7 +144,7 @@ public class Evaluator
                 }
             }
 
-            while (!qexpr.isEmpty()) {
+            while (!qexpr.isEmpty()) { // same for expr
                 Expression e = qexpr.remove();
 
                 switch (e) {
@@ -159,7 +164,6 @@ public class Evaluator
         }
 
         return ret;
-
     }
 
     /**
@@ -424,17 +428,17 @@ public class Evaluator
         {
             case Number n -> em.emit(
                     "# begin expr num\n" +
-                    "li $v0, " + n.getVal() + "\n" +
-                    "# end expr num\n"
+                    "li $v0, " + n.getVal() + "\n" 
+                    + "# end expr num\n"
                     );
             case Boolean b -> em.emit(
                     "# begin expr bool\n" +
-                    "li $v0, " + (b.getVal() ? 1 : 0) + "\n" +
-                    "# end expr bool\n"
+                    "li $v0, " + (b.getVal() ? 1 : 0) + "\n" 
+                    + "# end expr bool\n"
                     );
             case _String ss -> {
                 em.emit("# begin expr string\n");
-                int idx = strlits.indexOf(ss.getVal());
+                int idx = strlits.indexOf(ss.getVal()); // ordered
                 em.emit("la $v0, __strliteral" + idx + "\n");
                 em.emit("# end expr string\n");
             }
@@ -442,7 +446,7 @@ public class Evaluator
             {
                 em.emit("# begin expr binop\n");
                 compile(bo.getExpr1(), em); // expr1 in $v0
-                em.push();
+                em.push(); // push $v0
                 compile(bo.getExpr2(), em); // expr2 in $v0
                 em.pop(); // $t0 = expr1, $v0 = expr2
                 switch (bo.getOp()) 
@@ -478,6 +482,7 @@ public class Evaluator
                 else 
                 {
                     // global
+                    // will always use indirect addr
                     em.emit(
                             "la $t0, __var" + vn + "\n" + 
                             "lw $v0 ($t0)\n"
@@ -489,26 +494,27 @@ public class Evaluator
             {
                 String name = ae.getName();
                 em.emit("# begin expr array elem\n");
-                // addr of a[i] is base + (idx - 1) * 4
+                // addr of a[i] is base of stack + offset of arr itself + (idx - 1) * 4
                 compile(ae.getIdx(), em); // idx -> $v0
                 if (em.isLocVar(name)) {
                     em.emit(
-                            "subu $v0, $v0, 1\n" +   // $v0 =- 1
-                            "sll $v0, $v0, 2\n" +    // $v0 *= 4
-                            "li $t1, " + em.getOffset(name) + "\n" + // offset of var
-                            "addu $t1, $sp, $t1\n" + // base addr on stack
+                            "subu $v0, $v0, 1\n" +   // idx - 1
+                            "sll $v0, $v0, 2\n" +    // 4 * (idx - 1)
+                            "li $t1, " + em.getOffset(name) + "\n" + // $t1 = offset
+                            "addu $t1, $sp, $t1\n" + // $t1 = base + offset
                             "subu $t1, $t1, $v0\n" + // subtract because stack grows down
-                            "lw $v0, ($t1)\n"
+                            "lw $v0, ($t1)\n" // accumulate into $v0
                            );
                 } else {
                     em.emit(
-                            "subu $v0, $v0, 1\n" + // $v0 -= 1
-                            "sll $v0, $v0, 2\n" + // $v0 *= 4
-                            "la $t0, __var" + name + "\n" + // base -> $t0
-                            "addu $t0, $t0, $v0\n" + // compute base + (idx - 1) * 4
-                            "lw $v0, ($t0)\n" // put a[i] into $v0
+                            "subu $v0, $v0, 1\n" + // idx - 1
+                            "sll $v0, $v0, 2\n" + // 4 * (idx - 1)
+                            "la $t0, __var" + name + "\n" + // base -> $t0, by the global var itself
+                            "addu $t0, $t0, $v0\n" + // $t0 = base + 4 * (idx - 1)
+                            "lw $v0, ($t0)\n" // accumulate into $v0
                            );
                 }
+                // too scared and confused to refactor this ^
                 em.emit("# end expr array elem\n");
             }
             case Array a -> {} // alr handled in compile(Program) .data section
@@ -516,20 +522,21 @@ public class Evaluator
             {
                 em.emit("# begin proc call\n");
                 String lbl = "proc" + pc.getName();
-                em.push("$ra"); 
+                em.push("$ra"); // if is nested proc call not from main
 
                 ArrayList<Expression> args = pc.getArgs();
                 for(Expression arg : args) 
                 {
                     compile(arg, em); // res in $v0
-                    em.push();
+                    em.push(); // save args into stack: first arg is deepest
                 }
 
                 em.emit("jal " + lbl + "\n");
 
+                // retrieve args then $ra
                 for(int i = 0; i < args.size(); i++) em.pop();
-
                 em.pop("$ra");
+
                 em.emit("# endproc call\n");
             }
             default -> 
@@ -556,37 +563,41 @@ public class Evaluator
                 String lbl = "proc" + pd.getName();
                 em.emit(lbl + ":\n");
                 em.push("$zero"); // push ret var to stack as 0 init
-                em.setProcContext(pd);
+                em.setProcContext(pd); // begin stack frame 
 
-                int totalSlots = 0;
+                int cnt = 0;
                 for (Map.Entry<String, Expression> lcl : pd.getVars().entrySet())
                 {
+                    // for every local var, reserve corresponding badht in stack, tracked in emitter
                     int size = (lcl.getValue() instanceof Array a) ? (a.getEnd() - a.getStart() + 1) : 1;
                     em.addLcl(lcl.getKey(), size);
-                    for (int i = 0; i < size; i++) em.push("$zero");
-                    totalSlots += size;
+                    for (int i = 0; i < size; i++) em.push("$zero"); // initialize to 0
+                    cnt += size;
                 }
 
-                compile(pd.getStmt(), em);
+                compile(pd.getStmt(), em); // body
 
-                for (int i = 0; i < totalSlots; i++) em.pop();
-
+                // pop shallower local vars to then finally pop return val into $v0
+                for (int i = 0; i < cnt; i++) em.pop(); 
                 em.pop("$v0");
+
                 em.emit("jr $ra\n");
-                em.clearProcContext();
+                em.clearProcContext(); // close stack frame
+
                 em.emit("# end stmt proc dev\n");
             }
             case Writeln w -> 
             {
                 em.emit("# begin stmt writeln\n");
-                compile(w.getExpression(), em);
-                em.emit("move $a0, $v0\n");
+                compile(w.getExpression(), em); // expr -> $v0
+                em.emit("move $a0, $v0\n"); // move to $a0 for syscall
 
                 if ((w.getExpression() instanceof _String)) em.emit("li $v0, 4\n");
                 else em.emit("li $v0, 1\n"); // normal int or bool
 
                 em.emit(
                         "syscall\n" +
+                        // emit newline, ascii code 10
                         "li $v0, 11\n" +
                         "li $a0, 10\n" +
                         "syscall\n"
@@ -603,35 +614,36 @@ public class Evaluator
             case ArrayAssignment aa -> 
             {
                 em.emit("# begin stmt arr assign\n");
-                String vn = aa.getVar().getName();
+                String vn = aa.getVar().getName(); // name of arr
                 if (em.isLocVar(vn)) 
                 {
-                    compile(aa.getExpression(), em);
-                    em.push(); // save expr
-                    compile(aa.getIdx(), em); // idx -> $v0
-                    em.emit( // to calc location
-                            "subu $v0, $v0, 1\n" + 
-                            "sll $v0, $v0, 2\n" + // $v0 = 4 * ($v0 - 1)
-                            "li $t1, " + em.getOffset(vn) + "\n" + // offset into $t1
-                            "addu $t1, $sp, $t1\n" + // $t1 = $sp + $t1
-                            "subu $t1, $t1, $v0\n" // $t1 -= $v0
+                    // local
+                    compile(aa.getExpression(), em); // assignee expr -> $v0
+                    em.push(); 
+                    compile(aa.getIdx(), em); // arr idx -> $v0
+                    em.emit( // find loc = 
+                            "subu $v0, $v0, 1\n" + // (idx - 1)
+                            "sll $v0, $v0, 2\n" + // 4 * (idx - 1)
+                            "li $t1, " + em.getOffset(vn) + "\n" + // offset -> $t1
+                            "addu $t1, $sp, $t1\n" + // $t1 = offset + base
+                            "subu $t1, $t1, $v0\n" // subtract location of idx bc stack grows down
                            );
-                    em.pop(); // $t0 = value to store
+                    em.pop(); // $t0 = val to assign
                     em.emit("sw $t0, ($t1)\n");
                 }
                 else 
                 {
                     // global
-                    compile(aa.getExpression(), em);
+                    compile(aa.getExpression(), em); 
                     em.push();
                     compile(aa.getIdx(), em);
                     em.emit(
                             "subu $v0, $v0, 1\n" +
-                            "sll $v0, $v0, 2\n" +
-                            "la $t1, __var" + vn + "\n" +
-                            "addu $t1, $t1, $v0\n"
+                            "sll $v0, $v0, 2\n" + // 4 * (idx - 1)
+                            "la $t1, __var" + vn + "\n" + // address of first byte of arr
+                            "addu $t1, $t1, $v0\n" // add idx offset
                     );
-                    em.pop();
+                    em.pop(); // pop val to assign
                     em.emit("sw $t0, ($t1)\n");
                 }
                 em.emit("# end stmt arr assign\n");
@@ -641,11 +653,7 @@ public class Evaluator
                 em.emit("# begin stmt assign\n");
                 String vn = a.getVar().getName();
                 compile(a.getExpression(), em); // expr in $v0
-                if (em.isLocVar(vn)) 
-                {
-                    int ofst = em.getOffset(vn);
-                    em.emit("sw $v0, " + ofst + "($sp)\n");
-                } 
+                if (em.isLocVar(vn)) em.emit("sw $v0, " + em.getOffset(vn) + "($sp)\n");
                 else em.emit("la $t0, __var" + vn + "\nsw $v0, ($t0)\n");
                 em.emit("# end stmt assign\n");
             }
@@ -729,7 +737,7 @@ public class Evaluator
             case Readln rl -> 
             {
                 em.emit("# begin stmt readln\n");
-                // TODO: use rl.getType() once Readln carries type info; default to int
+                // TODO: use rl.getType() once carries type info; default to int
                 em.emit(
                         "li $v0, 5\n" +
                         "syscall\n" +
