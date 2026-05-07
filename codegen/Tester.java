@@ -28,6 +28,7 @@ public class Tester
             codegen.Emitter em 
     ) throws Throwable
     {
+        ev.debug(false);
         Program pg = p.parseProgram();
         ev.compile(pg, em);
     }

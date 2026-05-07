@@ -12,6 +12,16 @@ public class Evaluator
     private Stack<String> breaklbl = new Stack<String>();
     private Stack<String> contlbl = new Stack<String>();
     private ArrayList<String> strlits; // initialized in compile program
+    private boolean debug = true;
+
+    /**
+     * sets debug option
+     * if debug, emit begin and end comments
+     * @param debug debug opt
+     */
+    public void debug(boolean debug) {
+        this.debug = debug;
+    }
 
     /**
      * compiles a program with emitter e
@@ -175,28 +185,22 @@ public class Evaluator
      */
     public void compile(Expression e, Emitter em) throws Throwable 
     {
+        if (debug) em.emit("# begin expr " + e.getClass().getName() + "\n");
         switch (e) 
         {
             case Number n -> em.emit(
-                    "# begin expr num\n" +
                     "li $v0, " + n.getVal() + "\n" 
-                    + "# end expr num\n"
                     );
             case Boolean b -> em.emit(
-                    "# begin expr bool\n" +
                     "li $v0, " + (b.getVal() ? 1 : 0) + "\n" 
-                    + "# end expr bool\n"
                     );
             case _String ss -> 
             {
-                em.emit("# begin expr string\n");
                 int idx = strlits.indexOf(ss.getVal()); // ordered
                 em.emit("la $v0, __strliteral" + idx + "\n");
-                em.emit("# end expr string\n");
             }
             case BinOp bo -> 
             {
-                em.emit("# begin expr binop\n");
                 compile(bo.getExpr1(), em); // expr1 in $v0
                 em.push(); // push $v0
                 compile(bo.getExpr2(), em); // expr2 in $v0
@@ -219,11 +223,9 @@ public class Evaluator
                     case "OR" -> em.emit("or $v0, $t0, $v0\n");
                     default -> throw new RuntimeException("do not recognize op: " + bo.getOp());
                 }
-                em.emit("# end expr binop\n");
             }
             case Variable v -> 
             {
-                em.emit("# begin expr var\n");
                 String vn = v.getName();
                 if (em.isLocVar(vn)) 
                 {
@@ -240,12 +242,10 @@ public class Evaluator
                             "lw $v0 ($t0)\n"
                             );
                 }
-                em.emit("# end expr var\n");
             }
             case ArrayElement ae -> 
             {
                 String name = ae.getName();
-                em.emit("# begin expr array elem\n");
                 // addr of a[i] is base of stack + offset of arr itself + (idx - 1) * 4
                 compile(ae.getIdx(), em); // idx -> $v0
                 if (em.isLocVar(name)) 
@@ -270,12 +270,10 @@ public class Evaluator
                     );
                 }
                 // too scared and confused to refactor this ^
-                em.emit("# end expr array elem\n");
             }
             case Array a -> {} // alr handled in compile(Program) .data section
             case ProcedureCall pc -> 
             {
-                em.emit("# begin proc call\n");
                 String lbl = "proc" + pc.getName();
                 em.push("$ra"); // if is nested proc call not from main
 
@@ -292,13 +290,13 @@ public class Evaluator
                 for(int i = 0; i < args.size(); i++) em.pop();
                 em.pop("$ra");
 
-                em.emit("# endproc call\n");
             }
             default -> 
                 throw new RuntimeException(
                         "no expr in compile switched to: " + e.getClass().getSimpleName()
                 );
         }
+        if (debug) em.emit("# end expr " + e.getClass().getName() + "\n");
         // em.emit("\n");
     }
  
@@ -310,11 +308,11 @@ public class Evaluator
      */
     public void compile(Statement e, Emitter em) throws Throwable 
     {
+        if (debug) em.emit("# begin stmt " + e.getClass().getName() + "\n");
         switch (e) 
         {
             case ProcedureDeclaration pd -> 
             {
-                em.emit("# begin stmt proc dec\n");
                 String lbl = "proc" + pd.getName();
                 em.emit(lbl + ":\n");
                 em.push("$zero"); // push ret var to stack as 0 init
@@ -340,11 +338,9 @@ public class Evaluator
                 em.emit("jr $ra\n");
                 em.clearProcContext(); // close stack frame
 
-                em.emit("# end stmt proc dev\n");
             }
             case Writeln w -> 
             {
-                em.emit("# begin stmt writeln\n");
                 compile(w.getExpression(), em); // expr -> $v0
                 em.emit("move $a0, $v0\n"); // move to $a0 for syscall
 
@@ -358,18 +354,13 @@ public class Evaluator
                         "li $a0, 10\n" +
                         "syscall\n"
                 );
-
-                em.emit("# end stmt writeln\n");
             }
             case Block b -> 
             {
-                em.emit("# begin stmt block\n");
                 for(Statement s : b.getStmts()) if (s != null) compile(s, em);
-                em.emit("# end stmt block\n");
             }
             case ArrayAssignment aa -> 
             {
-                em.emit("# begin stmt arr assign\n");
                 String vn = aa.getVar().getName(); // name of arr
                 if (em.isLocVar(vn)) 
                 {
@@ -402,20 +393,16 @@ public class Evaluator
                     em.pop(); // pop val to assign
                     em.emit("sw $t0, ($t1)\n");
                 }
-                em.emit("# end stmt arr assign\n");
             }
             case Assignment a -> 
             {
-                em.emit("# begin stmt assign\n");
                 String vn = a.getVar().getName();
                 compile(a.getExpression(), em); // expr in $v0
                 if (em.isLocVar(vn)) em.emit("sw $v0, " + em.getOffset(vn) + "($sp)\n");
                 else em.emit("la $t0, __var" + vn + "\nsw $v0, ($t0)\n");
-                em.emit("# end stmt assign\n");
             }
             case If i -> 
             {
-                em.emit("# begin stmt if\n");
                 int lblid = em.nextLblId();
                 String els = "else" + lblid, endif = "endif" + lblid;
                 if (i.getElse() != null) 
@@ -432,11 +419,9 @@ public class Evaluator
                     compile(i.getThen(), em);
                     em.emit(endif + ":\n");
                 }
-                em.emit("# end stmt if\n");
             }
             case While w -> 
             {
-                em.emit("# begin stmt while\n");
                 int lblid = em.nextLblId();
                 String whil = "while" + lblid, endwhile = "endwhile" + lblid;
                 breaklbl.push(endwhile); 
@@ -448,11 +433,9 @@ public class Evaluator
                 em.emit(endwhile + ":\n");
                 breaklbl.pop();
                 contlbl.pop();
-                em.emit("# end stmt while\n");
             }
             case For f -> 
             {
-                em.emit("# begin stmt for\n");
                 int lblid = em.nextLblId();
                 String fo = "for" + lblid, endfor = "endfor" + lblid, contfor = "contfor" + lblid;
                 breaklbl.push(endfor);
@@ -473,11 +456,9 @@ public class Evaluator
                 em.emit(endfor + ":\n");
                 breaklbl.pop();
                 contlbl.pop();
-                em.emit("# end stmt for\n");
             }
             case RepeatUntil ru -> 
             {
-                em.emit("# begin stmt rep until\n");
                 int lblid = em.nextLblId();
                 String rpt = "repeat" + lblid, endrpt = "endrpt" + lblid;
                 breaklbl.push(endrpt);
@@ -488,11 +469,9 @@ public class Evaluator
                 em.emit(endrpt + ":\n");
                 breaklbl.pop();
                 contlbl.pop();
-                em.emit("# end stmt rep until\n");
             }
             case Readln rl -> 
             {
-                em.emit("# begin stmt readln\n");
                 // TODO: use rl.getType() once carries type info; default to int
                 em.emit(
                         "li $v0, 5\n" +
@@ -500,7 +479,6 @@ public class Evaluator
                         "la $t0, __var" + rl.getVar().getName() + "\n" +
                         "sw $v0, ($t0)\n"
                 );
-                em.emit("# end stmt readln\n");
             }
             case Comment c -> 
             {
@@ -513,6 +491,7 @@ public class Evaluator
                         "no stmt in compile switched to: " + e.getClass().getSimpleName()
                 );
         }
+        if (debug) em.emit("# end stmt " + e.getClass().getName() + "\n");
         // em.emit("\n");
     }
 
@@ -526,12 +505,11 @@ public class Evaluator
      */
     public void compile(Expression e, Emitter em, String lbl) throws Throwable 
     {
+        if (debug) em.emit("# begin to lbl " + e.getClass().getName() + "\n");
         switch (e) 
         {
             case BinOp bo -> 
             {
-                em.emit("# begin to lbl binop\n");
-
                 // if AND or OR, 
                 if (bo.getOp().equals("AND") || bo.getOp().equals("OR")) 
                 {
@@ -556,21 +534,16 @@ public class Evaluator
                     default -> throw new RuntimeException("not a relop: " + bo.getOp());
                 };
                 em.emit(inst + " $t0, $v0, " + lbl + "\n");
-                em.emit("# end to lbl binop\n");
             }
             case Boolean b -> 
             {
-                em.emit("# begin to lbl bool\n");
                 compile(b, em);
                 em.emit("beq $v0, $zero, " + lbl + "\n");
-                em.emit("# end to lbl bool\n");
             }
             case Variable v -> 
             { // todo local ? check compile var above
-                em.emit("# begin to lbl var\n");
                 compile(v, em);
                 em.emit("beq $v0, $zero, " + lbl + "\n");
-                em.emit("# end to lbl var\n");
             }
             default -> 
             {
@@ -579,6 +552,7 @@ public class Evaluator
                 em.emit("beq $v0, $zero, " + lbl + "\n");
             }
         }
+        if (debug) em.emit("# end to lbl " + e.getClass().getName() + "\n");
         // em.emit("\n");
     }
 }
