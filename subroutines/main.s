@@ -3,16 +3,9 @@
 # @version 04192026
 # @author Boxuan Shan
 .data
-list: .space 1024 # reserve 1024 bytes for listnodes
-                  # 8 bytes per node, enough for 128 nodes
-next: .word 8 # offset on list for addr of next free 8 byte loc
 .text 0x00400000
 .globl main 
 main:
-# init next
-la $t0, list
-sw $t0, next
-
 # set up subroutine call
 li $a0, 111
 li $a1, 0 # points to null
@@ -147,13 +140,13 @@ jr $ra
 # @param $a1 containing address of next node
 # @return address of first byte of new node
 newlistnode: # $a0 is val, $a1 is next
-lw $t0, next # address of next free 8 bytes 
-sw $a0, 0($t0) # put val in first 4
-sw $a1, 4($t0) # next in next 4
+move $t0, $a0
+li $a0, 8
+li $v0, 9
+syscall
 
-move $v0, $t0
-addu $t0, $t0, 8
-sw $t0, next
+sw $t0, 0($v0)
+sw $a1, 4($v0)
 
 jr $ra
 
