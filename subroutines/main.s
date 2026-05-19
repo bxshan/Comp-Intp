@@ -3,20 +3,30 @@
 # @version 04192026
 # @author Boxuan Shan
 .data
+msg: .asciiz "give number\n"
 .text 0x00400000
 .globl main 
 main:
 # set up subroutine call
-li $a0, 111
-li $a1, 0 # points to null
+jal inp
+move $s0, $v0
+## li $a0, 111
+jal inp
+move $s1, $v0
+## li $a1, 0 # points to null
 # li $a1, 10000
 # li $a2, 200
+move $a0, $s0
+move $a1, $s1
 jal newlistnode
 move $t0, $v0
 
 # listnode only
-li $a0, 222
+jal inp
+move $s0, $v0
+## li $a0, 222
 move $a1, $t0
+move $a0, $s0
 jal newlistnode
 move $t0, $v0 # now $t0 sto address of 222, which points to 111
 # now sum the list
@@ -32,6 +42,18 @@ syscall
 # termination 
 li $v0, 10
 syscall
+
+
+# inp
+# takes input
+# @return use input
+inp:
+la $a0, msg
+li $v0, 4
+syscall
+li $v0, 5
+syscall
+jr $ra
 
 
 # square
