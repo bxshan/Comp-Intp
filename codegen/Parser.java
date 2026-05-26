@@ -16,7 +16,6 @@ public class Parser
     Environment env;
     Evaluator ev;
     // array fails on expr [*|/|mod] a[i]
-    // TODO refactor to return obj not primitive
 
     static final Set<String> KEYWORDS = Set.of(
             "BEGIN", "END", "WRITELN",

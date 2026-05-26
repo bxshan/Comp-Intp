@@ -19,7 +19,8 @@ public class Evaluator
      * if debug, emit begin and end comments
      * @param debug debug opt
      */
-    public void debug(boolean debug) {
+    public void debug(boolean debug) 
+    {
         this.debug = debug;
     }
 
